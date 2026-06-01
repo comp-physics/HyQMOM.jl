@@ -60,6 +60,22 @@ Otherwise (standard mode):
 # Algorithm
 See simulation_runner.m for detailed algorithm description.
 """
+# Correction-activity diagnostics (Reviewer #3): populated by simulation_runner
+# when params.track_corrections is true; read by the caller after the run.
+const CORRECTION_DIAG = Ref{Any}(nothing)
+# Conserved (hydrodynamic) moment indices in the 35-moment vector:
+# mass (M000), momenta (M100,M010,M001), diagonal 2nd moments (M200,M020,M002).
+const CONSERVED_IDX = (1, 2, 6, 16, 3, 10, 20)
+
+# L2 norm over the conserved-moment subset of a (corrected - original) difference.
+@inline function _conserved_norm(dM)
+    s = 0.0
+    @inbounds for idx in CONSERVED_IDX
+        s += dM[idx]^2
+    end
+    return sqrt(s)
+end
+
 function simulation_runner(params)
     # MPI initialization should be done before calling this function
     comm = MPI.COMM_WORLD
@@ -194,9 +210,44 @@ function simulation_runner(params)
         zm_global = collect(range(zmin + dz_global/2, step=dz_global, length=Nz))
         
         grid_params = (Nx=Nx, Ny=Ny, Nz=Nz, xm=xm_global, ym=ym_global, zm=zm_global)
-        M = initialize_moment_field_mpi(decomp, grid_params, 
+        M = initialize_moment_field_mpi(decomp, grid_params,
                                        params.ic_background, params.ic_jets;
                                        r110=r110, r101=r101, r011=r011, halo=halo)
+    elseif haskey(params, :ic_type) && params.ic_type == :bubble
+        # Discontinuous circular "bubble" IC (Rice, Plante-Sabourin & McDonald,
+        # JCP 562 (2026) 115026, Sec. 5.2). Isothermal two-state: a disk of
+        # radius `bubble_radius` at (bubble_xc, bubble_yc) with density rho_in,
+        # surrounded by rho_out, both at temperature T and zero bulk velocity.
+        # With p = rho*T this gives a density/pressure ratio of rho_in/rho_out.
+        rho_in  = get(params, :rho_in, 2.0)
+        rho_out = get(params, :rho_out, 1.0)
+        radius  = get(params, :bubble_radius, 0.25)
+        xc      = get(params, :bubble_xc, 0.0)
+        yc      = get(params, :bubble_yc, 0.0)
+
+        C200 = T
+        C020 = T
+        C002 = T
+        C110 = r110 * sqrt(C200 * C020)
+        C101 = r101 * sqrt(C200 * C002)
+        C011 = r011 * sqrt(C020 * C002)
+
+        Mr_in  = InitializeM4_35(rho_in,  0.0, 0.0, 0.0, C200, C110, C101, C020, C011, C002)
+        Mr_out = InitializeM4_35(rho_out, 0.0, 0.0, 0.0, C200, C110, C101, C020, C011, C002)
+
+        for kk in 1:nz
+            gk = k0k1[1] + kk - 1  # global k index (unused; bubble is z-uniform)
+            for ii in 1:nx
+                gi = i0i1[1] + ii - 1  # global i index
+                xcoord = xmin + (gi - 0.5) * dx_global
+                for jj in 1:ny
+                    gj = j0j1[1] + jj - 1  # global j index
+                    ycoord = ymin + (gj - 0.5) * dy_global
+                    rr = sqrt((xcoord - xc)^2 + (ycoord - yc)^2)
+                    M[ii + halo, jj + halo, kk, :] = (rr <= radius) ? Mr_in : Mr_out
+                end
+            end
+        end
     else
         # Use original hardcoded crossing jets IC
         U0, V0, W0 = 0.0, 0.0, 0.0
@@ -329,10 +380,33 @@ function simulation_runner(params)
         end
     end
     
+    # Correction-activity tracking (Reviewer #3). Off by default => zero overhead
+    # and byte-identical numerics for production runs.
+    track_corrections = get(params, :track_corrections, false)
+    CTOL = 1e-12                      # threshold for "this cell was corrected"
+    cellsteps_loc = 0                 # total cell-steps visited
+    nreal_loc = 0                     # cells changed by realizability stage
+    nhyp_loc = 0                      # cells changed by hyperbolicity stage
+    nany_loc = 0                      # cells changed by any correction
+    sum_dnet_loc = 0.0               # sum of ||ΔM|| over corrected cells
+    max_dnet_loc = 0.0               # max ||ΔM||
+    max_dcons_loc = 0.0              # max ||Δ(conserved moments)|| (R3-5 check)
+    sum_dcons_loc = 0.0
+
+    # Global conserved totals at t=0 (interior cells only), for global drift.
+    cell_vol = dx * dy * dz
+    cons0_loc = zeros(Float64, length(CONSERVED_IDX))
+    if track_corrections
+        @inbounds for (m, idx) in enumerate(CONSERVED_IDX), k in 1:nz, j in 1:ny, i in 1:nx
+            cons0_loc[m] += M[i+halo, j+halo, k, idx]
+        end
+        cons0_loc .*= cell_vol
+    end
+
     # Time evolution
     t = 0.0
     nn = 0
-    
+
     if rank == 0
         println("Starting time evolution...")
         println("  Grid: $(Nx)x$(Ny)x$(Nz), Ranks: $(nprocs), Local: $(nx)x$(ny)x$(nz)")
@@ -355,13 +429,33 @@ function simulation_runner(params)
                     ih = i + halo
                     jh = j + halo
                     MOM = M[ih, jh, k, :]
-                    
+
                     _, _, _, Mr = Flux_closure35_and_realizable_3D(MOM, flag2D, Ma)
+                    Mr_a = track_corrections ? copy(Mr) : Mr     # after realizability stage 1
                     v6xmin[i,j,k], v6xmax[i,j,k], Mr = eigenvalues6_hyperbolic_3D(Mr, 1, flag2D, Ma)
                     v6ymin[i,j,k], v6ymax[i,j,k], Mr = eigenvalues6_hyperbolic_3D(Mr, 2, flag2D, Ma)
                     v6zmin[i,j,k], v6zmax[i,j,k], Mr = eigenvalues6z_hyperbolic_3D(Mr, flag2D, Ma)
+                    Mr_b = track_corrections ? copy(Mr) : Mr     # after hyperbolicity stage
                     Mx, My, Mz, Mr = Flux_closure35_and_realizable_3D(Mr, flag2D, Ma)
-                    
+
+                    if track_corrections
+                        d_real1 = norm(Mr_a .- MOM)
+                        d_hyp   = norm(Mr_b .- Mr_a)
+                        d_real2 = norm(Mr .- Mr_b)
+                        d_net   = norm(Mr .- MOM)
+                        d_cons  = _conserved_norm(Mr .- MOM)
+                        cellsteps_loc += 1
+                        (d_real1 > CTOL || d_real2 > CTOL) && (nreal_loc += 1)
+                        (d_hyp > CTOL) && (nhyp_loc += 1)
+                        if d_net > CTOL
+                            nany_loc += 1
+                            sum_dnet_loc += d_net
+                        end
+                        max_dnet_loc = max(max_dnet_loc, d_net)
+                        max_dcons_loc = max(max_dcons_loc, d_cons)
+                        sum_dcons_loc += d_cons
+                    end
+
                     Fx[ih, jh, k, :] = Mx
                     Fy[ih, jh, k, :] = My
                     Fz[ih, jh, k, :] = Mz
@@ -698,6 +792,45 @@ function simulation_runner(params)
         end
     end
     
+    # Finalize correction-activity diagnostics (Reviewer #3)
+    if track_corrections
+        consF_loc = zeros(Float64, length(CONSERVED_IDX))
+        @inbounds for (m, idx) in enumerate(CONSERVED_IDX), k in 1:nz, j in 1:ny, i in 1:nx
+            consF_loc[m] += M[i+halo, j+halo, k, idx]
+        end
+        consF_loc .*= cell_vol
+
+        cellsteps = MPI.Allreduce(cellsteps_loc, MPI.SUM, comm)
+        nreal = MPI.Allreduce(nreal_loc, MPI.SUM, comm)
+        nhyp  = MPI.Allreduce(nhyp_loc, MPI.SUM, comm)
+        nany  = MPI.Allreduce(nany_loc, MPI.SUM, comm)
+        sum_dnet = MPI.Allreduce(sum_dnet_loc, MPI.SUM, comm)
+        max_dnet = MPI.Allreduce(max_dnet_loc, MPI.MAX, comm)
+        max_dcons = MPI.Allreduce(max_dcons_loc, MPI.MAX, comm)
+        cons0 = MPI.Allreduce(cons0_loc, MPI.SUM, comm)
+        consF = MPI.Allreduce(consF_loc, MPI.SUM, comm)
+
+        if rank == 0
+            names = ("mass", "mom_x", "mom_y", "mom_z", "M200", "M020", "M002")
+            cons_rel = [cons0[m] == 0 ? abs(consF[m]-cons0[m]) : abs(consF[m]-cons0[m])/abs(cons0[m])
+                        for m in 1:length(cons0)]
+            CORRECTION_DIAG[] = (
+                Nx = Nx, Ny = Ny, Nz = Nz, Kn = Kn, Ma = Ma, steps = nn,
+                cellsteps = cellsteps,
+                frac_realizability = nreal / cellsteps,
+                frac_hyperbolicity = nhyp / cellsteps,
+                frac_any = nany / cellsteps,
+                mean_dM_corrected = nany > 0 ? sum_dnet / nany : 0.0,
+                max_dM = max_dnet,
+                max_dconserved_per_correction = max_dcons,   # R3-5: ~0 => correction preserves conserved moments
+                conserved_names = names,
+                conserved_initial = cons0,
+                conserved_final = consF,
+                conserved_rel_drift = cons_rel,              # global conservation drift of full scheme
+            )
+        end
+    end
+
     if rank == 0
         println("Time evolution complete: $(nn) steps, t = $(t)")
         if save_snapshots

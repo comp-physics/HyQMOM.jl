@@ -1,0 +1,11 @@
+---------------------------------------
+Begin Slurm Prolog: Jun-01-2026 01:45:05
+Job ID:    9370951
+User ID:   sbryngelson3
+Account:   gts-sbryngelson3
+Job name:  bubble_pilot
+Partition: cpu-gnr
+QOS:       embers
+---------------------------------------
+host=atl1-1-03-019-8-0.pace.gatech.edu cores=4 date=Mon Jun  1 01:45:06 EDT 2026
+=== refinement: Kn=1, tmax=0.06, N=64,128,256 ===

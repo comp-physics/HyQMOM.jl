@@ -43,3 +43,11 @@ viz_*.jld2
 move.sh
 for-rodney/
 nohup.out
+# --- confidential / unpublished (do not commit to public repo) ---
+paper/
+paper-overleaf/
+studies/
+docs/superpowers/
+*.pdf
+*.jld2
+*.mat

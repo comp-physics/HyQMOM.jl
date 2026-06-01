@@ -1,0 +1,10 @@
+N=48 Kn=1 steps=3  frac_real=3.2986e-02 frac_hyp=0.0000e+00 frac_any=3.2986e-02  mean_dM=2.5789e-06 max_dM=5.2913e-06  max_dCons/corr=7.692e-16
+    global conserved rel-drift: mass=1.30e-15 mom_x=4.52e-21 mom_y=8.67e-19 mom_z=0.00e+00 M200=5.35e-06 M020=5.35e-06 M002=1.07e-05 
+N=128 Kn=1 steps=35  frac_real=3.4010e-01 frac_hyp=1.3951e-05 frac_any=3.4100e-01  mean_dM=6.1237e-06 max_dM=4.0639e-02  max_dCons/corr=1.332e-15
+    global conserved rel-drift: mass=4.14e-12 mom_x=2.20e-19 mom_y=6.94e-18 mom_z=0.00e+00 M200=2.22e-04 M020=2.22e-04 M002=4.44e-04 
+N=256 Kn=1 steps=70  frac_real=3.2930e-01 frac_hyp=6.9754e-06 frac_any=3.3122e-01  mean_dM=5.9697e-06 max_dM=4.0578e-02  max_dCons/corr=1.538e-15
+    global conserved rel-drift: mass=1.86e-16 mom_x=2.92e-18 mom_y=6.94e-18 mom_z=0.00e+00 M200=2.42e-04 M020=2.42e-04 M002=4.84e-04 
+N=512 Kn=1 steps=141  frac_real=3.0598e-01 frac_hyp=3.4630e-06 frac_any=3.0800e-01  mean_dM=6.6326e-06 max_dM=5.5604e-02  max_dCons/corr=1.998e-15
+    global conserved rel-drift: mass=1.86e-16 mom_x=1.41e-18 mom_y=6.94e-18 mom_z=0.00e+00 M200=2.56e-04 M020=2.56e-04 M002=5.12e-04 
+N=1024 Kn=1 steps=286  frac_real=2.8392e-01 frac_hyp=3.1745e-06 frac_any=2.8560e-01  mean_dM=7.4926e-06 max_dM=5.0065e-02  max_dCons/corr=1.998e-15
+    global conserved rel-drift: mass=3.71e-16 mom_x=3.23e-18 mom_y=6.94e-17 mom_z=0.00e+00 M200=2.65e-04 M020=2.65e-04 M002=5.30e-04 

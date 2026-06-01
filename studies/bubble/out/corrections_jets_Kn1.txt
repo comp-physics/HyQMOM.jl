@@ -1,0 +1,2 @@
+Ma=0 N=256 steps=103  frac_real=1.7052e-01 frac_hyp=7.9405e-05 frac_any=1.7235e-01  mean_dM=7.5507e-06 max_dM=5.3221e-02  max_dCons/corr=6.661e-16  massdrift=4.333e-15
+Ma=2 N=256 steps=173  frac_real=1.8130e-01 frac_hyp=9.1747e-04 frac_any=1.8469e-01  mean_dM=3.9378e-04 max_dM=5.1555e+00  max_dCons/corr=3.768e-15  massdrift=6.561e-09

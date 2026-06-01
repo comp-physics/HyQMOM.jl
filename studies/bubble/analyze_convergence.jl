@@ -61,24 +61,27 @@ for N in Ns
 end
 
 # density convergence
-println("\nDensity (moment index 1):")
-@printf("  %-14s %-14s %-14s %-8s %-8s\n", "pair", "L1 diff", "L2 diff", "p(L1)", "p(L2)")
-prevL1 = NaN; prevL2 = NaN
-for k in 1:length(Ns)-1
-    Nc, Nf = Ns[k], Ns[k+1]
-    @assert Nf == 2Nc "ladder must be successive doublings (got $Nc -> $Nf)"
-    coarse = qty(runs[Nc].slice, 1)
-    fine_r = restrict_to(qty(runs[Nf].slice, 1), 2)
-    dx = 1.0 / Nc
-    nd = normdiff(coarse, fine_r, dx)
-    pL1 = isnan(prevL1) ? NaN : log2(prevL1 / nd.L1)
-    pL2 = isnan(prevL2) ? NaN : log2(prevL2 / nd.L2)
-    @printf("  %-14s %-14.4e %-14.4e %-8s %-8s\n",
-            "$(Nc)-$(Nf)", nd.L1, nd.L2,
-            isnan(pL1) ? "-" : @sprintf("%.3f", pL1),
-            isnan(pL2) ? "-" : @sprintf("%.3f", pL2))
-    prevL1 = nd.L1; prevL2 = nd.L2
+function density_convergence(runs, Ns)
+    println("\nDensity (moment index 1):")
+    @printf("  %-14s %-14s %-14s %-8s %-8s\n", "pair", "L1 diff", "L2 diff", "p(L1)", "p(L2)")
+    prevL1 = NaN; prevL2 = NaN
+    for k in 1:length(Ns)-1
+        Nc, Nf = Ns[k], Ns[k+1]
+        @assert Nf == 2Nc "ladder must be successive doublings (got $Nc -> $Nf)"
+        coarse = qty(runs[Nc].slice, 1)
+        fine_r = restrict_to(qty(runs[Nf].slice, 1), 2)
+        dx = 1.0 / Nc
+        nd = normdiff(coarse, fine_r, dx)
+        pL1 = isnan(prevL1) ? NaN : log2(prevL1 / nd.L1)
+        pL2 = isnan(prevL2) ? NaN : log2(prevL2 / nd.L2)
+        @printf("  %-14s %-14.4e %-14.4e %-8s %-8s\n",
+                "$(Nc)-$(Nf)", nd.L1, nd.L2,
+                isnan(pL1) ? "-" : @sprintf("%.3f", pL1),
+                isnan(pL2) ? "-" : @sprintf("%.3f", pL2))
+        prevL1 = nd.L1; prevL2 = nd.L2
+    end
 end
+density_convergence(runs, Ns)
 
 println("\n(Observed order p from successive Richardson differences; p≈1 expected")
 println(" for a discontinuous solution, higher in smooth regions.)")

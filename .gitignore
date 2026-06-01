@@ -51,3 +51,4 @@ docs/superpowers/
 *.pdf
 *.jld2
 *.mat
+studies/bubble/out/*.bin

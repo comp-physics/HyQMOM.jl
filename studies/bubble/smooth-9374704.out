@@ -1,0 +1,2105 @@
+---------------------------------------
+Begin Slurm Prolog: Jun-01-2026 09:49:32
+Job ID:    9374704
+User ID:   sbryngelson3
+Account:   gts-sbryngelson3
+Job name:  bubble_smooth
+Partition: cpu-gnr
+QOS:       embers
+---------------------------------------
+
+Lmod is automatically replacing "mvapich2/2.3.7-1" with "openmpi/4.1.5".
+
+
+Due to MODULEPATH changes, the following have been reloaded:
+  1) gmp/6.2.1     2) mpc/1.3.1     3) mpfr/4.2.0     4) zlib/1.2.13
+
+host=atl1-1-03-019-9-0.pace.gatech.edu ntasks=64 profile=smooth rho_in=1.5 date=Mon Jun  1 09:49:33 EDT 2026
+===== SMOOTH BUBBLE Kn=0.01 =====
+
+=== bubble N=128 Kn=0.01 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 128x128x1, Ranks: 64, Local: 16x16x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.01
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 7.812500e-03, dy = 7.812500e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 7.812500e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 3.906250e-03
+    Kn = 1.000000e-02
+    CFL*min(dx,dy,dz)/vmax = 1.594720e-03
+    dt (final) = 1.594720e-03
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0016, dt = 1.5947e-03, wall = 3.5143 s, s/pt = 2.1450e-04 s, MaxDiff = 1.059e-11
+Step    2: t = 0.0032, dt = 1.5923e-03, wall = 0.5733 s, s/pt = 3.4992e-05 s
+Step    3: t = 0.0048, dt = 1.5899e-03, wall = 0.4181 s, s/pt = 2.5521e-05 s
+Step    4: t = 0.0064, dt = 1.5875e-03, wall = 0.1094 s, s/pt = 6.6762e-06 s
+Step    5: t = 0.0079, dt = 1.5853e-03, wall = 0.1151 s, s/pt = 7.0269e-06 s
+Step    6: t = 0.0095, dt = 1.5830e-03, wall = 0.1072 s, s/pt = 6.5443e-06 s
+Step    7: t = 0.0111, dt = 1.5808e-03, wall = 0.1069 s, s/pt = 6.5258e-06 s
+Step    8: t = 0.0127, dt = 1.5787e-03, wall = 0.1003 s, s/pt = 6.1248e-06 s
+Step    9: t = 0.0143, dt = 1.5766e-03, wall = 0.1017 s, s/pt = 6.2044e-06 s
+Step   10: t = 0.0158, dt = 1.5746e-03, wall = 0.2454 s, s/pt = 1.4981e-05 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   11: t = 0.0174, dt = 1.5727e-03, wall = 0.3683 s, s/pt = 2.2481e-05 s
+Step   12: t = 0.0190, dt = 1.5708e-03, wall = 0.1041 s, s/pt = 6.3531e-06 s
+Step   13: t = 0.0206, dt = 1.5690e-03, wall = 0.0972 s, s/pt = 5.9350e-06 s
+Step   14: t = 0.0221, dt = 1.5672e-03, wall = 0.1017 s, s/pt = 6.2068e-06 s
+Step   15: t = 0.0237, dt = 1.5655e-03, wall = 0.1002 s, s/pt = 6.1139e-06 s
+Step   16: t = 0.0253, dt = 1.5639e-03, wall = 0.1077 s, s/pt = 6.5715e-06 s
+Step   17: t = 0.0268, dt = 1.5623e-03, wall = 0.2473 s, s/pt = 1.5092e-05 s
+Step   18: t = 0.0284, dt = 1.5607e-03, wall = 0.1043 s, s/pt = 6.3638e-06 s
+Step   19: t = 0.0299, dt = 1.5592e-03, wall = 0.1060 s, s/pt = 6.4671e-06 s
+Step   20: t = 0.0315, dt = 1.5578e-03, wall = 0.1015 s, s/pt = 6.1923e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   21: t = 0.0330, dt = 1.5564e-03, wall = 0.1009 s, s/pt = 6.1569e-06 s
+Step   22: t = 0.0346, dt = 1.5551e-03, wall = 0.1094 s, s/pt = 6.6777e-06 s
+Step   23: t = 0.0362, dt = 1.5538e-03, wall = 0.1049 s, s/pt = 6.3998e-06 s
+Step   24: t = 0.0377, dt = 1.5526e-03, wall = 0.1028 s, s/pt = 6.2717e-06 s
+Step   25: t = 0.0393, dt = 1.5514e-03, wall = 0.1015 s, s/pt = 6.1962e-06 s
+Step   26: t = 0.0408, dt = 1.5503e-03, wall = 0.1067 s, s/pt = 6.5134e-06 s
+Step   27: t = 0.0424, dt = 1.5492e-03, wall = 0.1096 s, s/pt = 6.6899e-06 s
+Step   28: t = 0.0439, dt = 1.5481e-03, wall = 0.0988 s, s/pt = 6.0288e-06 s
+Step   29: t = 0.0455, dt = 1.5471e-03, wall = 0.1004 s, s/pt = 6.1275e-06 s
+Step   30: t = 0.0470, dt = 1.5462e-03, wall = 0.1097 s, s/pt = 6.6957e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   31: t = 0.0485, dt = 1.5453e-03, wall = 0.1011 s, s/pt = 6.1728e-06 s
+Step   32: t = 0.0500, dt = 1.4520e-03, wall = 0.0998 s, s/pt = 6.0942e-06 s
+Time evolution complete: 32 steps, t = 0.05
+Final memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+  steps=32  t=0.05  wall=37.5s  rho[min,max]=[1.0000,1.3679]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.01_N128.bin
+N=128 Kn=0.01 steps=32  frac_real=8.7568e-01 frac_hyp=9.1553e-05 frac_any=8.9185e-01  mean_dM=7.4143e-08 max_dM=4.6438e-04  max_dCons/corr=7.692e-16
+    global conserved rel-drift: mass=3.28e-07 mom_x=1.50e-09 mom_y=1.50e-09 mom_z=0.00e+00 M200=1.78e-04 M020=1.78e-04 M002=3.58e-04 
+
+=== bubble N=256 Kn=0.01 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 256x256x1, Ranks: 64, Local: 32x32x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.01
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 3.906250e-03, dy = 3.906250e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 3.906250e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 1.953125e-03
+    Kn = 1.000000e-02
+    CFL*min(dx,dy,dz)/vmax = 7.973599e-04
+    dt (final) = 7.973599e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0008, dt = 7.9736e-04, wall = 0.6202 s, s/pt = 9.4639e-06 s, MaxDiff = 3.284e-12
+Step    2: t = 0.0016, dt = 7.9675e-04, wall = 0.3277 s, s/pt = 5.0005e-06 s
+Step    3: t = 0.0024, dt = 7.9614e-04, wall = 0.3026 s, s/pt = 4.6168e-06 s
+Step    4: t = 0.0032, dt = 7.9554e-04, wall = 0.3008 s, s/pt = 4.5892e-06 s
+Step    5: t = 0.0040, dt = 7.9494e-04, wall = 0.2993 s, s/pt = 4.5676e-06 s
+Step    6: t = 0.0048, dt = 7.9434e-04, wall = 0.3058 s, s/pt = 4.6662e-06 s
+Step    7: t = 0.0056, dt = 7.9376e-04, wall = 0.2985 s, s/pt = 4.5551e-06 s
+Step    8: t = 0.0064, dt = 7.9317e-04, wall = 0.3011 s, s/pt = 4.5944e-06 s
+Step    9: t = 0.0072, dt = 7.9259e-04, wall = 0.3045 s, s/pt = 4.6465e-06 s
+Step   10: t = 0.0079, dt = 7.9202e-04, wall = 0.3053 s, s/pt = 4.6586e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   11: t = 0.0087, dt = 7.9146e-04, wall = 0.4359 s, s/pt = 6.6514e-06 s
+Step   12: t = 0.0095, dt = 7.9090e-04, wall = 0.3230 s, s/pt = 4.9286e-06 s
+Step   13: t = 0.0103, dt = 7.9035e-04, wall = 0.3068 s, s/pt = 4.6812e-06 s
+Step   14: t = 0.0111, dt = 7.8980e-04, wall = 0.3035 s, s/pt = 4.6307e-06 s
+Step   15: t = 0.0119, dt = 7.8927e-04, wall = 0.3181 s, s/pt = 4.8537e-06 s
+Step   16: t = 0.0127, dt = 7.8873e-04, wall = 0.3109 s, s/pt = 4.7434e-06 s
+Step   17: t = 0.0135, dt = 7.8821e-04, wall = 0.3040 s, s/pt = 4.6394e-06 s
+Step   18: t = 0.0143, dt = 7.8769e-04, wall = 0.3105 s, s/pt = 4.7374e-06 s
+Step   19: t = 0.0151, dt = 7.8719e-04, wall = 0.2982 s, s/pt = 4.5507e-06 s
+Step   20: t = 0.0158, dt = 7.8668e-04, wall = 0.3029 s, s/pt = 4.6222e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   21: t = 0.0166, dt = 7.8618e-04, wall = 0.2971 s, s/pt = 4.5336e-06 s
+Step   22: t = 0.0174, dt = 7.8569e-04, wall = 0.3065 s, s/pt = 4.6768e-06 s
+Step   23: t = 0.0182, dt = 7.8521e-04, wall = 0.3018 s, s/pt = 4.6045e-06 s
+Step   24: t = 0.0190, dt = 7.8474e-04, wall = 0.2997 s, s/pt = 4.5727e-06 s
+Step   25: t = 0.0198, dt = 7.8427e-04, wall = 0.3050 s, s/pt = 4.6543e-06 s
+Step   26: t = 0.0205, dt = 7.8381e-04, wall = 0.3035 s, s/pt = 4.6313e-06 s
+Step   27: t = 0.0213, dt = 7.8335e-04, wall = 0.2963 s, s/pt = 4.5205e-06 s
+Step   28: t = 0.0221, dt = 7.8290e-04, wall = 0.3046 s, s/pt = 4.6480e-06 s
+Step   29: t = 0.0229, dt = 7.8246e-04, wall = 0.3073 s, s/pt = 4.6886e-06 s
+Step   30: t = 0.0237, dt = 7.8203e-04, wall = 0.3042 s, s/pt = 4.6411e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   31: t = 0.0245, dt = 7.8160e-04, wall = 0.3101 s, s/pt = 4.7319e-06 s
+Step   32: t = 0.0252, dt = 7.8118e-04, wall = 0.3000 s, s/pt = 4.5776e-06 s
+Step   33: t = 0.0260, dt = 7.8076e-04, wall = 0.3019 s, s/pt = 4.6063e-06 s
+Step   34: t = 0.0268, dt = 7.8036e-04, wall = 0.3077 s, s/pt = 4.6952e-06 s
+Step   35: t = 0.0276, dt = 7.7996e-04, wall = 0.3012 s, s/pt = 4.5955e-06 s
+Step   36: t = 0.0284, dt = 7.7956e-04, wall = 0.3085 s, s/pt = 4.7077e-06 s
+Step   37: t = 0.0291, dt = 7.7918e-04, wall = 0.2994 s, s/pt = 4.5686e-06 s
+Step   38: t = 0.0299, dt = 7.7879e-04, wall = 0.3016 s, s/pt = 4.6028e-06 s
+Step   39: t = 0.0307, dt = 7.7842e-04, wall = 0.3060 s, s/pt = 4.6689e-06 s
+Step   40: t = 0.0315, dt = 7.7805e-04, wall = 0.3012 s, s/pt = 4.5961e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   41: t = 0.0323, dt = 7.7769e-04, wall = 0.3134 s, s/pt = 4.7816e-06 s
+Step   42: t = 0.0330, dt = 7.7733e-04, wall = 0.3025 s, s/pt = 4.6153e-06 s
+Step   43: t = 0.0338, dt = 7.7698e-04, wall = 0.3014 s, s/pt = 4.5985e-06 s
+Step   44: t = 0.0346, dt = 7.7664e-04, wall = 0.3019 s, s/pt = 4.6065e-06 s
+Step   45: t = 0.0354, dt = 7.7630e-04, wall = 0.3037 s, s/pt = 4.6347e-06 s
+Step   46: t = 0.0361, dt = 7.7596e-04, wall = 0.3017 s, s/pt = 4.6034e-06 s
+Step   47: t = 0.0369, dt = 7.7564e-04, wall = 0.3004 s, s/pt = 4.5843e-06 s
+Step   48: t = 0.0377, dt = 7.7532e-04, wall = 0.3074 s, s/pt = 4.6898e-06 s
+Step   49: t = 0.0385, dt = 7.7501e-04, wall = 0.3028 s, s/pt = 4.6207e-06 s
+Step   50: t = 0.0392, dt = 7.7470e-04, wall = 0.3016 s, s/pt = 4.6017e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   51: t = 0.0400, dt = 7.7439e-04, wall = 0.3065 s, s/pt = 4.6774e-06 s
+Step   52: t = 0.0408, dt = 7.7410e-04, wall = 0.3125 s, s/pt = 4.7690e-06 s
+Step   53: t = 0.0416, dt = 7.7381e-04, wall = 0.3019 s, s/pt = 4.6062e-06 s
+Step   54: t = 0.0423, dt = 7.7353e-04, wall = 0.3137 s, s/pt = 4.7868e-06 s
+Step   55: t = 0.0431, dt = 7.7324e-04, wall = 0.2998 s, s/pt = 4.5749e-06 s
+Step   56: t = 0.0439, dt = 7.7297e-04, wall = 0.3045 s, s/pt = 4.6464e-06 s
+Step   57: t = 0.0447, dt = 7.7270e-04, wall = 0.2984 s, s/pt = 4.5536e-06 s
+Step   58: t = 0.0454, dt = 7.7244e-04, wall = 0.3119 s, s/pt = 4.7598e-06 s
+Step   59: t = 0.0462, dt = 7.7218e-04, wall = 0.3027 s, s/pt = 4.6185e-06 s
+Step   60: t = 0.0470, dt = 7.7192e-04, wall = 0.2994 s, s/pt = 4.5684e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+Step   61: t = 0.0477, dt = 7.7167e-04, wall = 0.3069 s, s/pt = 4.6826e-06 s
+Step   62: t = 0.0485, dt = 7.7143e-04, wall = 0.3112 s, s/pt = 4.7485e-06 s
+Step   63: t = 0.0493, dt = 7.7119e-04, wall = 0.3052 s, s/pt = 4.6565e-06 s
+Step   64: t = 0.0500, dt = 7.1746e-04, wall = 0.3091 s, s/pt = 4.7167e-06 s
+Time evolution complete: 64 steps, t = 0.05
+Final memory: max = 1.25 GB, avg = 1.14 GB, total = 72.94 GB (64 ranks)
+  steps=64  t=0.05  wall=20.0s  rho[min,max]=[1.0000,1.3811]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.01_N256.bin
+N=256 Kn=0.01 steps=64  frac_real=8.9409e-01 frac_hyp=4.0054e-05 frac_any=9.1105e-01  mean_dM=7.9487e-08 max_dM=9.2041e-04  max_dCons/corr=1.110e-15
+    global conserved rel-drift: mass=3.33e-07 mom_x=5.40e-10 mom_y=5.40e-10 mom_z=0.00e+00 M200=1.87e-04 M020=1.87e-04 M002=3.76e-04 
+
+=== bubble N=512 Kn=0.01 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 512x512x1, Ranks: 64, Local: 64x64x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.01
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 1.953125e-03, dy = 1.953125e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 1.953125e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 9.765625e-04
+    Kn = 1.000000e-02
+    CFL*min(dx,dy,dz)/vmax = 3.986800e-04
+    dt (final) = 3.986800e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0004, dt = 3.9868e-04, wall = 1.0539 s, s/pt = 4.0202e-06 s, MaxDiff = 1.293e-12
+Step    2: t = 0.0008, dt = 3.9853e-04, wall = 1.1184 s, s/pt = 4.2663e-06 s
+Step    3: t = 0.0012, dt = 3.9837e-04, wall = 1.5195 s, s/pt = 5.7965e-06 s
+Step    4: t = 0.0016, dt = 3.9822e-04, wall = 1.1871 s, s/pt = 4.5283e-06 s
+Step    5: t = 0.0020, dt = 3.9807e-04, wall = 1.0959 s, s/pt = 4.1804e-06 s
+Step    6: t = 0.0024, dt = 3.9792e-04, wall = 1.0826 s, s/pt = 4.1298e-06 s
+Step    7: t = 0.0028, dt = 3.9777e-04, wall = 1.4202 s, s/pt = 5.4176e-06 s
+Step    8: t = 0.0032, dt = 3.9762e-04, wall = 1.0894 s, s/pt = 4.1555e-06 s
+Step    9: t = 0.0036, dt = 3.9747e-04, wall = 1.4650 s, s/pt = 5.5887e-06 s
+Step   10: t = 0.0040, dt = 3.9732e-04, wall = 1.7484 s, s/pt = 6.6698e-06 s
+  Memory: max = 1.25 GB, avg = 1.14 GB, total = 73.07 GB (64 ranks)
+Step   11: t = 0.0044, dt = 3.9717e-04, wall = 1.8383 s, s/pt = 7.0124e-06 s
+Step   12: t = 0.0048, dt = 3.9702e-04, wall = 1.7083 s, s/pt = 6.5165e-06 s
+Step   13: t = 0.0052, dt = 3.9687e-04, wall = 1.6906 s, s/pt = 6.4491e-06 s
+Step   14: t = 0.0056, dt = 3.9673e-04, wall = 1.9262 s, s/pt = 7.3480e-06 s
+Step   15: t = 0.0060, dt = 3.9658e-04, wall = 1.8688 s, s/pt = 7.1290e-06 s
+Step   16: t = 0.0064, dt = 3.9643e-04, wall = 1.7064 s, s/pt = 6.5093e-06 s
+Step   17: t = 0.0068, dt = 3.9629e-04, wall = 1.5778 s, s/pt = 6.0188e-06 s
+Step   18: t = 0.0072, dt = 3.9615e-04, wall = 1.1208 s, s/pt = 4.2756e-06 s
+Step   19: t = 0.0075, dt = 3.9600e-04, wall = 1.0489 s, s/pt = 4.0013e-06 s
+Step   20: t = 0.0079, dt = 3.9586e-04, wall = 1.0598 s, s/pt = 4.0426e-06 s
+  Memory: max = 1.25 GB, avg = 1.19 GB, total = 76.36 GB (64 ranks)
+Step   21: t = 0.0083, dt = 3.9572e-04, wall = 1.0484 s, s/pt = 3.9992e-06 s
+Step   22: t = 0.0087, dt = 3.9558e-04, wall = 1.0490 s, s/pt = 4.0017e-06 s
+Step   23: t = 0.0091, dt = 3.9544e-04, wall = 1.3411 s, s/pt = 5.1157e-06 s
+Step   24: t = 0.0095, dt = 3.9530e-04, wall = 1.1937 s, s/pt = 4.5537e-06 s
+Step   25: t = 0.0099, dt = 3.9516e-04, wall = 1.0505 s, s/pt = 4.0075e-06 s
+Step   26: t = 0.0103, dt = 3.9502e-04, wall = 1.0454 s, s/pt = 3.9879e-06 s
+Step   27: t = 0.0107, dt = 3.9488e-04, wall = 1.2988 s, s/pt = 4.9546e-06 s
+Step   28: t = 0.0111, dt = 3.9475e-04, wall = 1.4621 s, s/pt = 5.5773e-06 s
+Step   29: t = 0.0115, dt = 3.9461e-04, wall = 1.5521 s, s/pt = 5.9209e-06 s
+Step   30: t = 0.0119, dt = 3.9448e-04, wall = 1.6765 s, s/pt = 6.3954e-06 s
+  Memory: max = 1.25 GB, avg = 1.19 GB, total = 76.44 GB (64 ranks)
+Step   31: t = 0.0123, dt = 3.9434e-04, wall = 1.8385 s, s/pt = 7.0133e-06 s
+Step   32: t = 0.0127, dt = 3.9421e-04, wall = 1.8454 s, s/pt = 7.0398e-06 s
+Step   33: t = 0.0131, dt = 3.9408e-04, wall = 1.9743 s, s/pt = 7.5312e-06 s
+Step   34: t = 0.0135, dt = 3.9395e-04, wall = 1.9162 s, s/pt = 7.3098e-06 s
+Step   35: t = 0.0139, dt = 3.9382e-04, wall = 1.6201 s, s/pt = 6.1802e-06 s
+Step   36: t = 0.0143, dt = 3.9369e-04, wall = 1.5491 s, s/pt = 5.9095e-06 s
+Step   37: t = 0.0147, dt = 3.9356e-04, wall = 1.5508 s, s/pt = 5.9158e-06 s
+Step   38: t = 0.0150, dt = 3.9343e-04, wall = 1.5283 s, s/pt = 5.8301e-06 s
+Step   39: t = 0.0154, dt = 3.9330e-04, wall = 1.2263 s, s/pt = 4.6778e-06 s
+Step   40: t = 0.0158, dt = 3.9318e-04, wall = 1.0510 s, s/pt = 4.0093e-06 s
+  Memory: max = 1.25 GB, avg = 1.20 GB, total = 76.59 GB (64 ranks)
+Step   41: t = 0.0162, dt = 3.9305e-04, wall = 1.0535 s, s/pt = 4.0188e-06 s
+Step   42: t = 0.0166, dt = 3.9293e-04, wall = 1.0591 s, s/pt = 4.0400e-06 s
+Step   43: t = 0.0170, dt = 3.9280e-04, wall = 1.3577 s, s/pt = 5.1791e-06 s
+Step   44: t = 0.0174, dt = 3.9268e-04, wall = 1.2197 s, s/pt = 4.6528e-06 s
+Step   45: t = 0.0178, dt = 3.9256e-04, wall = 1.0470 s, s/pt = 3.9941e-06 s
+Step   46: t = 0.0182, dt = 3.9244e-04, wall = 1.0515 s, s/pt = 4.0111e-06 s
+Step   47: t = 0.0186, dt = 3.9232e-04, wall = 1.3038 s, s/pt = 4.9735e-06 s
+Step   48: t = 0.0190, dt = 3.9220e-04, wall = 1.5452 s, s/pt = 5.8945e-06 s
+Step   49: t = 0.0194, dt = 3.9208e-04, wall = 1.6322 s, s/pt = 6.2263e-06 s
+Step   50: t = 0.0198, dt = 3.9196e-04, wall = 1.6867 s, s/pt = 6.4341e-06 s
+  Memory: max = 1.25 GB, avg = 1.20 GB, total = 76.60 GB (64 ranks)
+Step   51: t = 0.0202, dt = 3.9184e-04, wall = 1.6611 s, s/pt = 6.3366e-06 s
+Step   52: t = 0.0205, dt = 3.9172e-04, wall = 1.7378 s, s/pt = 6.6293e-06 s
+Step   53: t = 0.0209, dt = 3.9161e-04, wall = 1.8612 s, s/pt = 7.1001e-06 s
+Step   54: t = 0.0213, dt = 3.9150e-04, wall = 1.8012 s, s/pt = 6.8709e-06 s
+Step   55: t = 0.0217, dt = 3.9138e-04, wall = 1.6751 s, s/pt = 6.3898e-06 s
+Step   56: t = 0.0221, dt = 3.9127e-04, wall = 1.6019 s, s/pt = 6.1107e-06 s
+Step   57: t = 0.0225, dt = 3.9116e-04, wall = 1.5898 s, s/pt = 6.0646e-06 s
+Step   58: t = 0.0229, dt = 3.9105e-04, wall = 1.6328 s, s/pt = 6.2288e-06 s
+Step   59: t = 0.0233, dt = 3.9093e-04, wall = 1.2353 s, s/pt = 4.7123e-06 s
+Step   60: t = 0.0237, dt = 3.9083e-04, wall = 1.4584 s, s/pt = 5.5633e-06 s
+  Memory: max = 1.25 GB, avg = 1.20 GB, total = 76.68 GB (64 ranks)
+Step   61: t = 0.0241, dt = 3.9072e-04, wall = 1.1080 s, s/pt = 4.2267e-06 s
+Step   62: t = 0.0245, dt = 3.9061e-04, wall = 1.0555 s, s/pt = 4.0265e-06 s
+Step   63: t = 0.0248, dt = 3.9050e-04, wall = 1.3696 s, s/pt = 5.2247e-06 s
+Step   64: t = 0.0252, dt = 3.9039e-04, wall = 1.2340 s, s/pt = 4.7073e-06 s
+Step   65: t = 0.0256, dt = 3.9029e-04, wall = 1.0587 s, s/pt = 4.0385e-06 s
+Step   66: t = 0.0260, dt = 3.9018e-04, wall = 1.0615 s, s/pt = 4.0495e-06 s
+Step   67: t = 0.0264, dt = 3.9008e-04, wall = 1.3162 s, s/pt = 5.0208e-06 s
+Step   68: t = 0.0268, dt = 3.8998e-04, wall = 1.6566 s, s/pt = 6.3193e-06 s
+Step   69: t = 0.0272, dt = 3.8987e-04, wall = 1.6198 s, s/pt = 6.1790e-06 s
+Step   70: t = 0.0276, dt = 3.8977e-04, wall = 1.7537 s, s/pt = 6.6897e-06 s
+  Memory: max = 1.25 GB, avg = 1.20 GB, total = 76.72 GB (64 ranks)
+Step   71: t = 0.0280, dt = 3.8967e-04, wall = 1.6370 s, s/pt = 6.2447e-06 s
+Step   72: t = 0.0284, dt = 3.8957e-04, wall = 1.6240 s, s/pt = 6.1952e-06 s
+Step   73: t = 0.0287, dt = 3.8947e-04, wall = 1.9284 s, s/pt = 7.3563e-06 s
+Step   74: t = 0.0291, dt = 3.8937e-04, wall = 1.7357 s, s/pt = 6.6212e-06 s
+Step   75: t = 0.0295, dt = 3.8928e-04, wall = 1.6170 s, s/pt = 6.1685e-06 s
+Step   76: t = 0.0299, dt = 3.8918e-04, wall = 1.6911 s, s/pt = 6.4512e-06 s
+Step   77: t = 0.0303, dt = 3.8908e-04, wall = 1.6644 s, s/pt = 6.3493e-06 s
+Step   78: t = 0.0307, dt = 3.8899e-04, wall = 1.6586 s, s/pt = 6.3272e-06 s
+Step   79: t = 0.0311, dt = 3.8889e-04, wall = 1.6432 s, s/pt = 6.2685e-06 s
+Step   80: t = 0.0315, dt = 3.8880e-04, wall = 1.5729 s, s/pt = 6.0001e-06 s
+  Memory: max = 1.25 GB, avg = 1.20 GB, total = 76.81 GB (64 ranks)
+Step   81: t = 0.0319, dt = 3.8871e-04, wall = 1.1924 s, s/pt = 4.5488e-06 s
+Step   82: t = 0.0322, dt = 3.8861e-04, wall = 1.4014 s, s/pt = 5.3460e-06 s
+Step   83: t = 0.0326, dt = 3.8852e-04, wall = 1.2733 s, s/pt = 4.8573e-06 s
+Step   84: t = 0.0330, dt = 3.8843e-04, wall = 1.3601 s, s/pt = 5.1883e-06 s
+Step   85: t = 0.0334, dt = 3.8834e-04, wall = 1.2083 s, s/pt = 4.6094e-06 s
+Step   86: t = 0.0338, dt = 3.8825e-04, wall = 1.0634 s, s/pt = 4.0566e-06 s
+Step   87: t = 0.0342, dt = 3.8816e-04, wall = 1.4357 s, s/pt = 5.4766e-06 s
+Step   88: t = 0.0346, dt = 3.8808e-04, wall = 1.6861 s, s/pt = 6.4318e-06 s
+Step   89: t = 0.0350, dt = 3.8799e-04, wall = 1.7430 s, s/pt = 6.6492e-06 s
+Step   90: t = 0.0353, dt = 3.8790e-04, wall = 1.5810 s, s/pt = 6.0309e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 76.90 GB (64 ranks)
+Step   91: t = 0.0357, dt = 3.8782e-04, wall = 1.6494 s, s/pt = 6.2920e-06 s
+Step   92: t = 0.0361, dt = 3.8773e-04, wall = 1.7078 s, s/pt = 6.5146e-06 s
+Step   93: t = 0.0365, dt = 3.8765e-04, wall = 1.6693 s, s/pt = 6.3677e-06 s
+Step   94: t = 0.0369, dt = 3.8757e-04, wall = 1.7952 s, s/pt = 6.8482e-06 s
+Step   95: t = 0.0373, dt = 3.8749e-04, wall = 1.6945 s, s/pt = 6.4640e-06 s
+Step   96: t = 0.0377, dt = 3.8741e-04, wall = 1.8114 s, s/pt = 6.9101e-06 s
+Step   97: t = 0.0381, dt = 3.8732e-04, wall = 1.8030 s, s/pt = 6.8779e-06 s
+Step   98: t = 0.0384, dt = 3.8724e-04, wall = 1.8021 s, s/pt = 6.8746e-06 s
+Step   99: t = 0.0388, dt = 3.8716e-04, wall = 1.2600 s, s/pt = 4.8066e-06 s
+Step  100: t = 0.0392, dt = 3.8708e-04, wall = 1.3969 s, s/pt = 5.3289e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 76.93 GB (64 ranks)
+Step  101: t = 0.0396, dt = 3.8701e-04, wall = 1.6925 s, s/pt = 6.4562e-06 s
+Step  102: t = 0.0400, dt = 3.8693e-04, wall = 1.1317 s, s/pt = 4.3171e-06 s
+Step  103: t = 0.0404, dt = 3.8685e-04, wall = 1.0538 s, s/pt = 4.0199e-06 s
+Step  104: t = 0.0408, dt = 3.8678e-04, wall = 1.0527 s, s/pt = 4.0156e-06 s
+Step  105: t = 0.0412, dt = 3.8670e-04, wall = 1.3877 s, s/pt = 5.2938e-06 s
+Step  106: t = 0.0415, dt = 3.8663e-04, wall = 1.2665 s, s/pt = 4.8312e-06 s
+Step  107: t = 0.0419, dt = 3.8655e-04, wall = 1.0576 s, s/pt = 4.0346e-06 s
+Step  108: t = 0.0423, dt = 3.8648e-04, wall = 1.4307 s, s/pt = 5.4576e-06 s
+Step  109: t = 0.0427, dt = 3.8640e-04, wall = 1.8562 s, s/pt = 7.0808e-06 s
+Step  110: t = 0.0431, dt = 3.8633e-04, wall = 1.6622 s, s/pt = 6.3406e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 76.95 GB (64 ranks)
+Step  111: t = 0.0435, dt = 3.8626e-04, wall = 1.6686 s, s/pt = 6.3654e-06 s
+Step  112: t = 0.0439, dt = 3.8619e-04, wall = 1.6366 s, s/pt = 6.2431e-06 s
+Step  113: t = 0.0442, dt = 3.8612e-04, wall = 1.8074 s, s/pt = 6.8945e-06 s
+Step  114: t = 0.0446, dt = 3.8605e-04, wall = 1.8479 s, s/pt = 7.0493e-06 s
+Step  115: t = 0.0450, dt = 3.8598e-04, wall = 1.8415 s, s/pt = 7.0249e-06 s
+Step  116: t = 0.0454, dt = 3.8591e-04, wall = 1.7857 s, s/pt = 6.8118e-06 s
+Step  117: t = 0.0458, dt = 3.8585e-04, wall = 1.7682 s, s/pt = 6.7452e-06 s
+Step  118: t = 0.0462, dt = 3.8578e-04, wall = 1.6219 s, s/pt = 6.1870e-06 s
+Step  119: t = 0.0466, dt = 3.8571e-04, wall = 1.7046 s, s/pt = 6.5027e-06 s
+Step  120: t = 0.0470, dt = 3.8565e-04, wall = 1.7160 s, s/pt = 6.5462e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 77.04 GB (64 ranks)
+Step  121: t = 0.0473, dt = 3.8558e-04, wall = 1.2992 s, s/pt = 4.9561e-06 s
+Step  122: t = 0.0477, dt = 3.8552e-04, wall = 1.4429 s, s/pt = 5.5043e-06 s
+Step  123: t = 0.0481, dt = 3.8546e-04, wall = 1.3058 s, s/pt = 4.9813e-06 s
+Step  124: t = 0.0485, dt = 3.8539e-04, wall = 1.0629 s, s/pt = 4.0548e-06 s
+Step  125: t = 0.0489, dt = 3.8533e-04, wall = 1.0665 s, s/pt = 4.0683e-06 s
+Step  126: t = 0.0493, dt = 3.8527e-04, wall = 1.4090 s, s/pt = 5.3749e-06 s
+Step  127: t = 0.0496, dt = 3.8521e-04, wall = 1.2778 s, s/pt = 4.8745e-06 s
+Step  128: t = 0.0500, dt = 3.5205e-04, wall = 1.4603 s, s/pt = 5.5705e-06 s
+Time evolution complete: 128 steps, t = 0.05
+Final memory: max = 1.26 GB, avg = 1.20 GB, total = 77.04 GB (64 ranks)
+  steps=128  t=0.05  wall=188.3s  rho[min,max]=[1.0000,1.3880]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.01_N512.bin
+N=512 Kn=0.01 steps=128  frac_real=9.0297e-01 frac_hyp=1.5974e-05 frac_any=9.2030e-01  mean_dM=7.2770e-08 max_dM=1.1434e-03  max_dCons/corr=1.110e-15
+    global conserved rel-drift: mass=3.02e-07 mom_x=2.25e-10 mom_y=2.25e-10 mom_z=0.00e+00 M200=1.91e-04 M020=1.91e-04 M002=3.85e-04 
+
+=== bubble N=1024 Kn=0.01 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 1024x1024x1, Ranks: 64, Local: 128x128x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.01
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 9.765625e-04, dy = 9.765625e-04, dz = 1.000000e+00
+    min(dx,dy,dz) = 9.765625e-04
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 4.882812e-04
+    Kn = 1.000000e-02
+    CFL*min(dx,dy,dz)/vmax = 1.993400e-04
+    dt (final) = 1.993400e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0002, dt = 1.9934e-04, wall = 5.7726 s, s/pt = 5.5052e-06 s, MaxDiff = 5.720e-13
+Step    2: t = 0.0004, dt = 1.9930e-04, wall = 4.8010 s, s/pt = 4.5786e-06 s
+Step    3: t = 0.0006, dt = 1.9926e-04, wall = 4.5886 s, s/pt = 4.3760e-06 s
+Step    4: t = 0.0008, dt = 1.9923e-04, wall = 4.9482 s, s/pt = 4.7190e-06 s
+Step    5: t = 0.0010, dt = 1.9919e-04, wall = 4.8170 s, s/pt = 4.5938e-06 s
+Step    6: t = 0.0012, dt = 1.9915e-04, wall = 5.0201 s, s/pt = 4.7875e-06 s
+Step    7: t = 0.0014, dt = 1.9911e-04, wall = 4.7172 s, s/pt = 4.4986e-06 s
+Step    8: t = 0.0016, dt = 1.9907e-04, wall = 4.9466 s, s/pt = 4.7174e-06 s
+Step    9: t = 0.0018, dt = 1.9903e-04, wall = 4.8939 s, s/pt = 4.6672e-06 s
+Step   10: t = 0.0020, dt = 1.9900e-04, wall = 5.1001 s, s/pt = 4.8638e-06 s
+  Memory: max = 1.60 GB, avg = 1.26 GB, total = 80.47 GB (64 ranks)
+Step   11: t = 0.0022, dt = 1.9896e-04, wall = 4.8589 s, s/pt = 4.6339e-06 s
+Step   12: t = 0.0024, dt = 1.9892e-04, wall = 4.7191 s, s/pt = 4.5005e-06 s
+Step   13: t = 0.0026, dt = 1.9888e-04, wall = 4.9090 s, s/pt = 4.6816e-06 s
+Step   14: t = 0.0028, dt = 1.9885e-04, wall = 4.9234 s, s/pt = 4.6953e-06 s
+Step   15: t = 0.0030, dt = 1.9881e-04, wall = 5.1138 s, s/pt = 4.8769e-06 s
+Step   16: t = 0.0032, dt = 1.9877e-04, wall = 5.0102 s, s/pt = 4.7781e-06 s
+Step   17: t = 0.0034, dt = 1.9873e-04, wall = 4.8029 s, s/pt = 4.5804e-06 s
+Step   18: t = 0.0036, dt = 1.9870e-04, wall = 5.0120 s, s/pt = 4.7798e-06 s
+Step   19: t = 0.0038, dt = 1.9866e-04, wall = 5.0668 s, s/pt = 4.8321e-06 s
+Step   20: t = 0.0040, dt = 1.9862e-04, wall = 5.0188 s, s/pt = 4.7863e-06 s
+  Memory: max = 1.60 GB, avg = 1.27 GB, total = 81.29 GB (64 ranks)
+Step   21: t = 0.0042, dt = 1.9858e-04, wall = 5.0289 s, s/pt = 4.7960e-06 s
+Step   22: t = 0.0044, dt = 1.9855e-04, wall = 4.9477 s, s/pt = 4.7185e-06 s
+Step   23: t = 0.0046, dt = 1.9851e-04, wall = 4.8583 s, s/pt = 4.6333e-06 s
+Step   24: t = 0.0048, dt = 1.9847e-04, wall = 5.0214 s, s/pt = 4.7888e-06 s
+Step   25: t = 0.0050, dt = 1.9844e-04, wall = 4.9229 s, s/pt = 4.6948e-06 s
+Step   26: t = 0.0052, dt = 1.9840e-04, wall = 4.9823 s, s/pt = 4.7514e-06 s
+Step   27: t = 0.0054, dt = 1.9836e-04, wall = 4.9857 s, s/pt = 4.7547e-06 s
+Step   28: t = 0.0056, dt = 1.9833e-04, wall = 4.9807 s, s/pt = 4.7499e-06 s
+Step   29: t = 0.0058, dt = 1.9829e-04, wall = 4.9525 s, s/pt = 4.7231e-06 s
+Step   30: t = 0.0060, dt = 1.9825e-04, wall = 4.9015 s, s/pt = 4.6744e-06 s
+  Memory: max = 1.60 GB, avg = 1.28 GB, total = 81.90 GB (64 ranks)
+Step   31: t = 0.0062, dt = 1.9822e-04, wall = 5.0047 s, s/pt = 4.7729e-06 s
+Step   32: t = 0.0064, dt = 1.9818e-04, wall = 4.9932 s, s/pt = 4.7619e-06 s
+Step   33: t = 0.0066, dt = 1.9814e-04, wall = 5.0936 s, s/pt = 4.8576e-06 s
+Step   34: t = 0.0068, dt = 1.9811e-04, wall = 5.0083 s, s/pt = 4.7763e-06 s
+Step   35: t = 0.0070, dt = 1.9807e-04, wall = 4.9925 s, s/pt = 4.7612e-06 s
+Step   36: t = 0.0072, dt = 1.9803e-04, wall = 5.0929 s, s/pt = 4.8570e-06 s
+Step   37: t = 0.0074, dt = 1.9800e-04, wall = 4.8423 s, s/pt = 4.6180e-06 s
+Step   38: t = 0.0075, dt = 1.9796e-04, wall = 5.0724 s, s/pt = 4.8374e-06 s
+Step   39: t = 0.0077, dt = 1.9793e-04, wall = 4.8867 s, s/pt = 4.6604e-06 s
+Step   40: t = 0.0079, dt = 1.9789e-04, wall = 4.9788 s, s/pt = 4.7481e-06 s
+  Memory: max = 1.60 GB, avg = 1.29 GB, total = 82.25 GB (64 ranks)
+Step   41: t = 0.0081, dt = 1.9786e-04, wall = 5.0209 s, s/pt = 4.7883e-06 s
+Step   42: t = 0.0083, dt = 1.9782e-04, wall = 4.7963 s, s/pt = 4.5741e-06 s
+Step   43: t = 0.0085, dt = 1.9779e-04, wall = 5.0990 s, s/pt = 4.8628e-06 s
+Step   44: t = 0.0087, dt = 1.9775e-04, wall = 5.1037 s, s/pt = 4.8672e-06 s
+Step   45: t = 0.0089, dt = 1.9771e-04, wall = 5.0460 s, s/pt = 4.8123e-06 s
+Step   46: t = 0.0091, dt = 1.9768e-04, wall = 5.0396 s, s/pt = 4.8062e-06 s
+Step   47: t = 0.0093, dt = 1.9764e-04, wall = 5.1182 s, s/pt = 4.8811e-06 s
+Step   48: t = 0.0095, dt = 1.9761e-04, wall = 5.0633 s, s/pt = 4.8288e-06 s
+Step   49: t = 0.0097, dt = 1.9758e-04, wall = 5.0168 s, s/pt = 4.7844e-06 s
+Step   50: t = 0.0099, dt = 1.9754e-04, wall = 5.1557 s, s/pt = 4.9168e-06 s
+  Memory: max = 1.60 GB, avg = 1.29 GB, total = 82.68 GB (64 ranks)
+Step   51: t = 0.0101, dt = 1.9751e-04, wall = 4.9276 s, s/pt = 4.6993e-06 s
+Step   52: t = 0.0103, dt = 1.9747e-04, wall = 4.9687 s, s/pt = 4.7385e-06 s
+Step   53: t = 0.0105, dt = 1.9744e-04, wall = 5.0546 s, s/pt = 4.8205e-06 s
+Step   54: t = 0.0107, dt = 1.9740e-04, wall = 4.9288 s, s/pt = 4.7005e-06 s
+Step   55: t = 0.0109, dt = 1.9737e-04, wall = 5.0532 s, s/pt = 4.8191e-06 s
+Step   56: t = 0.0111, dt = 1.9733e-04, wall = 4.8518 s, s/pt = 4.6270e-06 s
+Step   57: t = 0.0113, dt = 1.9730e-04, wall = 4.9786 s, s/pt = 4.7479e-06 s
+Step   58: t = 0.0115, dt = 1.9727e-04, wall = 5.0150 s, s/pt = 4.7827e-06 s
+Step   59: t = 0.0117, dt = 1.9723e-04, wall = 5.0044 s, s/pt = 4.7726e-06 s
+Step   60: t = 0.0119, dt = 1.9720e-04, wall = 5.0537 s, s/pt = 4.8196e-06 s
+  Memory: max = 1.60 GB, avg = 1.30 GB, total = 83.04 GB (64 ranks)
+Step   61: t = 0.0121, dt = 1.9717e-04, wall = 5.0218 s, s/pt = 4.7892e-06 s
+Step   62: t = 0.0123, dt = 1.9713e-04, wall = 4.9577 s, s/pt = 4.7280e-06 s
+Step   63: t = 0.0125, dt = 1.9710e-04, wall = 4.9110 s, s/pt = 4.6835e-06 s
+Step   64: t = 0.0127, dt = 1.9707e-04, wall = 4.9111 s, s/pt = 4.6836e-06 s
+Step   65: t = 0.0129, dt = 1.9703e-04, wall = 4.9555 s, s/pt = 4.7259e-06 s
+Step   66: t = 0.0131, dt = 1.9700e-04, wall = 4.8818 s, s/pt = 4.6556e-06 s
+Step   67: t = 0.0133, dt = 1.9697e-04, wall = 4.9929 s, s/pt = 4.7616e-06 s
+Step   68: t = 0.0135, dt = 1.9693e-04, wall = 4.9167 s, s/pt = 4.6890e-06 s
+Step   69: t = 0.0137, dt = 1.9690e-04, wall = 5.0811 s, s/pt = 4.8457e-06 s
+Step   70: t = 0.0139, dt = 1.9687e-04, wall = 5.0238 s, s/pt = 4.7911e-06 s
+  Memory: max = 1.60 GB, avg = 1.30 GB, total = 83.43 GB (64 ranks)
+Step   71: t = 0.0141, dt = 1.9684e-04, wall = 4.8580 s, s/pt = 4.6330e-06 s
+Step   72: t = 0.0143, dt = 1.9680e-04, wall = 5.1235 s, s/pt = 4.8862e-06 s
+Step   73: t = 0.0145, dt = 1.9677e-04, wall = 5.0329 s, s/pt = 4.7997e-06 s
+Step   74: t = 0.0147, dt = 1.9674e-04, wall = 4.8026 s, s/pt = 4.5801e-06 s
+Step   75: t = 0.0148, dt = 1.9671e-04, wall = 4.8022 s, s/pt = 4.5797e-06 s
+Step   76: t = 0.0150, dt = 1.9667e-04, wall = 5.0164 s, s/pt = 4.7841e-06 s
+Step   77: t = 0.0152, dt = 1.9664e-04, wall = 4.9348 s, s/pt = 4.7062e-06 s
+Step   78: t = 0.0154, dt = 1.9661e-04, wall = 4.9593 s, s/pt = 4.7295e-06 s
+Step   79: t = 0.0156, dt = 1.9658e-04, wall = 5.1138 s, s/pt = 4.8769e-06 s
+Step   80: t = 0.0158, dt = 1.9655e-04, wall = 4.7445 s, s/pt = 4.5247e-06 s
+  Memory: max = 1.60 GB, avg = 1.31 GB, total = 83.83 GB (64 ranks)
+Step   81: t = 0.0160, dt = 1.9652e-04, wall = 5.1575 s, s/pt = 4.9185e-06 s
+Step   82: t = 0.0162, dt = 1.9648e-04, wall = 4.9171 s, s/pt = 4.6893e-06 s
+Step   83: t = 0.0164, dt = 1.9645e-04, wall = 5.0116 s, s/pt = 4.7794e-06 s
+Step   84: t = 0.0166, dt = 1.9642e-04, wall = 5.1080 s, s/pt = 4.8714e-06 s
+Step   85: t = 0.0168, dt = 1.9639e-04, wall = 4.7346 s, s/pt = 4.5152e-06 s
+Step   86: t = 0.0170, dt = 1.9636e-04, wall = 5.1205 s, s/pt = 4.8832e-06 s
+Step   87: t = 0.0172, dt = 1.9633e-04, wall = 5.1258 s, s/pt = 4.8884e-06 s
+Step   88: t = 0.0174, dt = 1.9630e-04, wall = 4.9726 s, s/pt = 4.7422e-06 s
+Step   89: t = 0.0176, dt = 1.9627e-04, wall = 4.7709 s, s/pt = 4.5498e-06 s
+Step   90: t = 0.0178, dt = 1.9624e-04, wall = 5.0465 s, s/pt = 4.8127e-06 s
+  Memory: max = 1.60 GB, avg = 1.31 GB, total = 84.14 GB (64 ranks)
+Step   91: t = 0.0180, dt = 1.9621e-04, wall = 4.8941 s, s/pt = 4.6674e-06 s
+Step   92: t = 0.0182, dt = 1.9617e-04, wall = 5.0098 s, s/pt = 4.7777e-06 s
+Step   93: t = 0.0184, dt = 1.9614e-04, wall = 4.9679 s, s/pt = 4.7378e-06 s
+Step   94: t = 0.0186, dt = 1.9611e-04, wall = 5.1344 s, s/pt = 4.8965e-06 s
+Step   95: t = 0.0188, dt = 1.9608e-04, wall = 5.0266 s, s/pt = 4.7937e-06 s
+Step   96: t = 0.0190, dt = 1.9605e-04, wall = 5.0271 s, s/pt = 4.7942e-06 s
+Step   97: t = 0.0192, dt = 1.9602e-04, wall = 5.0657 s, s/pt = 4.8310e-06 s
+Step   98: t = 0.0194, dt = 1.9599e-04, wall = 4.9673 s, s/pt = 4.7372e-06 s
+Step   99: t = 0.0196, dt = 1.9596e-04, wall = 4.8694 s, s/pt = 4.6438e-06 s
+Step  100: t = 0.0198, dt = 1.9593e-04, wall = 5.1439 s, s/pt = 4.9056e-06 s
+  Memory: max = 1.60 GB, avg = 1.32 GB, total = 84.44 GB (64 ranks)
+Step  101: t = 0.0200, dt = 1.9591e-04, wall = 5.0831 s, s/pt = 4.8477e-06 s
+Step  102: t = 0.0201, dt = 1.9588e-04, wall = 5.0246 s, s/pt = 4.7919e-06 s
+Step  103: t = 0.0203, dt = 1.9585e-04, wall = 5.0607 s, s/pt = 4.8263e-06 s
+Step  104: t = 0.0205, dt = 1.9582e-04, wall = 5.1365 s, s/pt = 4.8985e-06 s
+Step  105: t = 0.0207, dt = 1.9579e-04, wall = 5.1030 s, s/pt = 4.8666e-06 s
+Step  106: t = 0.0209, dt = 1.9576e-04, wall = 4.7768 s, s/pt = 4.5555e-06 s
+Step  107: t = 0.0211, dt = 1.9573e-04, wall = 4.9553 s, s/pt = 4.7257e-06 s
+Step  108: t = 0.0213, dt = 1.9570e-04, wall = 5.1057 s, s/pt = 4.8692e-06 s
+Step  109: t = 0.0215, dt = 1.9567e-04, wall = 5.1395 s, s/pt = 4.9014e-06 s
+Step  110: t = 0.0217, dt = 1.9564e-04, wall = 4.6830 s, s/pt = 4.4661e-06 s
+  Memory: max = 1.60 GB, avg = 1.32 GB, total = 84.73 GB (64 ranks)
+Step  111: t = 0.0219, dt = 1.9562e-04, wall = 5.0799 s, s/pt = 4.8446e-06 s
+Step  112: t = 0.0221, dt = 1.9559e-04, wall = 5.0104 s, s/pt = 4.7783e-06 s
+Step  113: t = 0.0223, dt = 1.9556e-04, wall = 5.1538 s, s/pt = 4.9150e-06 s
+Step  114: t = 0.0225, dt = 1.9553e-04, wall = 5.0633 s, s/pt = 4.8288e-06 s
+Step  115: t = 0.0227, dt = 1.9550e-04, wall = 5.1386 s, s/pt = 4.9006e-06 s
+Step  116: t = 0.0229, dt = 1.9547e-04, wall = 5.0294 s, s/pt = 4.7964e-06 s
+Step  117: t = 0.0231, dt = 1.9545e-04, wall = 5.0796 s, s/pt = 4.8443e-06 s
+Step  118: t = 0.0233, dt = 1.9542e-04, wall = 5.0452 s, s/pt = 4.8115e-06 s
+Step  119: t = 0.0235, dt = 1.9539e-04, wall = 5.1137 s, s/pt = 4.8768e-06 s
+Step  120: t = 0.0237, dt = 1.9536e-04, wall = 5.0713 s, s/pt = 4.8364e-06 s
+  Memory: max = 1.60 GB, avg = 1.33 GB, total = 85.08 GB (64 ranks)
+Step  121: t = 0.0239, dt = 1.9534e-04, wall = 4.9770 s, s/pt = 4.7464e-06 s
+Step  122: t = 0.0241, dt = 1.9531e-04, wall = 4.8323 s, s/pt = 4.6084e-06 s
+Step  123: t = 0.0243, dt = 1.9528e-04, wall = 4.9974 s, s/pt = 4.7659e-06 s
+Step  124: t = 0.0245, dt = 1.9525e-04, wall = 5.0225 s, s/pt = 4.7899e-06 s
+Step  125: t = 0.0246, dt = 1.9523e-04, wall = 5.0456 s, s/pt = 4.8118e-06 s
+Step  126: t = 0.0248, dt = 1.9520e-04, wall = 5.1531 s, s/pt = 4.9143e-06 s
+Step  127: t = 0.0250, dt = 1.9517e-04, wall = 5.1104 s, s/pt = 4.8737e-06 s
+Step  128: t = 0.0252, dt = 1.9515e-04, wall = 4.9029 s, s/pt = 4.6757e-06 s
+Step  129: t = 0.0254, dt = 1.9512e-04, wall = 5.1341 s, s/pt = 4.8962e-06 s
+Step  130: t = 0.0256, dt = 1.9509e-04, wall = 5.0586 s, s/pt = 4.8243e-06 s
+  Memory: max = 1.60 GB, avg = 1.33 GB, total = 85.40 GB (64 ranks)
+Step  131: t = 0.0258, dt = 1.9507e-04, wall = 5.0382 s, s/pt = 4.8048e-06 s
+Step  132: t = 0.0260, dt = 1.9504e-04, wall = 4.9950 s, s/pt = 4.7636e-06 s
+Step  133: t = 0.0262, dt = 1.9501e-04, wall = 5.0777 s, s/pt = 4.8425e-06 s
+Step  134: t = 0.0264, dt = 1.9499e-04, wall = 5.0929 s, s/pt = 4.8570e-06 s
+Step  135: t = 0.0266, dt = 1.9496e-04, wall = 5.0853 s, s/pt = 4.8497e-06 s
+Step  136: t = 0.0268, dt = 1.9494e-04, wall = 4.8307 s, s/pt = 4.6069e-06 s
+Step  137: t = 0.0270, dt = 1.9491e-04, wall = 4.8432 s, s/pt = 4.6189e-06 s
+Step  138: t = 0.0272, dt = 1.9488e-04, wall = 5.0047 s, s/pt = 4.7728e-06 s
+Step  139: t = 0.0274, dt = 1.9486e-04, wall = 4.9863 s, s/pt = 4.7553e-06 s
+Step  140: t = 0.0276, dt = 1.9483e-04, wall = 5.1523 s, s/pt = 4.9136e-06 s
+  Memory: max = 1.61 GB, avg = 1.34 GB, total = 85.80 GB (64 ranks)
+Step  141: t = 0.0278, dt = 1.9481e-04, wall = 5.0330 s, s/pt = 4.7998e-06 s
+Step  142: t = 0.0280, dt = 1.9478e-04, wall = 5.0619 s, s/pt = 4.8274e-06 s
+Step  143: t = 0.0282, dt = 1.9476e-04, wall = 4.9863 s, s/pt = 4.7553e-06 s
+Step  144: t = 0.0283, dt = 1.9473e-04, wall = 5.1252 s, s/pt = 4.8878e-06 s
+Step  145: t = 0.0285, dt = 1.9471e-04, wall = 5.0032 s, s/pt = 4.7714e-06 s
+Step  146: t = 0.0287, dt = 1.9468e-04, wall = 4.7938 s, s/pt = 4.5717e-06 s
+Step  147: t = 0.0289, dt = 1.9466e-04, wall = 5.0831 s, s/pt = 4.8476e-06 s
+Step  148: t = 0.0291, dt = 1.9463e-04, wall = 4.7730 s, s/pt = 4.5519e-06 s
+Step  149: t = 0.0293, dt = 1.9461e-04, wall = 5.0017 s, s/pt = 4.7700e-06 s
+Step  150: t = 0.0295, dt = 1.9458e-04, wall = 5.1427 s, s/pt = 4.9045e-06 s
+  Memory: max = 1.64 GB, avg = 1.34 GB, total = 86.03 GB (64 ranks)
+Step  151: t = 0.0297, dt = 1.9456e-04, wall = 4.7522 s, s/pt = 4.5321e-06 s
+Step  152: t = 0.0299, dt = 1.9453e-04, wall = 5.1012 s, s/pt = 4.8649e-06 s
+Step  153: t = 0.0301, dt = 1.9451e-04, wall = 5.1219 s, s/pt = 4.8846e-06 s
+Step  154: t = 0.0303, dt = 1.9449e-04, wall = 4.9311 s, s/pt = 4.7026e-06 s
+Step  155: t = 0.0305, dt = 1.9446e-04, wall = 5.0213 s, s/pt = 4.7887e-06 s
+Step  156: t = 0.0307, dt = 1.9444e-04, wall = 5.1083 s, s/pt = 4.8716e-06 s
+Step  157: t = 0.0309, dt = 1.9441e-04, wall = 5.1160 s, s/pt = 4.8790e-06 s
+Step  158: t = 0.0311, dt = 1.9439e-04, wall = 4.9444 s, s/pt = 4.7154e-06 s
+Step  159: t = 0.0313, dt = 1.9437e-04, wall = 4.9185 s, s/pt = 4.6906e-06 s
+Step  160: t = 0.0315, dt = 1.9434e-04, wall = 5.1403 s, s/pt = 4.9022e-06 s
+  Memory: max = 1.64 GB, avg = 1.35 GB, total = 86.31 GB (64 ranks)
+Step  161: t = 0.0317, dt = 1.9432e-04, wall = 4.8464 s, s/pt = 4.6219e-06 s
+Step  162: t = 0.0319, dt = 1.9429e-04, wall = 4.9016 s, s/pt = 4.6745e-06 s
+Step  163: t = 0.0320, dt = 1.9427e-04, wall = 5.0200 s, s/pt = 4.7874e-06 s
+Step  164: t = 0.0322, dt = 1.9425e-04, wall = 5.1966 s, s/pt = 4.9559e-06 s
+Step  165: t = 0.0324, dt = 1.9422e-04, wall = 5.0764 s, s/pt = 4.8413e-06 s
+Step  166: t = 0.0326, dt = 1.9420e-04, wall = 5.0933 s, s/pt = 4.8573e-06 s
+Step  167: t = 0.0328, dt = 1.9418e-04, wall = 5.1119 s, s/pt = 4.8751e-06 s
+Step  168: t = 0.0330, dt = 1.9416e-04, wall = 4.8333 s, s/pt = 4.6094e-06 s
+Step  169: t = 0.0332, dt = 1.9413e-04, wall = 4.9236 s, s/pt = 4.6955e-06 s
+Step  170: t = 0.0334, dt = 1.9411e-04, wall = 5.1342 s, s/pt = 4.8964e-06 s
+  Memory: max = 1.64 GB, avg = 1.36 GB, total = 86.74 GB (64 ranks)
+Step  171: t = 0.0336, dt = 1.9409e-04, wall = 4.9246 s, s/pt = 4.6964e-06 s
+Step  172: t = 0.0338, dt = 1.9407e-04, wall = 4.9757 s, s/pt = 4.7452e-06 s
+Step  173: t = 0.0340, dt = 1.9404e-04, wall = 5.0121 s, s/pt = 4.7799e-06 s
+Step  174: t = 0.0342, dt = 1.9402e-04, wall = 4.8952 s, s/pt = 4.6684e-06 s
+Step  175: t = 0.0344, dt = 1.9400e-04, wall = 5.0028 s, s/pt = 4.7710e-06 s
+Step  176: t = 0.0346, dt = 1.9398e-04, wall = 4.9941 s, s/pt = 4.7627e-06 s
+Step  177: t = 0.0348, dt = 1.9396e-04, wall = 5.1067 s, s/pt = 4.8702e-06 s
+Step  178: t = 0.0350, dt = 1.9393e-04, wall = 4.7919 s, s/pt = 4.5699e-06 s
+Step  179: t = 0.0352, dt = 1.9391e-04, wall = 5.0573 s, s/pt = 4.8230e-06 s
+Step  180: t = 0.0353, dt = 1.9389e-04, wall = 5.2233 s, s/pt = 4.9813e-06 s
+  Memory: max = 1.65 GB, avg = 1.36 GB, total = 87.06 GB (64 ranks)
+Step  181: t = 0.0355, dt = 1.9387e-04, wall = 5.1853 s, s/pt = 4.9451e-06 s
+Step  182: t = 0.0357, dt = 1.9385e-04, wall = 5.1543 s, s/pt = 4.9155e-06 s
+Step  183: t = 0.0359, dt = 1.9383e-04, wall = 4.7394 s, s/pt = 4.5198e-06 s
+Step  184: t = 0.0361, dt = 1.9380e-04, wall = 5.0628 s, s/pt = 4.8282e-06 s
+Step  185: t = 0.0363, dt = 1.9378e-04, wall = 4.8906 s, s/pt = 4.6640e-06 s
+Step  186: t = 0.0365, dt = 1.9376e-04, wall = 5.0858 s, s/pt = 4.8502e-06 s
+Step  187: t = 0.0367, dt = 1.9374e-04, wall = 5.0189 s, s/pt = 4.7864e-06 s
+Step  188: t = 0.0369, dt = 1.9372e-04, wall = 5.1371 s, s/pt = 4.8991e-06 s
+Step  189: t = 0.0371, dt = 1.9370e-04, wall = 5.0660 s, s/pt = 4.8313e-06 s
+Step  190: t = 0.0373, dt = 1.9368e-04, wall = 5.0684 s, s/pt = 4.8336e-06 s
+  Memory: max = 1.65 GB, avg = 1.37 GB, total = 87.43 GB (64 ranks)
+Step  191: t = 0.0375, dt = 1.9365e-04, wall = 5.0968 s, s/pt = 4.8607e-06 s
+Step  192: t = 0.0377, dt = 1.9363e-04, wall = 5.1943 s, s/pt = 4.9537e-06 s
+Step  193: t = 0.0379, dt = 1.9361e-04, wall = 5.1878 s, s/pt = 4.9475e-06 s
+Step  194: t = 0.0381, dt = 1.9359e-04, wall = 5.2127 s, s/pt = 4.9712e-06 s
+Step  195: t = 0.0382, dt = 1.9357e-04, wall = 5.0328 s, s/pt = 4.7996e-06 s
+Step  196: t = 0.0384, dt = 1.9355e-04, wall = 5.0346 s, s/pt = 4.8014e-06 s
+Step  197: t = 0.0386, dt = 1.9353e-04, wall = 4.8885 s, s/pt = 4.6620e-06 s
+Step  198: t = 0.0388, dt = 1.9351e-04, wall = 5.0327 s, s/pt = 4.7996e-06 s
+Step  199: t = 0.0390, dt = 1.9349e-04, wall = 5.0388 s, s/pt = 4.8054e-06 s
+Step  200: t = 0.0392, dt = 1.9347e-04, wall = 5.2861 s, s/pt = 5.0412e-06 s
+  Memory: max = 1.65 GB, avg = 1.37 GB, total = 87.75 GB (64 ranks)
+Step  201: t = 0.0394, dt = 1.9345e-04, wall = 5.0962 s, s/pt = 4.8601e-06 s
+Step  202: t = 0.0396, dt = 1.9343e-04, wall = 4.8626 s, s/pt = 4.6373e-06 s
+Step  203: t = 0.0398, dt = 1.9341e-04, wall = 5.2297 s, s/pt = 4.9874e-06 s
+Step  204: t = 0.0400, dt = 1.9339e-04, wall = 5.0333 s, s/pt = 4.8001e-06 s
+Step  205: t = 0.0402, dt = 1.9337e-04, wall = 5.0432 s, s/pt = 4.8096e-06 s
+Step  206: t = 0.0404, dt = 1.9335e-04, wall = 5.0543 s, s/pt = 4.8202e-06 s
+Step  207: t = 0.0406, dt = 1.9333e-04, wall = 5.0758 s, s/pt = 4.8407e-06 s
+Step  208: t = 0.0408, dt = 1.9331e-04, wall = 5.2038 s, s/pt = 4.9628e-06 s
+Step  209: t = 0.0410, dt = 1.9329e-04, wall = 5.1506 s, s/pt = 4.9120e-06 s
+Step  210: t = 0.0412, dt = 1.9327e-04, wall = 5.2151 s, s/pt = 4.9735e-06 s
+  Memory: max = 1.65 GB, avg = 1.38 GB, total = 88.10 GB (64 ranks)
+Step  211: t = 0.0413, dt = 1.9326e-04, wall = 4.7914 s, s/pt = 4.5694e-06 s
+Step  212: t = 0.0415, dt = 1.9324e-04, wall = 5.1506 s, s/pt = 4.9120e-06 s
+Step  213: t = 0.0417, dt = 1.9322e-04, wall = 5.2601 s, s/pt = 5.0164e-06 s
+Step  214: t = 0.0419, dt = 1.9320e-04, wall = 5.0779 s, s/pt = 4.8426e-06 s
+Step  215: t = 0.0421, dt = 1.9318e-04, wall = 5.0747 s, s/pt = 4.8396e-06 s
+Step  216: t = 0.0423, dt = 1.9316e-04, wall = 4.7897 s, s/pt = 4.5678e-06 s
+Step  217: t = 0.0425, dt = 1.9314e-04, wall = 5.0881 s, s/pt = 4.8524e-06 s
+Step  218: t = 0.0427, dt = 1.9313e-04, wall = 5.1520 s, s/pt = 4.9133e-06 s
+Step  219: t = 0.0429, dt = 1.9311e-04, wall = 5.0890 s, s/pt = 4.8533e-06 s
+Step  220: t = 0.0431, dt = 1.9309e-04, wall = 4.9917 s, s/pt = 4.7604e-06 s
+  Memory: max = 1.65 GB, avg = 1.38 GB, total = 88.43 GB (64 ranks)
+Step  221: t = 0.0433, dt = 1.9307e-04, wall = 5.1926 s, s/pt = 4.9520e-06 s
+Step  222: t = 0.0435, dt = 1.9305e-04, wall = 4.9572 s, s/pt = 4.7275e-06 s
+Step  223: t = 0.0437, dt = 1.9304e-04, wall = 4.9251 s, s/pt = 4.6970e-06 s
+Step  224: t = 0.0439, dt = 1.9302e-04, wall = 5.1842 s, s/pt = 4.9440e-06 s
+Step  225: t = 0.0440, dt = 1.9300e-04, wall = 5.2028 s, s/pt = 4.9618e-06 s
+Step  226: t = 0.0442, dt = 1.9298e-04, wall = 5.0421 s, s/pt = 4.8086e-06 s
+Step  227: t = 0.0444, dt = 1.9297e-04, wall = 5.1471 s, s/pt = 4.9087e-06 s
+Step  228: t = 0.0446, dt = 1.9295e-04, wall = 5.1052 s, s/pt = 4.8687e-06 s
+Step  229: t = 0.0448, dt = 1.9293e-04, wall = 5.2303 s, s/pt = 4.9880e-06 s
+Step  230: t = 0.0450, dt = 1.9292e-04, wall = 5.0230 s, s/pt = 4.7903e-06 s
+  Memory: max = 1.67 GB, avg = 1.39 GB, total = 88.72 GB (64 ranks)
+Step  231: t = 0.0452, dt = 1.9290e-04, wall = 4.9767 s, s/pt = 4.7461e-06 s
+Step  232: t = 0.0454, dt = 1.9288e-04, wall = 5.1302 s, s/pt = 4.8925e-06 s
+Step  233: t = 0.0456, dt = 1.9286e-04, wall = 5.2492 s, s/pt = 5.0061e-06 s
+Step  234: t = 0.0458, dt = 1.9285e-04, wall = 4.8151 s, s/pt = 4.5921e-06 s
+Step  235: t = 0.0460, dt = 1.9283e-04, wall = 5.1564 s, s/pt = 4.9175e-06 s
+Step  236: t = 0.0462, dt = 1.9281e-04, wall = 5.1258 s, s/pt = 4.8883e-06 s
+Step  237: t = 0.0464, dt = 1.9280e-04, wall = 5.1289 s, s/pt = 4.8913e-06 s
+Step  238: t = 0.0466, dt = 1.9278e-04, wall = 4.9336 s, s/pt = 4.7051e-06 s
+Step  239: t = 0.0467, dt = 1.9276e-04, wall = 5.0587 s, s/pt = 4.8243e-06 s
+Step  240: t = 0.0469, dt = 1.9274e-04, wall = 4.9231 s, s/pt = 4.6950e-06 s
+  Memory: max = 1.67 GB, avg = 1.39 GB, total = 88.98 GB (64 ranks)
+Step  241: t = 0.0471, dt = 1.9273e-04, wall = 4.8797 s, s/pt = 4.6536e-06 s
+Step  242: t = 0.0473, dt = 1.9271e-04, wall = 4.9937 s, s/pt = 4.7623e-06 s
+Step  243: t = 0.0475, dt = 1.9269e-04, wall = 4.9362 s, s/pt = 4.7075e-06 s
+Step  244: t = 0.0477, dt = 1.9268e-04, wall = 4.9815 s, s/pt = 4.7507e-06 s
+Step  245: t = 0.0479, dt = 1.9266e-04, wall = 5.0772 s, s/pt = 4.8420e-06 s
+Step  246: t = 0.0481, dt = 1.9264e-04, wall = 5.1575 s, s/pt = 4.9186e-06 s
+Step  247: t = 0.0483, dt = 1.9263e-04, wall = 5.0956 s, s/pt = 4.8596e-06 s
+Step  248: t = 0.0485, dt = 1.9261e-04, wall = 5.1901 s, s/pt = 4.9497e-06 s
+Step  249: t = 0.0487, dt = 1.9259e-04, wall = 5.2091 s, s/pt = 4.9678e-06 s
+Step  250: t = 0.0489, dt = 1.9258e-04, wall = 4.8936 s, s/pt = 4.6669e-06 s
+  Memory: max = 1.67 GB, avg = 1.40 GB, total = 89.32 GB (64 ranks)
+Step  251: t = 0.0491, dt = 1.9256e-04, wall = 5.1456 s, s/pt = 4.9073e-06 s
+Step  252: t = 0.0493, dt = 1.9255e-04, wall = 5.2051 s, s/pt = 4.9640e-06 s
+Step  253: t = 0.0494, dt = 1.9253e-04, wall = 5.1386 s, s/pt = 4.9005e-06 s
+Step  254: t = 0.0496, dt = 1.9252e-04, wall = 4.8487 s, s/pt = 4.6241e-06 s
+Step  255: t = 0.0498, dt = 1.9250e-04, wall = 5.1358 s, s/pt = 4.8978e-06 s
+Step  256: t = 0.0500, dt = 1.6998e-04, wall = 5.1508 s, s/pt = 4.9122e-06 s
+Time evolution complete: 256 steps, t = 0.05
+Final memory: max = 1.68 GB, avg = 1.40 GB, total = 89.43 GB (64 ranks)
+  steps=256  t=0.05  wall=1285.6s  rho[min,max]=[1.0000,1.3915]  edge<rho>=1.00000
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.01_N1024.bin
+N=1024 Kn=0.01 steps=256  frac_real=9.0718e-01 frac_hyp=6.4671e-06 frac_any=9.2470e-01  mean_dM=6.9818e-08 max_dM=1.7429e-03  max_dCons/corr=1.256e-15
+    global conserved rel-drift: mass=2.82e-07 mom_x=1.01e-10 mom_y=1.01e-10 mom_z=0.00e+00 M200=1.94e-04 M020=1.94e-04 M002=3.89e-04 
+
+Done.
+===== SMOOTH BUBBLE Kn=0.1 =====
+
+=== bubble N=128 Kn=0.1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 128x128x1, Ranks: 64, Local: 16x16x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.1
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 7.812500e-03, dy = 7.812500e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 7.812500e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 3.906250e-03
+    Kn = 1.000000e-01
+    CFL*min(dx,dy,dz)/vmax = 1.594720e-03
+    dt (final) = 1.594720e-03
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0016, dt = 1.5947e-03, wall = 3.4502 s, s/pt = 2.1058e-04 s, MaxDiff = 1.059e-11
+Step    2: t = 0.0032, dt = 1.5923e-03, wall = 0.5500 s, s/pt = 3.3569e-05 s
+Step    3: t = 0.0048, dt = 1.5899e-03, wall = 0.4090 s, s/pt = 2.4965e-05 s
+Step    4: t = 0.0064, dt = 1.5875e-03, wall = 0.1137 s, s/pt = 6.9401e-06 s
+Step    5: t = 0.0079, dt = 1.5852e-03, wall = 0.1048 s, s/pt = 6.3973e-06 s
+Step    6: t = 0.0095, dt = 1.5829e-03, wall = 0.1063 s, s/pt = 6.4864e-06 s
+Step    7: t = 0.0111, dt = 1.5807e-03, wall = 0.1097 s, s/pt = 6.6937e-06 s
+Step    8: t = 0.0127, dt = 1.5785e-03, wall = 0.2338 s, s/pt = 1.4272e-05 s
+Step    9: t = 0.0143, dt = 1.5763e-03, wall = 0.2417 s, s/pt = 1.4749e-05 s
+Step   10: t = 0.0158, dt = 1.5742e-03, wall = 0.1071 s, s/pt = 6.5353e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   11: t = 0.0174, dt = 1.5722e-03, wall = 0.3616 s, s/pt = 2.2073e-05 s
+Step   12: t = 0.0190, dt = 1.5702e-03, wall = 0.1048 s, s/pt = 6.3953e-06 s
+Step   13: t = 0.0206, dt = 1.5683e-03, wall = 0.1012 s, s/pt = 6.1741e-06 s
+Step   14: t = 0.0221, dt = 1.5664e-03, wall = 0.1000 s, s/pt = 6.1019e-06 s
+Step   15: t = 0.0237, dt = 1.5647e-03, wall = 0.1027 s, s/pt = 6.2665e-06 s
+Step   16: t = 0.0252, dt = 1.5629e-03, wall = 0.1078 s, s/pt = 6.5776e-06 s
+Step   17: t = 0.0268, dt = 1.5612e-03, wall = 0.0999 s, s/pt = 6.0973e-06 s
+Step   18: t = 0.0284, dt = 1.5596e-03, wall = 0.1030 s, s/pt = 6.2877e-06 s
+Step   19: t = 0.0299, dt = 1.5581e-03, wall = 0.1026 s, s/pt = 6.2596e-06 s
+Step   20: t = 0.0315, dt = 1.5566e-03, wall = 0.1116 s, s/pt = 6.8117e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   21: t = 0.0330, dt = 1.5552e-03, wall = 0.1082 s, s/pt = 6.6058e-06 s
+Step   22: t = 0.0346, dt = 1.5538e-03, wall = 0.1091 s, s/pt = 6.6586e-06 s
+Step   23: t = 0.0361, dt = 1.5525e-03, wall = 0.1021 s, s/pt = 6.2303e-06 s
+Step   24: t = 0.0377, dt = 1.5513e-03, wall = 0.1004 s, s/pt = 6.1309e-06 s
+Step   25: t = 0.0392, dt = 1.5501e-03, wall = 0.1015 s, s/pt = 6.1929e-06 s
+Step   26: t = 0.0408, dt = 1.5490e-03, wall = 0.1028 s, s/pt = 6.2720e-06 s
+Step   27: t = 0.0423, dt = 1.5479e-03, wall = 0.1004 s, s/pt = 6.1285e-06 s
+Step   28: t = 0.0439, dt = 1.5468e-03, wall = 0.1084 s, s/pt = 6.6155e-06 s
+Step   29: t = 0.0454, dt = 1.5459e-03, wall = 0.1022 s, s/pt = 6.2372e-06 s
+Step   30: t = 0.0470, dt = 1.5450e-03, wall = 0.1031 s, s/pt = 6.2902e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   31: t = 0.0485, dt = 1.5441e-03, wall = 0.1117 s, s/pt = 6.8152e-06 s
+Step   32: t = 0.0500, dt = 1.4759e-03, wall = 0.1059 s, s/pt = 6.4607e-06 s
+Time evolution complete: 32 steps, t = 0.05
+Final memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+  steps=32  t=0.05  wall=37.4s  rho[min,max]=[1.0000,1.3706]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.1_N128.bin
+N=128 Kn=0.1 steps=32  frac_real=8.9652e-01 frac_hyp=0.0000e+00 frac_any=9.0919e-01  mean_dM=2.0097e-07 max_dM=3.3049e-06  max_dCons/corr=7.692e-16
+    global conserved rel-drift: mass=4.46e-07 mom_x=1.56e-09 mom_y=1.56e-09 mom_z=0.00e+00 M200=9.56e-05 M020=9.56e-05 M002=1.94e-04 
+
+=== bubble N=256 Kn=0.1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 256x256x1, Ranks: 64, Local: 32x32x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.1
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 3.906250e-03, dy = 3.906250e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 3.906250e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 1.953125e-03
+    Kn = 1.000000e-01
+    CFL*min(dx,dy,dz)/vmax = 7.973599e-04
+    dt (final) = 7.973599e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0008, dt = 7.9736e-04, wall = 0.3081 s, s/pt = 4.7008e-06 s, MaxDiff = 3.284e-12
+Step    2: t = 0.0016, dt = 7.9675e-04, wall = 0.3000 s, s/pt = 4.5775e-06 s
+Step    3: t = 0.0024, dt = 7.9614e-04, wall = 0.3067 s, s/pt = 4.6799e-06 s
+Step    4: t = 0.0032, dt = 7.9554e-04, wall = 0.3032 s, s/pt = 4.6272e-06 s
+Step    5: t = 0.0040, dt = 7.9493e-04, wall = 0.2996 s, s/pt = 4.5709e-06 s
+Step    6: t = 0.0048, dt = 7.9434e-04, wall = 0.3037 s, s/pt = 4.6344e-06 s
+Step    7: t = 0.0056, dt = 7.9374e-04, wall = 0.2955 s, s/pt = 4.5093e-06 s
+Step    8: t = 0.0064, dt = 7.9315e-04, wall = 0.3039 s, s/pt = 4.6367e-06 s
+Step    9: t = 0.0072, dt = 7.9256e-04, wall = 0.2964 s, s/pt = 4.5224e-06 s
+Step   10: t = 0.0079, dt = 7.9198e-04, wall = 0.2958 s, s/pt = 4.5135e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   11: t = 0.0087, dt = 7.9141e-04, wall = 0.2975 s, s/pt = 4.5398e-06 s
+Step   12: t = 0.0095, dt = 7.9083e-04, wall = 0.2968 s, s/pt = 4.5294e-06 s
+Step   13: t = 0.0103, dt = 7.9027e-04, wall = 0.3069 s, s/pt = 4.6822e-06 s
+Step   14: t = 0.0111, dt = 7.8971e-04, wall = 0.3050 s, s/pt = 4.6533e-06 s
+Step   15: t = 0.0119, dt = 7.8915e-04, wall = 0.3025 s, s/pt = 4.6156e-06 s
+Step   16: t = 0.0127, dt = 7.8860e-04, wall = 0.2982 s, s/pt = 4.5501e-06 s
+Step   17: t = 0.0135, dt = 7.8806e-04, wall = 0.3060 s, s/pt = 4.6696e-06 s
+Step   18: t = 0.0143, dt = 7.8752e-04, wall = 0.3032 s, s/pt = 4.6265e-06 s
+Step   19: t = 0.0150, dt = 7.8699e-04, wall = 0.3043 s, s/pt = 4.6437e-06 s
+Step   20: t = 0.0158, dt = 7.8646e-04, wall = 0.2977 s, s/pt = 4.5421e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   21: t = 0.0166, dt = 7.8594e-04, wall = 0.3027 s, s/pt = 4.6184e-06 s
+Step   22: t = 0.0174, dt = 7.8544e-04, wall = 0.3005 s, s/pt = 4.5857e-06 s
+Step   23: t = 0.0182, dt = 7.8493e-04, wall = 0.2970 s, s/pt = 4.5324e-06 s
+Step   24: t = 0.0190, dt = 7.8443e-04, wall = 0.2983 s, s/pt = 4.5511e-06 s
+Step   25: t = 0.0198, dt = 7.8394e-04, wall = 0.3128 s, s/pt = 4.7722e-06 s
+Step   26: t = 0.0205, dt = 7.8346e-04, wall = 0.2988 s, s/pt = 4.5588e-06 s
+Step   27: t = 0.0213, dt = 7.8298e-04, wall = 0.3003 s, s/pt = 4.5820e-06 s
+Step   28: t = 0.0221, dt = 7.8251e-04, wall = 0.2999 s, s/pt = 4.5763e-06 s
+Step   29: t = 0.0229, dt = 7.8205e-04, wall = 0.3002 s, s/pt = 4.5804e-06 s
+Step   30: t = 0.0237, dt = 7.8160e-04, wall = 0.2971 s, s/pt = 4.5332e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   31: t = 0.0245, dt = 7.8115e-04, wall = 0.3021 s, s/pt = 4.6093e-06 s
+Step   32: t = 0.0252, dt = 7.8071e-04, wall = 0.2999 s, s/pt = 4.5762e-06 s
+Step   33: t = 0.0260, dt = 7.8027e-04, wall = 0.3023 s, s/pt = 4.6123e-06 s
+Step   34: t = 0.0268, dt = 7.7986e-04, wall = 0.3002 s, s/pt = 4.5809e-06 s
+Step   35: t = 0.0276, dt = 7.7945e-04, wall = 0.3008 s, s/pt = 4.5892e-06 s
+Step   36: t = 0.0284, dt = 7.7904e-04, wall = 0.3083 s, s/pt = 4.7046e-06 s
+Step   37: t = 0.0291, dt = 7.7864e-04, wall = 0.3111 s, s/pt = 4.7477e-06 s
+Step   38: t = 0.0299, dt = 7.7825e-04, wall = 0.3005 s, s/pt = 4.5852e-06 s
+Step   39: t = 0.0307, dt = 7.7787e-04, wall = 0.3077 s, s/pt = 4.6952e-06 s
+Step   40: t = 0.0315, dt = 7.7749e-04, wall = 0.3131 s, s/pt = 4.7769e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   41: t = 0.0322, dt = 7.7711e-04, wall = 0.2998 s, s/pt = 4.5739e-06 s
+Step   42: t = 0.0330, dt = 7.7673e-04, wall = 0.3032 s, s/pt = 4.6270e-06 s
+Step   43: t = 0.0338, dt = 7.7637e-04, wall = 0.3019 s, s/pt = 4.6072e-06 s
+Step   44: t = 0.0346, dt = 7.7600e-04, wall = 0.3011 s, s/pt = 4.5949e-06 s
+Step   45: t = 0.0353, dt = 7.7567e-04, wall = 0.3046 s, s/pt = 4.6474e-06 s
+Step   46: t = 0.0361, dt = 7.7534e-04, wall = 0.3005 s, s/pt = 4.5849e-06 s
+Step   47: t = 0.0369, dt = 7.7501e-04, wall = 0.3007 s, s/pt = 4.5879e-06 s
+Step   48: t = 0.0377, dt = 7.7470e-04, wall = 0.3002 s, s/pt = 4.5802e-06 s
+Step   49: t = 0.0384, dt = 7.7438e-04, wall = 0.3011 s, s/pt = 4.5939e-06 s
+Step   50: t = 0.0392, dt = 7.7408e-04, wall = 0.3037 s, s/pt = 4.6346e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   51: t = 0.0400, dt = 7.7379e-04, wall = 0.3104 s, s/pt = 4.7361e-06 s
+Step   52: t = 0.0408, dt = 7.7351e-04, wall = 0.3022 s, s/pt = 4.6116e-06 s
+Step   53: t = 0.0415, dt = 7.7324e-04, wall = 0.3007 s, s/pt = 4.5890e-06 s
+Step   54: t = 0.0423, dt = 7.7296e-04, wall = 0.3023 s, s/pt = 4.6123e-06 s
+Step   55: t = 0.0431, dt = 7.7269e-04, wall = 0.3034 s, s/pt = 4.6299e-06 s
+Step   56: t = 0.0439, dt = 7.7244e-04, wall = 0.3057 s, s/pt = 4.6642e-06 s
+Step   57: t = 0.0446, dt = 7.7218e-04, wall = 0.3061 s, s/pt = 4.6713e-06 s
+Step   58: t = 0.0454, dt = 7.7193e-04, wall = 0.2980 s, s/pt = 4.5470e-06 s
+Step   59: t = 0.0462, dt = 7.7169e-04, wall = 0.3050 s, s/pt = 4.6538e-06 s
+Step   60: t = 0.0469, dt = 7.7145e-04, wall = 0.3034 s, s/pt = 4.6294e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+Step   61: t = 0.0477, dt = 7.7121e-04, wall = 0.4210 s, s/pt = 6.4240e-06 s
+Step   62: t = 0.0485, dt = 7.7098e-04, wall = 0.4930 s, s/pt = 7.5232e-06 s
+Step   63: t = 0.0493, dt = 7.7076e-04, wall = 0.4006 s, s/pt = 6.1133e-06 s
+Step   64: t = 0.0500, dt = 7.4028e-04, wall = 0.3235 s, s/pt = 4.9361e-06 s
+Time evolution complete: 64 steps, t = 0.05
+Final memory: max = 1.25 GB, avg = 1.15 GB, total = 73.35 GB (64 ranks)
+  steps=64  t=0.05  wall=19.8s  rho[min,max]=[1.0000,1.3843]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.1_N256.bin
+N=256 Kn=0.1 steps=64  frac_real=9.1485e-01 frac_hyp=7.6294e-06 frac_any=9.2804e-01  mean_dM=2.3404e-07 max_dM=4.3876e-03  max_dCons/corr=7.692e-16
+    global conserved rel-drift: mass=4.47e-07 mom_x=5.70e-10 mom_y=5.70e-10 mom_z=0.00e+00 M200=9.95e-05 M020=9.95e-05 M002=2.02e-04 
+
+=== bubble N=512 Kn=0.1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 512x512x1, Ranks: 64, Local: 64x64x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.1
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 1.953125e-03, dy = 1.953125e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 1.953125e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 9.765625e-04
+    Kn = 1.000000e-01
+    CFL*min(dx,dy,dz)/vmax = 3.986800e-04
+    dt (final) = 3.986800e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0004, dt = 3.9868e-04, wall = 1.0550 s, s/pt = 4.0245e-06 s, MaxDiff = 1.293e-12
+Step    2: t = 0.0008, dt = 3.9853e-04, wall = 1.0922 s, s/pt = 4.1664e-06 s
+Step    3: t = 0.0012, dt = 3.9837e-04, wall = 1.0959 s, s/pt = 4.1806e-06 s
+Step    4: t = 0.0016, dt = 3.9822e-04, wall = 1.5081 s, s/pt = 5.7528e-06 s
+Step    5: t = 0.0020, dt = 3.9807e-04, wall = 1.1249 s, s/pt = 4.2911e-06 s
+Step    6: t = 0.0024, dt = 3.9792e-04, wall = 1.2933 s, s/pt = 4.9336e-06 s
+Step    7: t = 0.0028, dt = 3.9777e-04, wall = 1.1924 s, s/pt = 4.5485e-06 s
+Step    8: t = 0.0032, dt = 3.9762e-04, wall = 1.5500 s, s/pt = 5.9127e-06 s
+Step    9: t = 0.0036, dt = 3.9746e-04, wall = 1.2077 s, s/pt = 4.6072e-06 s
+Step   10: t = 0.0040, dt = 3.9731e-04, wall = 1.7382 s, s/pt = 6.6307e-06 s
+  Memory: max = 1.25 GB, avg = 1.15 GB, total = 73.45 GB (64 ranks)
+Step   11: t = 0.0044, dt = 3.9716e-04, wall = 1.8135 s, s/pt = 6.9181e-06 s
+Step   12: t = 0.0048, dt = 3.9701e-04, wall = 1.7157 s, s/pt = 6.5450e-06 s
+Step   13: t = 0.0052, dt = 3.9687e-04, wall = 1.7253 s, s/pt = 6.5814e-06 s
+Step   14: t = 0.0056, dt = 3.9672e-04, wall = 1.8094 s, s/pt = 6.9022e-06 s
+Step   15: t = 0.0060, dt = 3.9657e-04, wall = 1.7233 s, s/pt = 6.5737e-06 s
+Step   16: t = 0.0064, dt = 3.9642e-04, wall = 1.7750 s, s/pt = 6.7710e-06 s
+Step   17: t = 0.0068, dt = 3.9627e-04, wall = 1.1339 s, s/pt = 4.3256e-06 s
+Step   18: t = 0.0072, dt = 3.9613e-04, wall = 1.0408 s, s/pt = 3.9703e-06 s
+Step   19: t = 0.0075, dt = 3.9598e-04, wall = 1.0480 s, s/pt = 3.9978e-06 s
+Step   20: t = 0.0079, dt = 3.9584e-04, wall = 1.0449 s, s/pt = 3.9859e-06 s
+  Memory: max = 1.25 GB, avg = 1.19 GB, total = 76.15 GB (64 ranks)
+Step   21: t = 0.0083, dt = 3.9569e-04, wall = 1.0479 s, s/pt = 3.9973e-06 s
+Step   22: t = 0.0087, dt = 3.9555e-04, wall = 1.0464 s, s/pt = 3.9915e-06 s
+Step   23: t = 0.0091, dt = 3.9540e-04, wall = 1.0365 s, s/pt = 3.9538e-06 s
+Step   24: t = 0.0095, dt = 3.9526e-04, wall = 1.3286 s, s/pt = 5.0683e-06 s
+Step   25: t = 0.0099, dt = 3.9512e-04, wall = 1.2025 s, s/pt = 4.5872e-06 s
+Step   26: t = 0.0103, dt = 3.9498e-04, wall = 1.0475 s, s/pt = 3.9961e-06 s
+Step   27: t = 0.0107, dt = 3.9483e-04, wall = 1.3994 s, s/pt = 5.3384e-06 s
+Step   28: t = 0.0111, dt = 3.9469e-04, wall = 1.6040 s, s/pt = 6.1189e-06 s
+Step   29: t = 0.0115, dt = 3.9455e-04, wall = 1.7385 s, s/pt = 6.6319e-06 s
+Step   30: t = 0.0119, dt = 3.9441e-04, wall = 1.6548 s, s/pt = 6.3126e-06 s
+  Memory: max = 1.25 GB, avg = 1.19 GB, total = 76.23 GB (64 ranks)
+Step   31: t = 0.0123, dt = 3.9428e-04, wall = 1.7059 s, s/pt = 6.5074e-06 s
+Step   32: t = 0.0127, dt = 3.9414e-04, wall = 1.8765 s, s/pt = 7.1583e-06 s
+Step   33: t = 0.0131, dt = 3.9400e-04, wall = 1.8419 s, s/pt = 7.0265e-06 s
+Step   34: t = 0.0135, dt = 3.9386e-04, wall = 1.8793 s, s/pt = 7.1691e-06 s
+Step   35: t = 0.0139, dt = 3.9373e-04, wall = 1.6930 s, s/pt = 6.4581e-06 s
+Step   36: t = 0.0143, dt = 3.9359e-04, wall = 1.7117 s, s/pt = 6.5295e-06 s
+Step   37: t = 0.0147, dt = 3.9346e-04, wall = 1.6012 s, s/pt = 6.1081e-06 s
+Step   38: t = 0.0150, dt = 3.9333e-04, wall = 1.5920 s, s/pt = 6.0729e-06 s
+Step   39: t = 0.0154, dt = 3.9319e-04, wall = 1.1164 s, s/pt = 4.2589e-06 s
+Step   40: t = 0.0158, dt = 3.9306e-04, wall = 1.0498 s, s/pt = 4.0048e-06 s
+  Memory: max = 1.26 GB, avg = 1.19 GB, total = 76.46 GB (64 ranks)
+Step   41: t = 0.0162, dt = 3.9293e-04, wall = 1.0481 s, s/pt = 3.9983e-06 s
+Step   42: t = 0.0166, dt = 3.9280e-04, wall = 1.0487 s, s/pt = 4.0004e-06 s
+Step   43: t = 0.0170, dt = 3.9267e-04, wall = 1.0408 s, s/pt = 3.9704e-06 s
+Step   44: t = 0.0174, dt = 3.9254e-04, wall = 1.3346 s, s/pt = 5.0912e-06 s
+Step   45: t = 0.0178, dt = 3.9241e-04, wall = 1.2010 s, s/pt = 4.5813e-06 s
+Step   46: t = 0.0182, dt = 3.9228e-04, wall = 1.0462 s, s/pt = 3.9909e-06 s
+Step   47: t = 0.0186, dt = 3.9216e-04, wall = 1.4342 s, s/pt = 5.4709e-06 s
+Step   48: t = 0.0190, dt = 3.9203e-04, wall = 1.6821 s, s/pt = 6.4167e-06 s
+Step   49: t = 0.0194, dt = 3.9191e-04, wall = 1.7636 s, s/pt = 6.7275e-06 s
+Step   50: t = 0.0198, dt = 3.9178e-04, wall = 1.7532 s, s/pt = 6.6881e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 76.52 GB (64 ranks)
+Step   51: t = 0.0201, dt = 3.9166e-04, wall = 1.7085 s, s/pt = 6.5173e-06 s
+Step   52: t = 0.0205, dt = 3.9155e-04, wall = 1.7281 s, s/pt = 6.5921e-06 s
+Step   53: t = 0.0209, dt = 3.9143e-04, wall = 1.6837 s, s/pt = 6.4228e-06 s
+Step   54: t = 0.0213, dt = 3.9131e-04, wall = 1.7038 s, s/pt = 6.4996e-06 s
+Step   55: t = 0.0217, dt = 3.9119e-04, wall = 1.7107 s, s/pt = 6.5256e-06 s
+Step   56: t = 0.0221, dt = 3.9107e-04, wall = 1.5680 s, s/pt = 5.9814e-06 s
+Step   57: t = 0.0225, dt = 3.9096e-04, wall = 1.6491 s, s/pt = 6.2907e-06 s
+Step   58: t = 0.0229, dt = 3.9084e-04, wall = 1.6353 s, s/pt = 6.2380e-06 s
+Step   59: t = 0.0233, dt = 3.9073e-04, wall = 1.7087 s, s/pt = 6.5182e-06 s
+Step   60: t = 0.0237, dt = 3.9061e-04, wall = 1.4262 s, s/pt = 5.4404e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 76.69 GB (64 ranks)
+Step   61: t = 0.0241, dt = 3.9050e-04, wall = 1.2168 s, s/pt = 4.6417e-06 s
+Step   62: t = 0.0244, dt = 3.9039e-04, wall = 1.0544 s, s/pt = 4.0222e-06 s
+Step   63: t = 0.0248, dt = 3.9027e-04, wall = 1.0461 s, s/pt = 3.9906e-06 s
+Step   64: t = 0.0252, dt = 3.9016e-04, wall = 1.0455 s, s/pt = 3.9882e-06 s
+Step   65: t = 0.0256, dt = 3.9004e-04, wall = 1.3321 s, s/pt = 5.0816e-06 s
+Step   66: t = 0.0260, dt = 3.8993e-04, wall = 1.2067 s, s/pt = 4.6031e-06 s
+Step   67: t = 0.0264, dt = 3.8982e-04, wall = 1.0475 s, s/pt = 3.9957e-06 s
+Step   68: t = 0.0268, dt = 3.8971e-04, wall = 1.4261 s, s/pt = 5.4400e-06 s
+Step   69: t = 0.0272, dt = 3.8960e-04, wall = 1.7139 s, s/pt = 6.5379e-06 s
+Step   70: t = 0.0276, dt = 3.8950e-04, wall = 1.8582 s, s/pt = 7.0884e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 76.80 GB (64 ranks)
+Step   71: t = 0.0280, dt = 3.8939e-04, wall = 1.7814 s, s/pt = 6.7954e-06 s
+Step   72: t = 0.0283, dt = 3.8928e-04, wall = 1.7440 s, s/pt = 6.6526e-06 s
+Step   73: t = 0.0287, dt = 3.8918e-04, wall = 1.8162 s, s/pt = 6.9284e-06 s
+Step   74: t = 0.0291, dt = 3.8908e-04, wall = 1.7820 s, s/pt = 6.7979e-06 s
+Step   75: t = 0.0295, dt = 3.8898e-04, wall = 1.8272 s, s/pt = 6.9704e-06 s
+Step   76: t = 0.0299, dt = 3.8889e-04, wall = 1.6989 s, s/pt = 6.4808e-06 s
+Step   77: t = 0.0303, dt = 3.8880e-04, wall = 1.5269 s, s/pt = 5.8248e-06 s
+Step   78: t = 0.0307, dt = 3.8871e-04, wall = 1.5034 s, s/pt = 5.7351e-06 s
+Step   79: t = 0.0311, dt = 3.8862e-04, wall = 1.7207 s, s/pt = 6.5640e-06 s
+Step   80: t = 0.0315, dt = 3.8852e-04, wall = 1.2366 s, s/pt = 4.7172e-06 s
+  Memory: max = 1.26 GB, avg = 1.20 GB, total = 76.94 GB (64 ranks)
+Step   81: t = 0.0318, dt = 3.8843e-04, wall = 1.0503 s, s/pt = 4.0066e-06 s
+Step   82: t = 0.0322, dt = 3.8834e-04, wall = 1.0450 s, s/pt = 3.9865e-06 s
+Step   83: t = 0.0326, dt = 3.8825e-04, wall = 1.0563 s, s/pt = 4.0296e-06 s
+Step   84: t = 0.0330, dt = 3.8816e-04, wall = 1.0557 s, s/pt = 4.0271e-06 s
+Step   85: t = 0.0334, dt = 3.8807e-04, wall = 1.0478 s, s/pt = 3.9972e-06 s
+Step   86: t = 0.0338, dt = 3.8798e-04, wall = 1.0544 s, s/pt = 4.0221e-06 s
+Step   87: t = 0.0342, dt = 3.8789e-04, wall = 1.3558 s, s/pt = 5.1719e-06 s
+Step   88: t = 0.0346, dt = 3.8780e-04, wall = 1.6142 s, s/pt = 6.1577e-06 s
+Step   89: t = 0.0349, dt = 3.8771e-04, wall = 1.8664 s, s/pt = 7.1198e-06 s
+Step   90: t = 0.0353, dt = 3.8762e-04, wall = 1.6609 s, s/pt = 6.3357e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 77.00 GB (64 ranks)
+Step   91: t = 0.0357, dt = 3.8753e-04, wall = 1.7896 s, s/pt = 6.8269e-06 s
+Step   92: t = 0.0361, dt = 3.8743e-04, wall = 1.6973 s, s/pt = 6.4747e-06 s
+Step   93: t = 0.0365, dt = 3.8734e-04, wall = 1.6319 s, s/pt = 6.2252e-06 s
+Step   94: t = 0.0369, dt = 3.8725e-04, wall = 1.7413 s, s/pt = 6.6426e-06 s
+Step   95: t = 0.0373, dt = 3.8716e-04, wall = 1.7566 s, s/pt = 6.7009e-06 s
+Step   96: t = 0.0377, dt = 3.8708e-04, wall = 1.7665 s, s/pt = 6.7388e-06 s
+Step   97: t = 0.0380, dt = 3.8700e-04, wall = 1.7852 s, s/pt = 6.8100e-06 s
+Step   98: t = 0.0384, dt = 3.8692e-04, wall = 1.2372 s, s/pt = 4.7194e-06 s
+Step   99: t = 0.0388, dt = 3.8684e-04, wall = 1.3812 s, s/pt = 5.2689e-06 s
+Step  100: t = 0.0392, dt = 3.8676e-04, wall = 1.7534 s, s/pt = 6.6886e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 77.09 GB (64 ranks)
+Step  101: t = 0.0396, dt = 3.8669e-04, wall = 1.5629 s, s/pt = 5.9620e-06 s
+Step  102: t = 0.0400, dt = 3.8662e-04, wall = 1.2943 s, s/pt = 4.9372e-06 s
+Step  103: t = 0.0404, dt = 3.8655e-04, wall = 1.0518 s, s/pt = 4.0124e-06 s
+Step  104: t = 0.0408, dt = 3.8648e-04, wall = 1.0504 s, s/pt = 4.0068e-06 s
+Step  105: t = 0.0411, dt = 3.8641e-04, wall = 1.0510 s, s/pt = 4.0093e-06 s
+Step  106: t = 0.0415, dt = 3.8635e-04, wall = 1.0535 s, s/pt = 4.0190e-06 s
+Step  107: t = 0.0419, dt = 3.8629e-04, wall = 1.0501 s, s/pt = 4.0059e-06 s
+Step  108: t = 0.0423, dt = 3.8622e-04, wall = 1.4555 s, s/pt = 5.5522e-06 s
+Step  109: t = 0.0427, dt = 3.8615e-04, wall = 1.9497 s, s/pt = 7.4375e-06 s
+Step  110: t = 0.0431, dt = 3.8609e-04, wall = 1.6705 s, s/pt = 6.3725e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 77.11 GB (64 ranks)
+Step  111: t = 0.0435, dt = 3.8603e-04, wall = 1.7058 s, s/pt = 6.5072e-06 s
+Step  112: t = 0.0438, dt = 3.8596e-04, wall = 1.6697 s, s/pt = 6.3693e-06 s
+Step  113: t = 0.0442, dt = 3.8590e-04, wall = 1.5494 s, s/pt = 5.9105e-06 s
+Step  114: t = 0.0446, dt = 3.8583e-04, wall = 1.6687 s, s/pt = 6.3656e-06 s
+Step  115: t = 0.0450, dt = 3.8577e-04, wall = 1.7068 s, s/pt = 6.5108e-06 s
+Step  116: t = 0.0454, dt = 3.8571e-04, wall = 1.7399 s, s/pt = 6.6372e-06 s
+Step  117: t = 0.0458, dt = 3.8565e-04, wall = 1.6798 s, s/pt = 6.4079e-06 s
+Step  118: t = 0.0462, dt = 3.8559e-04, wall = 1.6259 s, s/pt = 6.2023e-06 s
+Step  119: t = 0.0465, dt = 3.8553e-04, wall = 1.7418 s, s/pt = 6.6443e-06 s
+Step  120: t = 0.0469, dt = 3.8547e-04, wall = 1.7292 s, s/pt = 6.5964e-06 s
+  Memory: max = 1.27 GB, avg = 1.21 GB, total = 77.13 GB (64 ranks)
+Step  121: t = 0.0473, dt = 3.8541e-04, wall = 1.2999 s, s/pt = 4.9589e-06 s
+Step  122: t = 0.0477, dt = 3.8535e-04, wall = 1.5126 s, s/pt = 5.7701e-06 s
+Step  123: t = 0.0481, dt = 3.8530e-04, wall = 1.3461 s, s/pt = 5.1349e-06 s
+Step  124: t = 0.0485, dt = 3.8524e-04, wall = 1.0561 s, s/pt = 4.0288e-06 s
+Step  125: t = 0.0489, dt = 3.8518e-04, wall = 1.0472 s, s/pt = 3.9948e-06 s
+Step  126: t = 0.0492, dt = 3.8513e-04, wall = 1.0503 s, s/pt = 4.0066e-06 s
+Step  127: t = 0.0496, dt = 3.8507e-04, wall = 1.0504 s, s/pt = 4.0069e-06 s
+Step  128: t = 0.0500, dt = 3.7416e-04, wall = 1.4854 s, s/pt = 5.6665e-06 s
+Time evolution complete: 128 steps, t = 0.05
+Final memory: max = 1.27 GB, avg = 1.21 GB, total = 77.14 GB (64 ranks)
+  steps=128  t=0.05  wall=185.7s  rho[min,max]=[1.0000,1.3913]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.1_N512.bin
+N=512 Kn=0.1 steps=128  frac_real=9.2359e-01 frac_hyp=3.5763e-06 frac_any=9.3717e-01  mean_dM=2.2499e-07 max_dM=5.2314e-03  max_dCons/corr=1.110e-15
+    global conserved rel-drift: mass=4.12e-07 mom_x=2.41e-10 mom_y=2.41e-10 mom_z=0.00e+00 M200=1.02e-04 M020=1.02e-04 M002=2.06e-04 
+
+=== bubble N=1024 Kn=0.1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 1024x1024x1, Ranks: 64, Local: 128x128x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 0.1
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 9.765625e-04, dy = 9.765625e-04, dz = 1.000000e+00
+    min(dx,dy,dz) = 9.765625e-04
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 4.882812e-04
+    Kn = 1.000000e-01
+    CFL*min(dx,dy,dz)/vmax = 1.993400e-04
+    dt (final) = 1.993400e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0002, dt = 1.9934e-04, wall = 6.0088 s, s/pt = 5.7304e-06 s, MaxDiff = 5.720e-13
+Step    2: t = 0.0004, dt = 1.9930e-04, wall = 4.7159 s, s/pt = 4.4974e-06 s
+Step    3: t = 0.0006, dt = 1.9926e-04, wall = 4.1721 s, s/pt = 3.9788e-06 s
+Step    4: t = 0.0008, dt = 1.9923e-04, wall = 4.8685 s, s/pt = 4.6430e-06 s
+Step    5: t = 0.0010, dt = 1.9919e-04, wall = 4.7937 s, s/pt = 4.5716e-06 s
+Step    6: t = 0.0012, dt = 1.9915e-04, wall = 4.9739 s, s/pt = 4.7434e-06 s
+Step    7: t = 0.0014, dt = 1.9911e-04, wall = 4.0693 s, s/pt = 3.8808e-06 s
+Step    8: t = 0.0016, dt = 1.9907e-04, wall = 4.6705 s, s/pt = 4.4541e-06 s
+Step    9: t = 0.0018, dt = 1.9903e-04, wall = 4.9506 s, s/pt = 4.7212e-06 s
+Step   10: t = 0.0020, dt = 1.9900e-04, wall = 4.9780 s, s/pt = 4.7474e-06 s
+  Memory: max = 1.50 GB, avg = 1.26 GB, total = 80.86 GB (64 ranks)
+Step   11: t = 0.0022, dt = 1.9896e-04, wall = 4.6474 s, s/pt = 4.4321e-06 s
+Step   12: t = 0.0024, dt = 1.9892e-04, wall = 4.6879 s, s/pt = 4.4708e-06 s
+Step   13: t = 0.0026, dt = 1.9888e-04, wall = 4.8238 s, s/pt = 4.6003e-06 s
+Step   14: t = 0.0028, dt = 1.9885e-04, wall = 5.0492 s, s/pt = 4.8153e-06 s
+Step   15: t = 0.0030, dt = 1.9881e-04, wall = 4.9825 s, s/pt = 4.7517e-06 s
+Step   16: t = 0.0032, dt = 1.9877e-04, wall = 4.9150 s, s/pt = 4.6873e-06 s
+Step   17: t = 0.0034, dt = 1.9873e-04, wall = 4.5251 s, s/pt = 4.3155e-06 s
+Step   18: t = 0.0036, dt = 1.9869e-04, wall = 4.9995 s, s/pt = 4.7679e-06 s
+Step   19: t = 0.0038, dt = 1.9866e-04, wall = 5.0261 s, s/pt = 4.7933e-06 s
+Step   20: t = 0.0040, dt = 1.9862e-04, wall = 4.9740 s, s/pt = 4.7436e-06 s
+  Memory: max = 1.52 GB, avg = 1.27 GB, total = 81.51 GB (64 ranks)
+Step   21: t = 0.0042, dt = 1.9858e-04, wall = 5.1884 s, s/pt = 4.9480e-06 s
+Step   22: t = 0.0044, dt = 1.9854e-04, wall = 4.9816 s, s/pt = 4.7509e-06 s
+Step   23: t = 0.0046, dt = 1.9851e-04, wall = 4.9683 s, s/pt = 4.7381e-06 s
+Step   24: t = 0.0048, dt = 1.9847e-04, wall = 4.8512 s, s/pt = 4.6264e-06 s
+Step   25: t = 0.0050, dt = 1.9843e-04, wall = 4.8494 s, s/pt = 4.6248e-06 s
+Step   26: t = 0.0052, dt = 1.9839e-04, wall = 4.9713 s, s/pt = 4.7410e-06 s
+Step   27: t = 0.0054, dt = 1.9836e-04, wall = 5.0771 s, s/pt = 4.8419e-06 s
+Step   28: t = 0.0056, dt = 1.9832e-04, wall = 4.9641 s, s/pt = 4.7341e-06 s
+Step   29: t = 0.0058, dt = 1.9828e-04, wall = 4.8846 s, s/pt = 4.6584e-06 s
+Step   30: t = 0.0060, dt = 1.9825e-04, wall = 4.7707 s, s/pt = 4.5497e-06 s
+  Memory: max = 1.52 GB, avg = 1.28 GB, total = 81.91 GB (64 ranks)
+Step   31: t = 0.0062, dt = 1.9821e-04, wall = 5.0414 s, s/pt = 4.8078e-06 s
+Step   32: t = 0.0064, dt = 1.9817e-04, wall = 4.9843 s, s/pt = 4.7534e-06 s
+Step   33: t = 0.0066, dt = 1.9813e-04, wall = 5.0206 s, s/pt = 4.7881e-06 s
+Step   34: t = 0.0068, dt = 1.9810e-04, wall = 5.0301 s, s/pt = 4.7970e-06 s
+Step   35: t = 0.0070, dt = 1.9806e-04, wall = 4.9825 s, s/pt = 4.7517e-06 s
+Step   36: t = 0.0072, dt = 1.9802e-04, wall = 5.0922 s, s/pt = 4.8563e-06 s
+Step   37: t = 0.0074, dt = 1.9799e-04, wall = 5.0606 s, s/pt = 4.8262e-06 s
+Step   38: t = 0.0075, dt = 1.9795e-04, wall = 5.0312 s, s/pt = 4.7981e-06 s
+Step   39: t = 0.0077, dt = 1.9792e-04, wall = 5.0377 s, s/pt = 4.8043e-06 s
+Step   40: t = 0.0079, dt = 1.9788e-04, wall = 4.9959 s, s/pt = 4.7645e-06 s
+  Memory: max = 1.52 GB, avg = 1.28 GB, total = 82.19 GB (64 ranks)
+Step   41: t = 0.0081, dt = 1.9784e-04, wall = 4.7025 s, s/pt = 4.4846e-06 s
+Step   42: t = 0.0083, dt = 1.9781e-04, wall = 4.9335 s, s/pt = 4.7050e-06 s
+Step   43: t = 0.0085, dt = 1.9777e-04, wall = 4.9150 s, s/pt = 4.6873e-06 s
+Step   44: t = 0.0087, dt = 1.9773e-04, wall = 5.0999 s, s/pt = 4.8636e-06 s
+Step   45: t = 0.0089, dt = 1.9770e-04, wall = 5.0265 s, s/pt = 4.7936e-06 s
+Step   46: t = 0.0091, dt = 1.9766e-04, wall = 4.8657 s, s/pt = 4.6403e-06 s
+Step   47: t = 0.0093, dt = 1.9763e-04, wall = 5.0450 s, s/pt = 4.8113e-06 s
+Step   48: t = 0.0095, dt = 1.9759e-04, wall = 5.0009 s, s/pt = 4.7692e-06 s
+Step   49: t = 0.0097, dt = 1.9755e-04, wall = 5.0782 s, s/pt = 4.8430e-06 s
+Step   50: t = 0.0099, dt = 1.9752e-04, wall = 4.9913 s, s/pt = 4.7601e-06 s
+  Memory: max = 1.59 GB, avg = 1.29 GB, total = 82.66 GB (64 ranks)
+Step   51: t = 0.0101, dt = 1.9748e-04, wall = 4.9315 s, s/pt = 4.7031e-06 s
+Step   52: t = 0.0103, dt = 1.9745e-04, wall = 5.0421 s, s/pt = 4.8085e-06 s
+Step   53: t = 0.0105, dt = 1.9741e-04, wall = 4.8656 s, s/pt = 4.6402e-06 s
+Step   54: t = 0.0107, dt = 1.9738e-04, wall = 5.0069 s, s/pt = 4.7749e-06 s
+Step   55: t = 0.0109, dt = 1.9734e-04, wall = 5.1146 s, s/pt = 4.8777e-06 s
+Step   56: t = 0.0111, dt = 1.9731e-04, wall = 4.9164 s, s/pt = 4.6887e-06 s
+Step   57: t = 0.0113, dt = 1.9727e-04, wall = 5.1763 s, s/pt = 4.9365e-06 s
+Step   58: t = 0.0115, dt = 1.9724e-04, wall = 5.0439 s, s/pt = 4.8102e-06 s
+Step   59: t = 0.0117, dt = 1.9720e-04, wall = 4.9883 s, s/pt = 4.7572e-06 s
+Step   60: t = 0.0119, dt = 1.9717e-04, wall = 4.8923 s, s/pt = 4.6656e-06 s
+  Memory: max = 1.59 GB, avg = 1.30 GB, total = 83.03 GB (64 ranks)
+Step   61: t = 0.0121, dt = 1.9713e-04, wall = 4.9662 s, s/pt = 4.7361e-06 s
+Step   62: t = 0.0123, dt = 1.9710e-04, wall = 4.9969 s, s/pt = 4.7654e-06 s
+Step   63: t = 0.0125, dt = 1.9706e-04, wall = 4.8149 s, s/pt = 4.5918e-06 s
+Step   64: t = 0.0127, dt = 1.9703e-04, wall = 5.1045 s, s/pt = 4.8680e-06 s
+Step   65: t = 0.0129, dt = 1.9699e-04, wall = 4.9685 s, s/pt = 4.7383e-06 s
+Step   66: t = 0.0131, dt = 1.9696e-04, wall = 4.9746 s, s/pt = 4.7442e-06 s
+Step   67: t = 0.0133, dt = 1.9693e-04, wall = 4.8062 s, s/pt = 4.5835e-06 s
+Step   68: t = 0.0135, dt = 1.9689e-04, wall = 4.7970 s, s/pt = 4.5748e-06 s
+Step   69: t = 0.0137, dt = 1.9686e-04, wall = 5.1144 s, s/pt = 4.8775e-06 s
+Step   70: t = 0.0139, dt = 1.9682e-04, wall = 4.8992 s, s/pt = 4.6722e-06 s
+  Memory: max = 1.62 GB, avg = 1.30 GB, total = 83.48 GB (64 ranks)
+Step   71: t = 0.0141, dt = 1.9679e-04, wall = 4.9076 s, s/pt = 4.6802e-06 s
+Step   72: t = 0.0143, dt = 1.9676e-04, wall = 4.7365 s, s/pt = 4.5170e-06 s
+Step   73: t = 0.0145, dt = 1.9672e-04, wall = 5.0671 s, s/pt = 4.8324e-06 s
+Step   74: t = 0.0147, dt = 1.9669e-04, wall = 5.1450 s, s/pt = 4.9067e-06 s
+Step   75: t = 0.0148, dt = 1.9665e-04, wall = 4.7839 s, s/pt = 4.5623e-06 s
+Step   76: t = 0.0150, dt = 1.9662e-04, wall = 4.6908 s, s/pt = 4.4735e-06 s
+Step   77: t = 0.0152, dt = 1.9659e-04, wall = 4.7743 s, s/pt = 4.5531e-06 s
+Step   78: t = 0.0154, dt = 1.9655e-04, wall = 5.1011 s, s/pt = 4.8648e-06 s
+Step   79: t = 0.0156, dt = 1.9652e-04, wall = 4.8220 s, s/pt = 4.5986e-06 s
+Step   80: t = 0.0158, dt = 1.9649e-04, wall = 4.9289 s, s/pt = 4.7006e-06 s
+  Memory: max = 1.62 GB, avg = 1.31 GB, total = 83.85 GB (64 ranks)
+Step   81: t = 0.0160, dt = 1.9646e-04, wall = 5.0976 s, s/pt = 4.8615e-06 s
+Step   82: t = 0.0162, dt = 1.9642e-04, wall = 4.9772 s, s/pt = 4.7467e-06 s
+Step   83: t = 0.0164, dt = 1.9639e-04, wall = 5.0688 s, s/pt = 4.8340e-06 s
+Step   84: t = 0.0166, dt = 1.9636e-04, wall = 5.0688 s, s/pt = 4.8340e-06 s
+Step   85: t = 0.0168, dt = 1.9633e-04, wall = 4.9348 s, s/pt = 4.7062e-06 s
+Step   86: t = 0.0170, dt = 1.9629e-04, wall = 4.9650 s, s/pt = 4.7350e-06 s
+Step   87: t = 0.0172, dt = 1.9626e-04, wall = 4.8711 s, s/pt = 4.6455e-06 s
+Step   88: t = 0.0174, dt = 1.9623e-04, wall = 4.7472 s, s/pt = 4.5272e-06 s
+Step   89: t = 0.0176, dt = 1.9620e-04, wall = 4.8919 s, s/pt = 4.6653e-06 s
+Step   90: t = 0.0178, dt = 1.9616e-04, wall = 5.0950 s, s/pt = 4.8589e-06 s
+  Memory: max = 1.62 GB, avg = 1.31 GB, total = 84.15 GB (64 ranks)
+Step   91: t = 0.0180, dt = 1.9613e-04, wall = 5.0378 s, s/pt = 4.8044e-06 s
+Step   92: t = 0.0182, dt = 1.9610e-04, wall = 5.1228 s, s/pt = 4.8854e-06 s
+Step   93: t = 0.0184, dt = 1.9607e-04, wall = 5.0532 s, s/pt = 4.8191e-06 s
+Step   94: t = 0.0186, dt = 1.9604e-04, wall = 5.1404 s, s/pt = 4.9023e-06 s
+Step   95: t = 0.0188, dt = 1.9601e-04, wall = 5.1466 s, s/pt = 4.9082e-06 s
+Step   96: t = 0.0190, dt = 1.9597e-04, wall = 4.8821 s, s/pt = 4.6559e-06 s
+Step   97: t = 0.0192, dt = 1.9594e-04, wall = 5.1538 s, s/pt = 4.9150e-06 s
+Step   98: t = 0.0194, dt = 1.9591e-04, wall = 5.0829 s, s/pt = 4.8474e-06 s
+Step   99: t = 0.0196, dt = 1.9588e-04, wall = 4.8055 s, s/pt = 4.5829e-06 s
+Step  100: t = 0.0198, dt = 1.9585e-04, wall = 4.7579 s, s/pt = 4.5375e-06 s
+  Memory: max = 1.62 GB, avg = 1.32 GB, total = 84.48 GB (64 ranks)
+Step  101: t = 0.0199, dt = 1.9582e-04, wall = 5.1225 s, s/pt = 4.8852e-06 s
+Step  102: t = 0.0201, dt = 1.9579e-04, wall = 5.1971 s, s/pt = 4.9563e-06 s
+Step  103: t = 0.0203, dt = 1.9576e-04, wall = 4.9279 s, s/pt = 4.6996e-06 s
+Step  104: t = 0.0205, dt = 1.9573e-04, wall = 5.0890 s, s/pt = 4.8533e-06 s
+Step  105: t = 0.0207, dt = 1.9570e-04, wall = 4.7947 s, s/pt = 4.5726e-06 s
+Step  106: t = 0.0209, dt = 1.9567e-04, wall = 5.0764 s, s/pt = 4.8413e-06 s
+Step  107: t = 0.0211, dt = 1.9563e-04, wall = 4.7913 s, s/pt = 4.5694e-06 s
+Step  108: t = 0.0213, dt = 1.9560e-04, wall = 5.0619 s, s/pt = 4.8274e-06 s
+Step  109: t = 0.0215, dt = 1.9557e-04, wall = 4.7191 s, s/pt = 4.5005e-06 s
+Step  110: t = 0.0217, dt = 1.9554e-04, wall = 5.1267 s, s/pt = 4.8892e-06 s
+  Memory: max = 1.62 GB, avg = 1.33 GB, total = 84.83 GB (64 ranks)
+Step  111: t = 0.0219, dt = 1.9551e-04, wall = 4.9337 s, s/pt = 4.7052e-06 s
+Step  112: t = 0.0221, dt = 1.9548e-04, wall = 5.0767 s, s/pt = 4.8415e-06 s
+Step  113: t = 0.0223, dt = 1.9545e-04, wall = 4.9159 s, s/pt = 4.6882e-06 s
+Step  114: t = 0.0225, dt = 1.9542e-04, wall = 5.0913 s, s/pt = 4.8554e-06 s
+Step  115: t = 0.0227, dt = 1.9539e-04, wall = 4.8782 s, s/pt = 4.6522e-06 s
+Step  116: t = 0.0229, dt = 1.9536e-04, wall = 4.7708 s, s/pt = 4.5498e-06 s
+Step  117: t = 0.0231, dt = 1.9533e-04, wall = 4.9569 s, s/pt = 4.7272e-06 s
+Step  118: t = 0.0233, dt = 1.9530e-04, wall = 5.0544 s, s/pt = 4.8203e-06 s
+Step  119: t = 0.0235, dt = 1.9528e-04, wall = 5.0483 s, s/pt = 4.8144e-06 s
+Step  120: t = 0.0237, dt = 1.9525e-04, wall = 4.8812 s, s/pt = 4.6551e-06 s
+  Memory: max = 1.62 GB, avg = 1.33 GB, total = 85.11 GB (64 ranks)
+Step  121: t = 0.0239, dt = 1.9522e-04, wall = 5.1220 s, s/pt = 4.8848e-06 s
+Step  122: t = 0.0241, dt = 1.9519e-04, wall = 4.8424 s, s/pt = 4.6180e-06 s
+Step  123: t = 0.0242, dt = 1.9516e-04, wall = 5.1657 s, s/pt = 4.9264e-06 s
+Step  124: t = 0.0244, dt = 1.9513e-04, wall = 4.9837 s, s/pt = 4.7528e-06 s
+Step  125: t = 0.0246, dt = 1.9510e-04, wall = 5.0643 s, s/pt = 4.8297e-06 s
+Step  126: t = 0.0248, dt = 1.9507e-04, wall = 4.8423 s, s/pt = 4.6179e-06 s
+Step  127: t = 0.0250, dt = 1.9505e-04, wall = 4.8222 s, s/pt = 4.5988e-06 s
+Step  128: t = 0.0252, dt = 1.9502e-04, wall = 5.0998 s, s/pt = 4.8635e-06 s
+Step  129: t = 0.0254, dt = 1.9500e-04, wall = 5.1621 s, s/pt = 4.9230e-06 s
+Step  130: t = 0.0256, dt = 1.9497e-04, wall = 4.8231 s, s/pt = 4.5997e-06 s
+  Memory: max = 1.62 GB, avg = 1.33 GB, total = 85.43 GB (64 ranks)
+Step  131: t = 0.0258, dt = 1.9494e-04, wall = 4.7150 s, s/pt = 4.4966e-06 s
+Step  132: t = 0.0260, dt = 1.9492e-04, wall = 5.1996 s, s/pt = 4.9587e-06 s
+Step  133: t = 0.0262, dt = 1.9489e-04, wall = 5.0062 s, s/pt = 4.7743e-06 s
+Step  134: t = 0.0264, dt = 1.9486e-04, wall = 5.0706 s, s/pt = 4.8357e-06 s
+Step  135: t = 0.0266, dt = 1.9484e-04, wall = 5.0998 s, s/pt = 4.8635e-06 s
+Step  136: t = 0.0268, dt = 1.9481e-04, wall = 5.0096 s, s/pt = 4.7776e-06 s
+Step  137: t = 0.0270, dt = 1.9478e-04, wall = 5.1360 s, s/pt = 4.8980e-06 s
+Step  138: t = 0.0272, dt = 1.9476e-04, wall = 5.1523 s, s/pt = 4.9136e-06 s
+Step  139: t = 0.0274, dt = 1.9473e-04, wall = 5.0907 s, s/pt = 4.8549e-06 s
+Step  140: t = 0.0276, dt = 1.9470e-04, wall = 4.8957 s, s/pt = 4.6689e-06 s
+  Memory: max = 1.62 GB, avg = 1.34 GB, total = 85.69 GB (64 ranks)
+Step  141: t = 0.0278, dt = 1.9468e-04, wall = 5.1224 s, s/pt = 4.8851e-06 s
+Step  142: t = 0.0280, dt = 1.9465e-04, wall = 4.9171 s, s/pt = 4.6893e-06 s
+Step  143: t = 0.0281, dt = 1.9462e-04, wall = 5.0541 s, s/pt = 4.8200e-06 s
+Step  144: t = 0.0283, dt = 1.9460e-04, wall = 5.1890 s, s/pt = 4.9486e-06 s
+Step  145: t = 0.0285, dt = 1.9457e-04, wall = 5.0781 s, s/pt = 4.8428e-06 s
+Step  146: t = 0.0287, dt = 1.9454e-04, wall = 5.1290 s, s/pt = 4.8914e-06 s
+Step  147: t = 0.0289, dt = 1.9451e-04, wall = 5.1451 s, s/pt = 4.9068e-06 s
+Step  148: t = 0.0291, dt = 1.9449e-04, wall = 4.8233 s, s/pt = 4.5999e-06 s
+Step  149: t = 0.0293, dt = 1.9446e-04, wall = 4.9174 s, s/pt = 4.6896e-06 s
+Step  150: t = 0.0295, dt = 1.9443e-04, wall = 4.9256 s, s/pt = 4.6974e-06 s
+  Memory: max = 1.65 GB, avg = 1.35 GB, total = 86.12 GB (64 ranks)
+Step  151: t = 0.0297, dt = 1.9441e-04, wall = 5.0576 s, s/pt = 4.8233e-06 s
+Step  152: t = 0.0299, dt = 1.9438e-04, wall = 5.1663 s, s/pt = 4.9270e-06 s
+Step  153: t = 0.0301, dt = 1.9436e-04, wall = 5.0660 s, s/pt = 4.8313e-06 s
+Step  154: t = 0.0303, dt = 1.9433e-04, wall = 5.1419 s, s/pt = 4.9037e-06 s
+Step  155: t = 0.0305, dt = 1.9431e-04, wall = 5.0189 s, s/pt = 4.7864e-06 s
+Step  156: t = 0.0307, dt = 1.9428e-04, wall = 4.8257 s, s/pt = 4.6021e-06 s
+Step  157: t = 0.0309, dt = 1.9425e-04, wall = 5.0309 s, s/pt = 4.7979e-06 s
+Step  158: t = 0.0311, dt = 1.9423e-04, wall = 4.8580 s, s/pt = 4.6330e-06 s
+Step  159: t = 0.0313, dt = 1.9421e-04, wall = 5.0761 s, s/pt = 4.8409e-06 s
+Step  160: t = 0.0315, dt = 1.9419e-04, wall = 5.1069 s, s/pt = 4.8703e-06 s
+  Memory: max = 1.65 GB, avg = 1.35 GB, total = 86.44 GB (64 ranks)
+Step  161: t = 0.0316, dt = 1.9416e-04, wall = 5.1767 s, s/pt = 4.9369e-06 s
+Step  162: t = 0.0318, dt = 1.9414e-04, wall = 4.9592 s, s/pt = 4.7295e-06 s
+Step  163: t = 0.0320, dt = 1.9412e-04, wall = 5.1878 s, s/pt = 4.9475e-06 s
+Step  164: t = 0.0322, dt = 1.9410e-04, wall = 5.0568 s, s/pt = 4.8225e-06 s
+Step  165: t = 0.0324, dt = 1.9408e-04, wall = 5.1815 s, s/pt = 4.9414e-06 s
+Step  166: t = 0.0326, dt = 1.9405e-04, wall = 4.8528 s, s/pt = 4.6280e-06 s
+Step  167: t = 0.0328, dt = 1.9403e-04, wall = 4.8955 s, s/pt = 4.6687e-06 s
+Step  168: t = 0.0330, dt = 1.9401e-04, wall = 4.9721 s, s/pt = 4.7417e-06 s
+Step  169: t = 0.0332, dt = 1.9399e-04, wall = 5.0859 s, s/pt = 4.8502e-06 s
+Step  170: t = 0.0334, dt = 1.9397e-04, wall = 5.1162 s, s/pt = 4.8792e-06 s
+  Memory: max = 1.65 GB, avg = 1.36 GB, total = 86.78 GB (64 ranks)
+Step  171: t = 0.0336, dt = 1.9394e-04, wall = 4.8733 s, s/pt = 4.6476e-06 s
+Step  172: t = 0.0338, dt = 1.9392e-04, wall = 5.1293 s, s/pt = 4.8917e-06 s
+Step  173: t = 0.0340, dt = 1.9390e-04, wall = 5.1240 s, s/pt = 4.8866e-06 s
+Step  174: t = 0.0342, dt = 1.9388e-04, wall = 5.0124 s, s/pt = 4.7802e-06 s
+Step  175: t = 0.0344, dt = 1.9386e-04, wall = 4.7843 s, s/pt = 4.5627e-06 s
+Step  176: t = 0.0346, dt = 1.9384e-04, wall = 4.9741 s, s/pt = 4.7437e-06 s
+Step  177: t = 0.0347, dt = 1.9382e-04, wall = 4.8730 s, s/pt = 4.6473e-06 s
+Step  178: t = 0.0349, dt = 1.9379e-04, wall = 4.9914 s, s/pt = 4.7601e-06 s
+Step  179: t = 0.0351, dt = 1.9377e-04, wall = 4.9202 s, s/pt = 4.6922e-06 s
+Step  180: t = 0.0353, dt = 1.9375e-04, wall = 5.1134 s, s/pt = 4.8765e-06 s
+  Memory: max = 1.65 GB, avg = 1.36 GB, total = 87.10 GB (64 ranks)
+Step  181: t = 0.0355, dt = 1.9373e-04, wall = 5.1588 s, s/pt = 4.9198e-06 s
+Step  182: t = 0.0357, dt = 1.9371e-04, wall = 5.1195 s, s/pt = 4.8824e-06 s
+Step  183: t = 0.0359, dt = 1.9369e-04, wall = 5.1157 s, s/pt = 4.8787e-06 s
+Step  184: t = 0.0361, dt = 1.9366e-04, wall = 5.1229 s, s/pt = 4.8855e-06 s
+Step  185: t = 0.0363, dt = 1.9364e-04, wall = 4.9337 s, s/pt = 4.7051e-06 s
+Step  186: t = 0.0365, dt = 1.9362e-04, wall = 4.9741 s, s/pt = 4.7437e-06 s
+Step  187: t = 0.0367, dt = 1.9359e-04, wall = 5.2129 s, s/pt = 4.9714e-06 s
+Step  188: t = 0.0369, dt = 1.9357e-04, wall = 5.0442 s, s/pt = 4.8105e-06 s
+Step  189: t = 0.0371, dt = 1.9354e-04, wall = 5.2069 s, s/pt = 4.9657e-06 s
+Step  190: t = 0.0373, dt = 1.9352e-04, wall = 5.1727 s, s/pt = 4.9330e-06 s
+  Memory: max = 1.65 GB, avg = 1.37 GB, total = 87.41 GB (64 ranks)
+Step  191: t = 0.0375, dt = 1.9350e-04, wall = 5.0533 s, s/pt = 4.8192e-06 s
+Step  192: t = 0.0377, dt = 1.9348e-04, wall = 5.1826 s, s/pt = 4.9425e-06 s
+Step  193: t = 0.0378, dt = 1.9346e-04, wall = 5.0423 s, s/pt = 4.8087e-06 s
+Step  194: t = 0.0380, dt = 1.9344e-04, wall = 5.1658 s, s/pt = 4.9265e-06 s
+Step  195: t = 0.0382, dt = 1.9341e-04, wall = 5.0351 s, s/pt = 4.8018e-06 s
+Step  196: t = 0.0384, dt = 1.9339e-04, wall = 5.0351 s, s/pt = 4.8018e-06 s
+Step  197: t = 0.0386, dt = 1.9337e-04, wall = 5.1783 s, s/pt = 4.9385e-06 s
+Step  198: t = 0.0388, dt = 1.9336e-04, wall = 5.1518 s, s/pt = 4.9131e-06 s
+Step  199: t = 0.0390, dt = 1.9334e-04, wall = 4.8669 s, s/pt = 4.6414e-06 s
+Step  200: t = 0.0392, dt = 1.9332e-04, wall = 4.7993 s, s/pt = 4.5770e-06 s
+  Memory: max = 1.65 GB, avg = 1.37 GB, total = 87.81 GB (64 ranks)
+Step  201: t = 0.0394, dt = 1.9330e-04, wall = 5.0706 s, s/pt = 4.8357e-06 s
+Step  202: t = 0.0396, dt = 1.9329e-04, wall = 5.1457 s, s/pt = 4.9073e-06 s
+Step  203: t = 0.0398, dt = 1.9327e-04, wall = 5.0982 s, s/pt = 4.8620e-06 s
+Step  204: t = 0.0400, dt = 1.9325e-04, wall = 5.0143 s, s/pt = 4.7820e-06 s
+Step  205: t = 0.0402, dt = 1.9323e-04, wall = 5.0747 s, s/pt = 4.8396e-06 s
+Step  206: t = 0.0404, dt = 1.9321e-04, wall = 5.3195 s, s/pt = 5.0731e-06 s
+Step  207: t = 0.0406, dt = 1.9320e-04, wall = 5.0641 s, s/pt = 4.8295e-06 s
+Step  208: t = 0.0407, dt = 1.9318e-04, wall = 5.1760 s, s/pt = 4.9362e-06 s
+Step  209: t = 0.0409, dt = 1.9316e-04, wall = 5.0444 s, s/pt = 4.8107e-06 s
+Step  210: t = 0.0411, dt = 1.9314e-04, wall = 4.7771 s, s/pt = 4.5558e-06 s
+  Memory: max = 1.69 GB, avg = 1.38 GB, total = 88.17 GB (64 ranks)
+Step  211: t = 0.0413, dt = 1.9313e-04, wall = 5.1384 s, s/pt = 4.9004e-06 s
+Step  212: t = 0.0415, dt = 1.9311e-04, wall = 4.9306 s, s/pt = 4.7022e-06 s
+Step  213: t = 0.0417, dt = 1.9309e-04, wall = 5.0927 s, s/pt = 4.8568e-06 s
+Step  214: t = 0.0419, dt = 1.9308e-04, wall = 4.9616 s, s/pt = 4.7318e-06 s
+Step  215: t = 0.0421, dt = 1.9306e-04, wall = 4.9990 s, s/pt = 4.7675e-06 s
+Step  216: t = 0.0423, dt = 1.9304e-04, wall = 5.1929 s, s/pt = 4.9524e-06 s
+Step  217: t = 0.0425, dt = 1.9303e-04, wall = 5.1416 s, s/pt = 4.9034e-06 s
+Step  218: t = 0.0427, dt = 1.9301e-04, wall = 5.1073 s, s/pt = 4.8707e-06 s
+Step  219: t = 0.0429, dt = 1.9299e-04, wall = 5.1296 s, s/pt = 4.8920e-06 s
+Step  220: t = 0.0431, dt = 1.9298e-04, wall = 4.8803 s, s/pt = 4.6542e-06 s
+  Memory: max = 1.69 GB, avg = 1.38 GB, total = 88.53 GB (64 ranks)
+Step  221: t = 0.0433, dt = 1.9296e-04, wall = 5.1009 s, s/pt = 4.8646e-06 s
+Step  222: t = 0.0434, dt = 1.9294e-04, wall = 4.9276 s, s/pt = 4.6993e-06 s
+Step  223: t = 0.0436, dt = 1.9293e-04, wall = 5.0066 s, s/pt = 4.7747e-06 s
+Step  224: t = 0.0438, dt = 1.9291e-04, wall = 5.1703 s, s/pt = 4.9308e-06 s
+Step  225: t = 0.0440, dt = 1.9290e-04, wall = 5.1552 s, s/pt = 4.9164e-06 s
+Step  226: t = 0.0442, dt = 1.9288e-04, wall = 4.9031 s, s/pt = 4.6760e-06 s
+Step  227: t = 0.0444, dt = 1.9286e-04, wall = 5.0524 s, s/pt = 4.8184e-06 s
+Step  228: t = 0.0446, dt = 1.9284e-04, wall = 5.2002 s, s/pt = 4.9593e-06 s
+Step  229: t = 0.0448, dt = 1.9282e-04, wall = 5.0961 s, s/pt = 4.8601e-06 s
+Step  230: t = 0.0450, dt = 1.9279e-04, wall = 5.1401 s, s/pt = 4.9020e-06 s
+  Memory: max = 1.70 GB, avg = 1.39 GB, total = 88.81 GB (64 ranks)
+Step  231: t = 0.0452, dt = 1.9278e-04, wall = 4.9385 s, s/pt = 4.7097e-06 s
+Step  232: t = 0.0454, dt = 1.9276e-04, wall = 5.0236 s, s/pt = 4.7909e-06 s
+Step  233: t = 0.0456, dt = 1.9274e-04, wall = 5.0787 s, s/pt = 4.8435e-06 s
+Step  234: t = 0.0458, dt = 1.9273e-04, wall = 5.1877 s, s/pt = 4.9474e-06 s
+Step  235: t = 0.0460, dt = 1.9271e-04, wall = 5.0786 s, s/pt = 4.8433e-06 s
+Step  236: t = 0.0461, dt = 1.9270e-04, wall = 4.8766 s, s/pt = 4.6507e-06 s
+Step  237: t = 0.0463, dt = 1.9269e-04, wall = 5.0715 s, s/pt = 4.8366e-06 s
+Step  238: t = 0.0465, dt = 1.9268e-04, wall = 5.1928 s, s/pt = 4.9523e-06 s
+Step  239: t = 0.0467, dt = 1.9267e-04, wall = 5.0241 s, s/pt = 4.7913e-06 s
+Step  240: t = 0.0469, dt = 1.9266e-04, wall = 5.1369 s, s/pt = 4.8989e-06 s
+  Memory: max = 1.70 GB, avg = 1.39 GB, total = 89.09 GB (64 ranks)
+Step  241: t = 0.0471, dt = 1.9264e-04, wall = 5.1169 s, s/pt = 4.8798e-06 s
+Step  242: t = 0.0473, dt = 1.9263e-04, wall = 5.1202 s, s/pt = 4.8830e-06 s
+Step  243: t = 0.0475, dt = 1.9261e-04, wall = 4.9287 s, s/pt = 4.7004e-06 s
+Step  244: t = 0.0477, dt = 1.9260e-04, wall = 5.2116 s, s/pt = 4.9702e-06 s
+Step  245: t = 0.0479, dt = 1.9259e-04, wall = 5.0550 s, s/pt = 4.8209e-06 s
+Step  246: t = 0.0481, dt = 1.9257e-04, wall = 4.8208 s, s/pt = 4.5974e-06 s
+Step  247: t = 0.0483, dt = 1.9256e-04, wall = 5.1473 s, s/pt = 4.9088e-06 s
+Step  248: t = 0.0485, dt = 1.9254e-04, wall = 5.1562 s, s/pt = 4.9173e-06 s
+Step  249: t = 0.0487, dt = 1.9253e-04, wall = 5.0825 s, s/pt = 4.8470e-06 s
+Step  250: t = 0.0488, dt = 1.9252e-04, wall = 5.1762 s, s/pt = 4.9364e-06 s
+  Memory: max = 1.70 GB, avg = 1.40 GB, total = 89.42 GB (64 ranks)
+Step  251: t = 0.0490, dt = 1.9250e-04, wall = 5.0441 s, s/pt = 4.8104e-06 s
+Step  252: t = 0.0492, dt = 1.9249e-04, wall = 5.1975 s, s/pt = 4.9568e-06 s
+Step  253: t = 0.0494, dt = 1.9248e-04, wall = 5.0140 s, s/pt = 4.7817e-06 s
+Step  254: t = 0.0496, dt = 1.9246e-04, wall = 4.8633 s, s/pt = 4.6380e-06 s
+Step  255: t = 0.0498, dt = 1.9245e-04, wall = 5.0157 s, s/pt = 4.7833e-06 s
+Step  256: t = 0.0500, dt = 1.9214e-04, wall = 5.2393 s, s/pt = 4.9966e-06 s
+Time evolution complete: 256 steps, t = 0.05
+Final memory: max = 1.71 GB, avg = 1.40 GB, total = 89.62 GB (64 ranks)
+  steps=256  t=0.05  wall=1281.5s  rho[min,max]=[1.0000,1.3949]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn0.1_N1024.bin
+N=1024 Kn=0.1 steps=256  frac_real=9.2771e-01 frac_hyp=1.3709e-06 frac_any=9.4151e-01  mean_dM=2.1826e-07 max_dM=5.6757e-03  max_dCons/corr=1.256e-15
+    global conserved rel-drift: mass=3.89e-07 mom_x=1.10e-10 mom_y=1.10e-10 mom_z=0.00e+00 M200=1.03e-04 M020=1.03e-04 M002=2.08e-04 
+
+Done.
+===== SMOOTH BUBBLE Kn=1.0 =====
+
+=== bubble N=128 Kn=1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 128x128x1, Ranks: 64, Local: 16x16x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 1.0
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 7.812500e-03, dy = 7.812500e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 7.812500e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 3.906250e-03
+    Kn = 1.000000e+00
+    CFL*min(dx,dy,dz)/vmax = 1.594720e-03
+    dt (final) = 1.594720e-03
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0016, dt = 1.5947e-03, wall = 3.3106 s, s/pt = 2.0206e-04 s, MaxDiff = 1.059e-11
+Step    2: t = 0.0032, dt = 1.5923e-03, wall = 0.5738 s, s/pt = 3.5021e-05 s
+Step    3: t = 0.0048, dt = 1.5899e-03, wall = 0.4363 s, s/pt = 2.6632e-05 s
+Step    4: t = 0.0064, dt = 1.5875e-03, wall = 0.1111 s, s/pt = 6.7833e-06 s
+Step    5: t = 0.0079, dt = 1.5852e-03, wall = 0.1119 s, s/pt = 6.8295e-06 s
+Step    6: t = 0.0095, dt = 1.5829e-03, wall = 0.1026 s, s/pt = 6.2642e-06 s
+Step    7: t = 0.0111, dt = 1.5806e-03, wall = 0.1033 s, s/pt = 6.3054e-06 s
+Step    8: t = 0.0127, dt = 1.5784e-03, wall = 0.1049 s, s/pt = 6.4053e-06 s
+Step    9: t = 0.0143, dt = 1.5763e-03, wall = 0.1009 s, s/pt = 6.1599e-06 s
+Step   10: t = 0.0158, dt = 1.5741e-03, wall = 0.1048 s, s/pt = 6.3991e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   11: t = 0.0174, dt = 1.5721e-03, wall = 0.3623 s, s/pt = 2.2114e-05 s
+Step   12: t = 0.0190, dt = 1.5701e-03, wall = 0.2505 s, s/pt = 1.5287e-05 s
+Step   13: t = 0.0206, dt = 1.5681e-03, wall = 0.1083 s, s/pt = 6.6106e-06 s
+Step   14: t = 0.0221, dt = 1.5662e-03, wall = 0.1081 s, s/pt = 6.5967e-06 s
+Step   15: t = 0.0237, dt = 1.5644e-03, wall = 0.1018 s, s/pt = 6.2161e-06 s
+Step   16: t = 0.0252, dt = 1.5626e-03, wall = 0.1099 s, s/pt = 6.7072e-06 s
+Step   17: t = 0.0268, dt = 1.5609e-03, wall = 0.1072 s, s/pt = 6.5441e-06 s
+Step   18: t = 0.0284, dt = 1.5593e-03, wall = 0.1009 s, s/pt = 6.1594e-06 s
+Step   19: t = 0.0299, dt = 1.5576e-03, wall = 0.2390 s, s/pt = 1.4590e-05 s
+Step   20: t = 0.0315, dt = 1.5561e-03, wall = 0.1068 s, s/pt = 6.5187e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   21: t = 0.0330, dt = 1.5546e-03, wall = 0.1062 s, s/pt = 6.4793e-06 s
+Step   22: t = 0.0346, dt = 1.5532e-03, wall = 0.1066 s, s/pt = 6.5067e-06 s
+Step   23: t = 0.0361, dt = 1.5518e-03, wall = 0.1046 s, s/pt = 6.3818e-06 s
+Step   24: t = 0.0377, dt = 1.5505e-03, wall = 0.1058 s, s/pt = 6.4565e-06 s
+Step   25: t = 0.0392, dt = 1.5493e-03, wall = 0.1017 s, s/pt = 6.2070e-06 s
+Step   26: t = 0.0408, dt = 1.5481e-03, wall = 0.0994 s, s/pt = 6.0653e-06 s
+Step   27: t = 0.0423, dt = 1.5470e-03, wall = 0.1092 s, s/pt = 6.6680e-06 s
+Step   28: t = 0.0439, dt = 1.5459e-03, wall = 0.1021 s, s/pt = 6.2295e-06 s
+Step   29: t = 0.0454, dt = 1.5449e-03, wall = 0.0972 s, s/pt = 5.9356e-06 s
+Step   30: t = 0.0470, dt = 1.5440e-03, wall = 0.1060 s, s/pt = 6.4693e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   31: t = 0.0485, dt = 1.5430e-03, wall = 0.1013 s, s/pt = 6.1852e-06 s
+Step   32: t = 0.0500, dt = 1.4882e-03, wall = 0.1012 s, s/pt = 6.1737e-06 s
+Time evolution complete: 32 steps, t = 0.05
+Final memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+  steps=32  t=0.05  wall=37.4s  rho[min,max]=[1.0000,1.3716]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn1_N128.bin
+N=128 Kn=1 steps=32  frac_real=8.9894e-01 frac_hyp=1.5259e-05 frac_any=9.1098e-01  mean_dM=2.8552e-07 max_dM=2.0470e-03  max_dCons/corr=7.692e-16
+    global conserved rel-drift: mass=4.79e-07 mom_x=1.58e-09 mom_y=1.58e-09 mom_z=0.00e+00 M200=1.25e-05 M020=1.25e-05 M002=2.85e-05 
+
+=== bubble N=256 Kn=1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 256x256x1, Ranks: 64, Local: 32x32x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 1.0
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 3.906250e-03, dy = 3.906250e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 3.906250e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 1.953125e-03
+    Kn = 1.000000e+00
+    CFL*min(dx,dy,dz)/vmax = 7.973599e-04
+    dt (final) = 7.973599e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0008, dt = 7.9736e-04, wall = 0.6134 s, s/pt = 9.3601e-06 s, MaxDiff = 3.284e-12
+Step    2: t = 0.0016, dt = 7.9675e-04, wall = 0.3257 s, s/pt = 4.9698e-06 s
+Step    3: t = 0.0024, dt = 7.9614e-04, wall = 0.3052 s, s/pt = 4.6573e-06 s
+Step    4: t = 0.0032, dt = 7.9554e-04, wall = 0.3091 s, s/pt = 4.7172e-06 s
+Step    5: t = 0.0040, dt = 7.9493e-04, wall = 0.3083 s, s/pt = 4.7040e-06 s
+Step    6: t = 0.0048, dt = 7.9434e-04, wall = 0.3061 s, s/pt = 4.6714e-06 s
+Step    7: t = 0.0056, dt = 7.9374e-04, wall = 0.3009 s, s/pt = 4.5907e-06 s
+Step    8: t = 0.0064, dt = 7.9315e-04, wall = 0.3007 s, s/pt = 4.5880e-06 s
+Step    9: t = 0.0072, dt = 7.9256e-04, wall = 0.3134 s, s/pt = 4.7816e-06 s
+Step   10: t = 0.0079, dt = 7.9198e-04, wall = 0.3036 s, s/pt = 4.6320e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   11: t = 0.0087, dt = 7.9140e-04, wall = 0.3079 s, s/pt = 4.6979e-06 s
+Step   12: t = 0.0095, dt = 7.9082e-04, wall = 0.3007 s, s/pt = 4.5884e-06 s
+Step   13: t = 0.0103, dt = 7.9025e-04, wall = 0.3052 s, s/pt = 4.6572e-06 s
+Step   14: t = 0.0111, dt = 7.8969e-04, wall = 0.3082 s, s/pt = 4.7035e-06 s
+Step   15: t = 0.0119, dt = 7.8913e-04, wall = 0.3002 s, s/pt = 4.5800e-06 s
+Step   16: t = 0.0127, dt = 7.8857e-04, wall = 0.3146 s, s/pt = 4.7999e-06 s
+Step   17: t = 0.0135, dt = 7.8803e-04, wall = 0.3010 s, s/pt = 4.5927e-06 s
+Step   18: t = 0.0143, dt = 7.8748e-04, wall = 0.3011 s, s/pt = 4.5942e-06 s
+Step   19: t = 0.0150, dt = 7.8694e-04, wall = 0.3042 s, s/pt = 4.6411e-06 s
+Step   20: t = 0.0158, dt = 7.8641e-04, wall = 0.3087 s, s/pt = 4.7097e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   21: t = 0.0166, dt = 7.8589e-04, wall = 0.3002 s, s/pt = 4.5808e-06 s
+Step   22: t = 0.0174, dt = 7.8537e-04, wall = 0.3111 s, s/pt = 4.7467e-06 s
+Step   23: t = 0.0182, dt = 7.8486e-04, wall = 0.3008 s, s/pt = 4.5905e-06 s
+Step   24: t = 0.0190, dt = 7.8435e-04, wall = 0.3064 s, s/pt = 4.6749e-06 s
+Step   25: t = 0.0198, dt = 7.8386e-04, wall = 0.3003 s, s/pt = 4.5817e-06 s
+Step   26: t = 0.0205, dt = 7.8336e-04, wall = 0.3038 s, s/pt = 4.6360e-06 s
+Step   27: t = 0.0213, dt = 7.8288e-04, wall = 0.3104 s, s/pt = 4.7364e-06 s
+Step   28: t = 0.0221, dt = 7.8240e-04, wall = 0.3041 s, s/pt = 4.6396e-06 s
+Step   29: t = 0.0229, dt = 7.8193e-04, wall = 0.3089 s, s/pt = 4.7127e-06 s
+Step   30: t = 0.0237, dt = 7.8147e-04, wall = 0.3083 s, s/pt = 4.7050e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   31: t = 0.0245, dt = 7.8101e-04, wall = 0.3087 s, s/pt = 4.7106e-06 s
+Step   32: t = 0.0252, dt = 7.8056e-04, wall = 0.3095 s, s/pt = 4.7228e-06 s
+Step   33: t = 0.0260, dt = 7.8011e-04, wall = 0.3106 s, s/pt = 4.7396e-06 s
+Step   34: t = 0.0268, dt = 7.7967e-04, wall = 0.3069 s, s/pt = 4.6827e-06 s
+Step   35: t = 0.0276, dt = 7.7923e-04, wall = 0.3064 s, s/pt = 4.6757e-06 s
+Step   36: t = 0.0284, dt = 7.7881e-04, wall = 0.3088 s, s/pt = 4.7114e-06 s
+Step   37: t = 0.0291, dt = 7.7839e-04, wall = 0.3137 s, s/pt = 4.7874e-06 s
+Step   38: t = 0.0299, dt = 7.7800e-04, wall = 0.3055 s, s/pt = 4.6611e-06 s
+Step   39: t = 0.0307, dt = 7.7760e-04, wall = 0.3026 s, s/pt = 4.6180e-06 s
+Step   40: t = 0.0315, dt = 7.7720e-04, wall = 0.3177 s, s/pt = 4.8484e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   41: t = 0.0322, dt = 7.7683e-04, wall = 0.3030 s, s/pt = 4.6227e-06 s
+Step   42: t = 0.0330, dt = 7.7645e-04, wall = 0.3068 s, s/pt = 4.6809e-06 s
+Step   43: t = 0.0338, dt = 7.7608e-04, wall = 0.3032 s, s/pt = 4.6265e-06 s
+Step   44: t = 0.0346, dt = 7.7573e-04, wall = 0.3110 s, s/pt = 4.7451e-06 s
+Step   45: t = 0.0353, dt = 7.7537e-04, wall = 0.3048 s, s/pt = 4.6510e-06 s
+Step   46: t = 0.0361, dt = 7.7502e-04, wall = 0.3198 s, s/pt = 4.8793e-06 s
+Step   47: t = 0.0369, dt = 7.7468e-04, wall = 0.3043 s, s/pt = 4.6436e-06 s
+Step   48: t = 0.0377, dt = 7.7434e-04, wall = 0.3053 s, s/pt = 4.6582e-06 s
+Step   49: t = 0.0384, dt = 7.7401e-04, wall = 0.3046 s, s/pt = 4.6472e-06 s
+Step   50: t = 0.0392, dt = 7.7368e-04, wall = 0.3052 s, s/pt = 4.6567e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   51: t = 0.0400, dt = 7.7338e-04, wall = 0.3049 s, s/pt = 4.6519e-06 s
+Step   52: t = 0.0408, dt = 7.7307e-04, wall = 0.3026 s, s/pt = 4.6174e-06 s
+Step   53: t = 0.0415, dt = 7.7279e-04, wall = 0.3146 s, s/pt = 4.8008e-06 s
+Step   54: t = 0.0423, dt = 7.7249e-04, wall = 0.3023 s, s/pt = 4.6122e-06 s
+Step   55: t = 0.0431, dt = 7.7222e-04, wall = 0.3053 s, s/pt = 4.6578e-06 s
+Step   56: t = 0.0439, dt = 7.7194e-04, wall = 0.3052 s, s/pt = 4.6574e-06 s
+Step   57: t = 0.0446, dt = 7.7167e-04, wall = 0.3110 s, s/pt = 4.7459e-06 s
+Step   58: t = 0.0454, dt = 7.7141e-04, wall = 0.3018 s, s/pt = 4.6046e-06 s
+Step   59: t = 0.0462, dt = 7.7116e-04, wall = 0.3077 s, s/pt = 4.6947e-06 s
+Step   60: t = 0.0469, dt = 7.7090e-04, wall = 0.3050 s, s/pt = 4.6540e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+Step   61: t = 0.0477, dt = 7.7066e-04, wall = 0.3029 s, s/pt = 4.6224e-06 s
+Step   62: t = 0.0485, dt = 7.7042e-04, wall = 0.3021 s, s/pt = 4.6104e-06 s
+Step   63: t = 0.0492, dt = 7.7018e-04, wall = 0.3042 s, s/pt = 4.6419e-06 s
+Step   64: t = 0.0500, dt = 7.5337e-04, wall = 0.3074 s, s/pt = 4.6900e-06 s
+Time evolution complete: 64 steps, t = 0.05
+Final memory: max = 1.27 GB, avg = 1.14 GB, total = 73.06 GB (64 ranks)
+  steps=64  t=0.05  wall=20.0s  rho[min,max]=[1.0000,1.3853]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn1_N256.bin
+N=256 Kn=1 steps=64  frac_real=9.1722e-01 frac_hyp=0.0000e+00 frac_any=9.2991e-01  mean_dM=2.6196e-07 max_dM=4.7052e-06  max_dCons/corr=8.006e-16
+    global conserved rel-drift: mass=4.81e-07 mom_x=5.86e-10 mom_y=5.86e-10 mom_z=0.00e+00 M200=1.31e-05 M020=1.31e-05 M002=2.95e-05 
+
+=== bubble N=512 Kn=1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 512x512x1, Ranks: 64, Local: 64x64x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 1.0
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 1.953125e-03, dy = 1.953125e-03, dz = 1.000000e+00
+    min(dx,dy,dz) = 1.953125e-03
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 9.765625e-04
+    Kn = 1.000000e+00
+    CFL*min(dx,dy,dz)/vmax = 3.986800e-04
+    dt (final) = 3.986800e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0004, dt = 3.9868e-04, wall = 1.0564 s, s/pt = 4.0299e-06 s, MaxDiff = 1.293e-12
+Step    2: t = 0.0008, dt = 3.9853e-04, wall = 1.0973 s, s/pt = 4.1859e-06 s
+Step    3: t = 0.0012, dt = 3.9837e-04, wall = 1.3229 s, s/pt = 5.0466e-06 s
+Step    4: t = 0.0016, dt = 3.9822e-04, wall = 1.1984 s, s/pt = 4.5717e-06 s
+Step    5: t = 0.0020, dt = 3.9807e-04, wall = 1.0996 s, s/pt = 4.1946e-06 s
+Step    6: t = 0.0024, dt = 3.9792e-04, wall = 1.1021 s, s/pt = 4.2041e-06 s
+Step    7: t = 0.0028, dt = 3.9777e-04, wall = 1.0887 s, s/pt = 4.1530e-06 s
+Step    8: t = 0.0032, dt = 3.9762e-04, wall = 1.6796 s, s/pt = 6.4071e-06 s
+Step    9: t = 0.0036, dt = 3.9746e-04, wall = 1.7727 s, s/pt = 6.7624e-06 s
+Step   10: t = 0.0040, dt = 3.9731e-04, wall = 1.6114 s, s/pt = 6.1472e-06 s
+  Memory: max = 1.27 GB, avg = 1.14 GB, total = 73.19 GB (64 ranks)
+Step   11: t = 0.0044, dt = 3.9716e-04, wall = 2.0407 s, s/pt = 7.7847e-06 s
+Step   12: t = 0.0048, dt = 3.9701e-04, wall = 1.7555 s, s/pt = 6.6966e-06 s
+Step   13: t = 0.0052, dt = 3.9686e-04, wall = 1.6856 s, s/pt = 6.4300e-06 s
+Step   14: t = 0.0056, dt = 3.9672e-04, wall = 1.7218 s, s/pt = 6.5682e-06 s
+Step   15: t = 0.0060, dt = 3.9657e-04, wall = 1.6824 s, s/pt = 6.4180e-06 s
+Step   16: t = 0.0064, dt = 3.9642e-04, wall = 1.7727 s, s/pt = 6.7624e-06 s
+Step   17: t = 0.0068, dt = 3.9627e-04, wall = 1.6683 s, s/pt = 6.3640e-06 s
+Step   18: t = 0.0072, dt = 3.9612e-04, wall = 1.6147 s, s/pt = 6.1594e-06 s
+Step   19: t = 0.0075, dt = 3.9598e-04, wall = 1.1764 s, s/pt = 4.4875e-06 s
+Step   20: t = 0.0079, dt = 3.9583e-04, wall = 1.0443 s, s/pt = 3.9839e-06 s
+  Memory: max = 1.27 GB, avg = 1.19 GB, total = 76.43 GB (64 ranks)
+Step   21: t = 0.0083, dt = 3.9569e-04, wall = 1.0555 s, s/pt = 4.0264e-06 s
+Step   22: t = 0.0087, dt = 3.9554e-04, wall = 1.0519 s, s/pt = 4.0126e-06 s
+Step   23: t = 0.0091, dt = 3.9540e-04, wall = 1.0618 s, s/pt = 4.0504e-06 s
+Step   24: t = 0.0095, dt = 3.9525e-04, wall = 1.0473 s, s/pt = 3.9951e-06 s
+Step   25: t = 0.0099, dt = 3.9511e-04, wall = 1.0491 s, s/pt = 4.0020e-06 s
+Step   26: t = 0.0103, dt = 3.9497e-04, wall = 1.0456 s, s/pt = 3.9888e-06 s
+Step   27: t = 0.0107, dt = 3.9483e-04, wall = 1.0478 s, s/pt = 3.9972e-06 s
+Step   28: t = 0.0111, dt = 3.9468e-04, wall = 1.4212 s, s/pt = 5.4213e-06 s
+Step   29: t = 0.0115, dt = 3.9454e-04, wall = 1.7114 s, s/pt = 6.5284e-06 s
+Step   30: t = 0.0119, dt = 3.9440e-04, wall = 1.6667 s, s/pt = 6.3580e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 76.52 GB (64 ranks)
+Step   31: t = 0.0123, dt = 3.9426e-04, wall = 1.7599 s, s/pt = 6.7134e-06 s
+Step   32: t = 0.0127, dt = 3.9412e-04, wall = 1.9072 s, s/pt = 7.2754e-06 s
+Step   33: t = 0.0131, dt = 3.9399e-04, wall = 1.9763 s, s/pt = 7.5390e-06 s
+Step   34: t = 0.0135, dt = 3.9385e-04, wall = 1.8572 s, s/pt = 7.0848e-06 s
+Step   35: t = 0.0139, dt = 3.9371e-04, wall = 1.6585 s, s/pt = 6.3267e-06 s
+Step   36: t = 0.0143, dt = 3.9357e-04, wall = 1.5561 s, s/pt = 5.9362e-06 s
+Step   37: t = 0.0147, dt = 3.9344e-04, wall = 1.5445 s, s/pt = 5.8919e-06 s
+Step   38: t = 0.0150, dt = 3.9330e-04, wall = 1.5593 s, s/pt = 5.9481e-06 s
+Step   39: t = 0.0154, dt = 3.9317e-04, wall = 1.2482 s, s/pt = 4.7614e-06 s
+Step   40: t = 0.0158, dt = 3.9304e-04, wall = 1.0618 s, s/pt = 4.0504e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 76.60 GB (64 ranks)
+Step   41: t = 0.0162, dt = 3.9290e-04, wall = 1.0631 s, s/pt = 4.0555e-06 s
+Step   42: t = 0.0166, dt = 3.9277e-04, wall = 1.0560 s, s/pt = 4.0282e-06 s
+Step   43: t = 0.0170, dt = 3.9264e-04, wall = 1.0536 s, s/pt = 4.0190e-06 s
+Step   44: t = 0.0174, dt = 3.9251e-04, wall = 1.0512 s, s/pt = 4.0100e-06 s
+Step   45: t = 0.0178, dt = 3.9238e-04, wall = 1.0567 s, s/pt = 4.0310e-06 s
+Step   46: t = 0.0182, dt = 3.9225e-04, wall = 1.0562 s, s/pt = 4.0291e-06 s
+Step   47: t = 0.0186, dt = 3.9212e-04, wall = 1.0579 s, s/pt = 4.0354e-06 s
+Step   48: t = 0.0190, dt = 3.9200e-04, wall = 1.4343 s, s/pt = 5.4714e-06 s
+Step   49: t = 0.0194, dt = 3.9187e-04, wall = 1.7650 s, s/pt = 6.7329e-06 s
+Step   50: t = 0.0198, dt = 3.9174e-04, wall = 1.5713 s, s/pt = 5.9939e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 76.60 GB (64 ranks)
+Step   51: t = 0.0201, dt = 3.9161e-04, wall = 1.6287 s, s/pt = 6.2130e-06 s
+Step   52: t = 0.0205, dt = 3.9149e-04, wall = 1.7981 s, s/pt = 6.8591e-06 s
+Step   53: t = 0.0209, dt = 3.9137e-04, wall = 1.8281 s, s/pt = 6.9738e-06 s
+Step   54: t = 0.0213, dt = 3.9124e-04, wall = 1.8110 s, s/pt = 6.9084e-06 s
+Step   55: t = 0.0217, dt = 3.9112e-04, wall = 1.7786 s, s/pt = 6.7849e-06 s
+Step   56: t = 0.0221, dt = 3.9100e-04, wall = 1.1896 s, s/pt = 4.5380e-06 s
+Step   57: t = 0.0225, dt = 3.9089e-04, wall = 1.4337 s, s/pt = 5.4692e-06 s
+Step   58: t = 0.0229, dt = 3.9077e-04, wall = 1.8519 s, s/pt = 7.0643e-06 s
+Step   59: t = 0.0233, dt = 3.9065e-04, wall = 1.5576 s, s/pt = 5.9416e-06 s
+Step   60: t = 0.0237, dt = 3.9054e-04, wall = 1.6003 s, s/pt = 6.1047e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 76.68 GB (64 ranks)
+Step   61: t = 0.0241, dt = 3.9042e-04, wall = 1.1058 s, s/pt = 4.2182e-06 s
+Step   62: t = 0.0244, dt = 3.9031e-04, wall = 1.0618 s, s/pt = 4.0504e-06 s
+Step   63: t = 0.0248, dt = 3.9019e-04, wall = 1.0617 s, s/pt = 4.0502e-06 s
+Step   64: t = 0.0252, dt = 3.9008e-04, wall = 1.0492 s, s/pt = 4.0024e-06 s
+Step   65: t = 0.0256, dt = 3.8997e-04, wall = 1.0544 s, s/pt = 4.0221e-06 s
+Step   66: t = 0.0260, dt = 3.8986e-04, wall = 1.0525 s, s/pt = 4.0151e-06 s
+Step   67: t = 0.0264, dt = 3.8975e-04, wall = 1.4509 s, s/pt = 5.5346e-06 s
+Step   68: t = 0.0268, dt = 3.8964e-04, wall = 1.6757 s, s/pt = 6.3922e-06 s
+Step   69: t = 0.0272, dt = 3.8953e-04, wall = 1.7629 s, s/pt = 6.7249e-06 s
+Step   70: t = 0.0276, dt = 3.8942e-04, wall = 1.7270 s, s/pt = 6.5879e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 76.71 GB (64 ranks)
+Step   71: t = 0.0280, dt = 3.8932e-04, wall = 1.7266 s, s/pt = 6.5866e-06 s
+Step   72: t = 0.0283, dt = 3.8921e-04, wall = 1.8144 s, s/pt = 6.9215e-06 s
+Step   73: t = 0.0287, dt = 3.8910e-04, wall = 1.7681 s, s/pt = 6.7447e-06 s
+Step   74: t = 0.0291, dt = 3.8899e-04, wall = 1.7363 s, s/pt = 6.6236e-06 s
+Step   75: t = 0.0295, dt = 3.8889e-04, wall = 1.6909 s, s/pt = 6.4503e-06 s
+Step   76: t = 0.0299, dt = 3.8878e-04, wall = 1.6117 s, s/pt = 6.1483e-06 s
+Step   77: t = 0.0303, dt = 3.8868e-04, wall = 1.5941 s, s/pt = 6.0809e-06 s
+Step   78: t = 0.0307, dt = 3.8858e-04, wall = 1.6223 s, s/pt = 6.1886e-06 s
+Step   79: t = 0.0311, dt = 3.8848e-04, wall = 1.2720 s, s/pt = 4.8522e-06 s
+Step   80: t = 0.0315, dt = 3.8837e-04, wall = 1.3813 s, s/pt = 5.2692e-06 s
+  Memory: max = 1.27 GB, avg = 1.20 GB, total = 76.84 GB (64 ranks)
+Step   81: t = 0.0318, dt = 3.8827e-04, wall = 1.5951 s, s/pt = 6.0849e-06 s
+Step   82: t = 0.0322, dt = 3.8818e-04, wall = 1.2262 s, s/pt = 4.6777e-06 s
+Step   83: t = 0.0326, dt = 3.8808e-04, wall = 1.0555 s, s/pt = 4.0263e-06 s
+Step   84: t = 0.0330, dt = 3.8798e-04, wall = 1.0610 s, s/pt = 4.0475e-06 s
+Step   85: t = 0.0334, dt = 3.8789e-04, wall = 1.3922 s, s/pt = 5.3110e-06 s
+Step   86: t = 0.0338, dt = 3.8780e-04, wall = 1.6714 s, s/pt = 6.3759e-06 s
+Step   87: t = 0.0342, dt = 3.8771e-04, wall = 1.2883 s, s/pt = 4.9146e-06 s
+Step   88: t = 0.0346, dt = 3.8762e-04, wall = 1.4273 s, s/pt = 5.4448e-06 s
+Step   89: t = 0.0349, dt = 3.8753e-04, wall = 1.6562 s, s/pt = 6.3180e-06 s
+Step   90: t = 0.0353, dt = 3.8744e-04, wall = 1.6973 s, s/pt = 6.4748e-06 s
+  Memory: max = 1.31 GB, avg = 1.20 GB, total = 76.89 GB (64 ranks)
+Step   91: t = 0.0357, dt = 3.8735e-04, wall = 1.7797 s, s/pt = 6.7890e-06 s
+Step   92: t = 0.0361, dt = 3.8726e-04, wall = 1.8016 s, s/pt = 6.8724e-06 s
+Step   93: t = 0.0365, dt = 3.8718e-04, wall = 1.7949 s, s/pt = 6.8470e-06 s
+Step   94: t = 0.0369, dt = 3.8710e-04, wall = 1.6196 s, s/pt = 6.1783e-06 s
+Step   95: t = 0.0373, dt = 3.8701e-04, wall = 1.7425 s, s/pt = 6.6470e-06 s
+Step   96: t = 0.0377, dt = 3.8693e-04, wall = 1.7915 s, s/pt = 6.8342e-06 s
+Step   97: t = 0.0380, dt = 3.8685e-04, wall = 1.6240 s, s/pt = 6.1950e-06 s
+Step   98: t = 0.0384, dt = 3.8677e-04, wall = 1.2488 s, s/pt = 4.7639e-06 s
+Step   99: t = 0.0388, dt = 3.8669e-04, wall = 1.4183 s, s/pt = 5.4104e-06 s
+Step  100: t = 0.0392, dt = 3.8661e-04, wall = 1.7815 s, s/pt = 6.7958e-06 s
+  Memory: max = 1.31 GB, avg = 1.20 GB, total = 76.96 GB (64 ranks)
+Step  101: t = 0.0396, dt = 3.8653e-04, wall = 1.1816 s, s/pt = 4.5073e-06 s
+Step  102: t = 0.0400, dt = 3.8645e-04, wall = 1.4305 s, s/pt = 5.4570e-06 s
+Step  103: t = 0.0404, dt = 3.8637e-04, wall = 1.2871 s, s/pt = 4.9100e-06 s
+Step  104: t = 0.0407, dt = 3.8629e-04, wall = 1.0628 s, s/pt = 4.0543e-06 s
+Step  105: t = 0.0411, dt = 3.8622e-04, wall = 1.0560 s, s/pt = 4.0283e-06 s
+Step  106: t = 0.0415, dt = 3.8615e-04, wall = 1.4679 s, s/pt = 5.5995e-06 s
+Step  107: t = 0.0419, dt = 3.8607e-04, wall = 1.3571 s, s/pt = 5.1771e-06 s
+Step  108: t = 0.0423, dt = 3.8600e-04, wall = 1.4432 s, s/pt = 5.5053e-06 s
+Step  109: t = 0.0427, dt = 3.8593e-04, wall = 1.8758 s, s/pt = 7.1558e-06 s
+Step  110: t = 0.0431, dt = 3.8585e-04, wall = 1.7371 s, s/pt = 6.6264e-06 s
+  Memory: max = 1.31 GB, avg = 1.20 GB, total = 76.97 GB (64 ranks)
+Step  111: t = 0.0434, dt = 3.8578e-04, wall = 1.6288 s, s/pt = 6.2135e-06 s
+Step  112: t = 0.0438, dt = 3.8571e-04, wall = 1.8048 s, s/pt = 6.8848e-06 s
+Step  113: t = 0.0442, dt = 3.8565e-04, wall = 1.7995 s, s/pt = 6.8644e-06 s
+Step  114: t = 0.0446, dt = 3.8558e-04, wall = 1.7837 s, s/pt = 6.8041e-06 s
+Step  115: t = 0.0450, dt = 3.8551e-04, wall = 1.7491 s, s/pt = 6.6722e-06 s
+Step  116: t = 0.0454, dt = 3.8545e-04, wall = 1.6673 s, s/pt = 6.3602e-06 s
+Step  117: t = 0.0458, dt = 3.8538e-04, wall = 1.6618 s, s/pt = 6.3392e-06 s
+Step  118: t = 0.0461, dt = 3.8532e-04, wall = 1.6563 s, s/pt = 6.3182e-06 s
+Step  119: t = 0.0465, dt = 3.8526e-04, wall = 1.6091 s, s/pt = 6.1381e-06 s
+Step  120: t = 0.0469, dt = 3.8519e-04, wall = 1.6084 s, s/pt = 6.1354e-06 s
+  Memory: max = 1.31 GB, avg = 1.20 GB, total = 77.00 GB (64 ranks)
+Step  121: t = 0.0473, dt = 3.8513e-04, wall = 1.6723 s, s/pt = 6.3793e-06 s
+Step  122: t = 0.0477, dt = 3.8507e-04, wall = 1.7055 s, s/pt = 6.5062e-06 s
+Step  123: t = 0.0481, dt = 3.8501e-04, wall = 1.4691 s, s/pt = 5.6044e-06 s
+Step  124: t = 0.0485, dt = 3.8495e-04, wall = 1.2589 s, s/pt = 4.8022e-06 s
+Step  125: t = 0.0488, dt = 3.8489e-04, wall = 1.0594 s, s/pt = 4.0413e-06 s
+Step  126: t = 0.0492, dt = 3.8483e-04, wall = 1.4751 s, s/pt = 5.6270e-06 s
+Step  127: t = 0.0496, dt = 3.8478e-04, wall = 1.3700 s, s/pt = 5.2262e-06 s
+Step  128: t = 0.0500, dt = 3.8472e-04, wall = 1.4779 s, s/pt = 5.6377e-06 s
+Step  129: t = 0.0500, dt = 2.4629e-06, wall = 1.9011 s, s/pt = 7.2522e-06 s
+Time evolution complete: 129 steps, t = 0.05
+Final memory: max = 1.31 GB, avg = 1.20 GB, total = 77.04 GB (64 ranks)
+  steps=129  t=0.05  wall=190.4s  rho[min,max]=[1.0000,1.3925]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn1_N512.bin
+N=512 Kn=1 steps=129  frac_real=9.2656e-01 frac_hyp=7.0971e-07 frac_any=9.3954e-01  mean_dM=2.7008e-07 max_dM=1.2809e-04  max_dCons/corr=9.155e-16
+    global conserved rel-drift: mass=4.46e-07 mom_x=2.50e-10 mom_y=2.50e-10 mom_z=0.00e+00 M200=1.35e-05 M020=1.35e-05 M002=3.01e-05 
+
+=== bubble N=1024 Kn=1 tmax=0.05 (ranks=64) ===
+Starting time evolution...
+  Grid: 1024x1024x1, Ranks: 64, Local: 128x128x1
+  tmax: 0.05, CFL: 0.5, Ma: 0.0, Kn: 1.0
+  homogeneous_z: true
+
+  ═══ FIRST STEP DIAGNOSTICS ═══
+  vmax breakdown:
+    vx_max = 2.449490e+00
+    vy_max = 2.449490e+00
+    vz_max = 2.449490e+00
+    vmax (global) = 2.449490e+00
+  Grid spacing:
+    dx = 9.765625e-04, dy = 9.765625e-04, dz = 1.000000e+00
+    min(dx,dy,dz) = 9.765625e-04
+  Time step calculation:
+    CFL = 0.500000
+    dtmax = 4.882812e-04
+    Kn = 1.000000e+00
+    CFL*min(dx,dy,dz)/vmax = 1.993400e-04
+    dt (final) = 1.993400e-04
+  Expected physical values (Ma=0.0):
+    Expected jet velocity ~ 0.00
+    Actual vmax / Expected = Infx
+  ══════════════════════════════
+
+Step    1: t = 0.0002, dt = 1.9934e-04, wall = 5.6227 s, s/pt = 5.3622e-06 s, MaxDiff = 5.720e-13
+Step    2: t = 0.0004, dt = 1.9930e-04, wall = 4.9234 s, s/pt = 4.6953e-06 s
+Step    3: t = 0.0006, dt = 1.9926e-04, wall = 4.6303 s, s/pt = 4.4158e-06 s
+Step    4: t = 0.0008, dt = 1.9923e-04, wall = 4.9326 s, s/pt = 4.7041e-06 s
+Step    5: t = 0.0010, dt = 1.9919e-04, wall = 4.9286 s, s/pt = 4.7002e-06 s
+Step    6: t = 0.0012, dt = 1.9915e-04, wall = 4.9053 s, s/pt = 4.6781e-06 s
+Step    7: t = 0.0014, dt = 1.9911e-04, wall = 4.6920 s, s/pt = 4.4746e-06 s
+Step    8: t = 0.0016, dt = 1.9907e-04, wall = 4.7161 s, s/pt = 4.4977e-06 s
+Step    9: t = 0.0018, dt = 1.9903e-04, wall = 4.9439 s, s/pt = 4.7149e-06 s
+Step   10: t = 0.0020, dt = 1.9900e-04, wall = 4.9655 s, s/pt = 4.7355e-06 s
+  Memory: max = 1.54 GB, avg = 1.25 GB, total = 80.18 GB (64 ranks)
+Step   11: t = 0.0022, dt = 1.9896e-04, wall = 4.9912 s, s/pt = 4.7600e-06 s
+Step   12: t = 0.0024, dt = 1.9892e-04, wall = 5.0313 s, s/pt = 4.7983e-06 s
+Step   13: t = 0.0026, dt = 1.9888e-04, wall = 4.8253 s, s/pt = 4.6018e-06 s
+Step   14: t = 0.0028, dt = 1.9884e-04, wall = 4.8418 s, s/pt = 4.6175e-06 s
+Step   15: t = 0.0030, dt = 1.9881e-04, wall = 5.0461 s, s/pt = 4.8123e-06 s
+Step   16: t = 0.0032, dt = 1.9877e-04, wall = 4.6653 s, s/pt = 4.4492e-06 s
+Step   17: t = 0.0034, dt = 1.9873e-04, wall = 5.0061 s, s/pt = 4.7742e-06 s
+Step   18: t = 0.0036, dt = 1.9869e-04, wall = 4.8945 s, s/pt = 4.6677e-06 s
+Step   19: t = 0.0038, dt = 1.9866e-04, wall = 5.0495 s, s/pt = 4.8156e-06 s
+Step   20: t = 0.0040, dt = 1.9862e-04, wall = 4.9314 s, s/pt = 4.7030e-06 s
+  Memory: max = 1.54 GB, avg = 1.27 GB, total = 81.11 GB (64 ranks)
+Step   21: t = 0.0042, dt = 1.9858e-04, wall = 4.9044 s, s/pt = 4.6772e-06 s
+Step   22: t = 0.0044, dt = 1.9854e-04, wall = 4.9840 s, s/pt = 4.7531e-06 s
+Step   23: t = 0.0046, dt = 1.9851e-04, wall = 5.0826 s, s/pt = 4.8471e-06 s
+Step   24: t = 0.0048, dt = 1.9847e-04, wall = 4.9358 s, s/pt = 4.7071e-06 s
+Step   25: t = 0.0050, dt = 1.9843e-04, wall = 5.0033 s, s/pt = 4.7715e-06 s
+Step   26: t = 0.0052, dt = 1.9839e-04, wall = 4.6907 s, s/pt = 4.4734e-06 s
+Step   27: t = 0.0054, dt = 1.9836e-04, wall = 5.0171 s, s/pt = 4.7847e-06 s
+Step   28: t = 0.0056, dt = 1.9832e-04, wall = 4.8844 s, s/pt = 4.6581e-06 s
+Step   29: t = 0.0058, dt = 1.9828e-04, wall = 4.9974 s, s/pt = 4.7659e-06 s
+Step   30: t = 0.0060, dt = 1.9824e-04, wall = 4.8976 s, s/pt = 4.6707e-06 s
+  Memory: max = 1.54 GB, avg = 1.28 GB, total = 81.63 GB (64 ranks)
+Step   31: t = 0.0062, dt = 1.9821e-04, wall = 4.8700 s, s/pt = 4.6444e-06 s
+Step   32: t = 0.0064, dt = 1.9817e-04, wall = 4.9921 s, s/pt = 4.7608e-06 s
+Step   33: t = 0.0066, dt = 1.9813e-04, wall = 5.0149 s, s/pt = 4.7826e-06 s
+Step   34: t = 0.0068, dt = 1.9810e-04, wall = 5.0308 s, s/pt = 4.7977e-06 s
+Step   35: t = 0.0070, dt = 1.9806e-04, wall = 4.8040 s, s/pt = 4.5814e-06 s
+Step   36: t = 0.0072, dt = 1.9802e-04, wall = 5.0237 s, s/pt = 4.7910e-06 s
+Step   37: t = 0.0074, dt = 1.9799e-04, wall = 5.0135 s, s/pt = 4.7813e-06 s
+Step   38: t = 0.0075, dt = 1.9795e-04, wall = 5.0486 s, s/pt = 4.8147e-06 s
+Step   39: t = 0.0077, dt = 1.9791e-04, wall = 5.0662 s, s/pt = 4.8315e-06 s
+Step   40: t = 0.0079, dt = 1.9788e-04, wall = 4.9159 s, s/pt = 4.6882e-06 s
+  Memory: max = 1.56 GB, avg = 1.28 GB, total = 82.14 GB (64 ranks)
+Step   41: t = 0.0081, dt = 1.9784e-04, wall = 5.0435 s, s/pt = 4.8099e-06 s
+Step   42: t = 0.0083, dt = 1.9780e-04, wall = 4.7465 s, s/pt = 4.5266e-06 s
+Step   43: t = 0.0085, dt = 1.9777e-04, wall = 4.9955 s, s/pt = 4.7641e-06 s
+Step   44: t = 0.0087, dt = 1.9773e-04, wall = 4.7679 s, s/pt = 4.5470e-06 s
+Step   45: t = 0.0089, dt = 1.9769e-04, wall = 4.9811 s, s/pt = 4.7503e-06 s
+Step   46: t = 0.0091, dt = 1.9766e-04, wall = 4.9095 s, s/pt = 4.6821e-06 s
+Step   47: t = 0.0093, dt = 1.9762e-04, wall = 5.0135 s, s/pt = 4.7812e-06 s
+Step   48: t = 0.0095, dt = 1.9759e-04, wall = 4.7832 s, s/pt = 4.5616e-06 s
+Step   49: t = 0.0097, dt = 1.9755e-04, wall = 4.7397 s, s/pt = 4.5201e-06 s
+Step   50: t = 0.0099, dt = 1.9751e-04, wall = 4.9220 s, s/pt = 4.6939e-06 s
+  Memory: max = 1.56 GB, avg = 1.29 GB, total = 82.56 GB (64 ranks)
+Step   51: t = 0.0101, dt = 1.9748e-04, wall = 4.9701 s, s/pt = 4.7399e-06 s
+Step   52: t = 0.0103, dt = 1.9744e-04, wall = 5.0675 s, s/pt = 4.8327e-06 s
+Step   53: t = 0.0105, dt = 1.9741e-04, wall = 4.9677 s, s/pt = 4.7376e-06 s
+Step   54: t = 0.0107, dt = 1.9737e-04, wall = 4.8666 s, s/pt = 4.6412e-06 s
+Step   55: t = 0.0109, dt = 1.9734e-04, wall = 5.1092 s, s/pt = 4.8725e-06 s
+Step   56: t = 0.0111, dt = 1.9730e-04, wall = 5.0115 s, s/pt = 4.7794e-06 s
+Step   57: t = 0.0113, dt = 1.9727e-04, wall = 4.8119 s, s/pt = 4.5889e-06 s
+Step   58: t = 0.0115, dt = 1.9723e-04, wall = 5.0497 s, s/pt = 4.8158e-06 s
+Step   59: t = 0.0117, dt = 1.9720e-04, wall = 5.0720 s, s/pt = 4.8370e-06 s
+Step   60: t = 0.0119, dt = 1.9716e-04, wall = 4.8437 s, s/pt = 4.6193e-06 s
+  Memory: max = 1.61 GB, avg = 1.30 GB, total = 82.91 GB (64 ranks)
+Step   61: t = 0.0121, dt = 1.9713e-04, wall = 5.1133 s, s/pt = 4.8764e-06 s
+Step   62: t = 0.0123, dt = 1.9709e-04, wall = 5.0625 s, s/pt = 4.8280e-06 s
+Step   63: t = 0.0125, dt = 1.9706e-04, wall = 4.9673 s, s/pt = 4.7372e-06 s
+Step   64: t = 0.0127, dt = 1.9702e-04, wall = 5.0101 s, s/pt = 4.7780e-06 s
+Step   65: t = 0.0129, dt = 1.9699e-04, wall = 5.0707 s, s/pt = 4.8358e-06 s
+Step   66: t = 0.0131, dt = 1.9695e-04, wall = 5.0452 s, s/pt = 4.8115e-06 s
+Step   67: t = 0.0133, dt = 1.9692e-04, wall = 4.8227 s, s/pt = 4.5993e-06 s
+Step   68: t = 0.0135, dt = 1.9688e-04, wall = 5.0630 s, s/pt = 4.8285e-06 s
+Step   69: t = 0.0137, dt = 1.9685e-04, wall = 5.0485 s, s/pt = 4.8146e-06 s
+Step   70: t = 0.0139, dt = 1.9681e-04, wall = 5.1026 s, s/pt = 4.8662e-06 s
+  Memory: max = 1.61 GB, avg = 1.30 GB, total = 83.28 GB (64 ranks)
+Step   71: t = 0.0141, dt = 1.9678e-04, wall = 5.0528 s, s/pt = 4.8187e-06 s
+Step   72: t = 0.0143, dt = 1.9675e-04, wall = 4.9651 s, s/pt = 4.7350e-06 s
+Step   73: t = 0.0145, dt = 1.9671e-04, wall = 4.9409 s, s/pt = 4.7120e-06 s
+Step   74: t = 0.0147, dt = 1.9668e-04, wall = 4.9204 s, s/pt = 4.6924e-06 s
+Step   75: t = 0.0148, dt = 1.9664e-04, wall = 5.0680 s, s/pt = 4.8332e-06 s
+Step   76: t = 0.0150, dt = 1.9661e-04, wall = 5.0731 s, s/pt = 4.8381e-06 s
+Step   77: t = 0.0152, dt = 1.9658e-04, wall = 4.8764 s, s/pt = 4.6505e-06 s
+Step   78: t = 0.0154, dt = 1.9654e-04, wall = 4.9900 s, s/pt = 4.7589e-06 s
+Step   79: t = 0.0156, dt = 1.9651e-04, wall = 4.9532 s, s/pt = 4.7238e-06 s
+Step   80: t = 0.0158, dt = 1.9648e-04, wall = 4.9775 s, s/pt = 4.7469e-06 s
+  Memory: max = 1.61 GB, avg = 1.31 GB, total = 83.58 GB (64 ranks)
+Step   81: t = 0.0160, dt = 1.9644e-04, wall = 4.7396 s, s/pt = 4.5200e-06 s
+Step   82: t = 0.0162, dt = 1.9641e-04, wall = 4.7961 s, s/pt = 4.5739e-06 s
+Step   83: t = 0.0164, dt = 1.9638e-04, wall = 5.0007 s, s/pt = 4.7690e-06 s
+Step   84: t = 0.0166, dt = 1.9634e-04, wall = 5.0970 s, s/pt = 4.8609e-06 s
+Step   85: t = 0.0168, dt = 1.9631e-04, wall = 4.7818 s, s/pt = 4.5603e-06 s
+Step   86: t = 0.0170, dt = 1.9628e-04, wall = 5.0143 s, s/pt = 4.7820e-06 s
+Step   87: t = 0.0172, dt = 1.9624e-04, wall = 5.0615 s, s/pt = 4.8270e-06 s
+Step   88: t = 0.0174, dt = 1.9621e-04, wall = 5.0828 s, s/pt = 4.8473e-06 s
+Step   89: t = 0.0176, dt = 1.9618e-04, wall = 5.1283 s, s/pt = 4.8908e-06 s
+Step   90: t = 0.0178, dt = 1.9615e-04, wall = 4.9942 s, s/pt = 4.7629e-06 s
+  Memory: max = 1.61 GB, avg = 1.31 GB, total = 83.91 GB (64 ranks)
+Step   91: t = 0.0180, dt = 1.9611e-04, wall = 5.0571 s, s/pt = 4.8228e-06 s
+Step   92: t = 0.0182, dt = 1.9608e-04, wall = 4.8782 s, s/pt = 4.6522e-06 s
+Step   93: t = 0.0184, dt = 1.9605e-04, wall = 4.8983 s, s/pt = 4.6714e-06 s
+Step   94: t = 0.0186, dt = 1.9602e-04, wall = 5.0534 s, s/pt = 4.8193e-06 s
+Step   95: t = 0.0188, dt = 1.9599e-04, wall = 4.8722 s, s/pt = 4.6465e-06 s
+Step   96: t = 0.0190, dt = 1.9595e-04, wall = 5.0498 s, s/pt = 4.8158e-06 s
+Step   97: t = 0.0192, dt = 1.9592e-04, wall = 4.9955 s, s/pt = 4.7641e-06 s
+Step   98: t = 0.0194, dt = 1.9589e-04, wall = 5.1595 s, s/pt = 4.9205e-06 s
+Step   99: t = 0.0196, dt = 1.9586e-04, wall = 4.9073 s, s/pt = 4.6800e-06 s
+Step  100: t = 0.0198, dt = 1.9583e-04, wall = 5.1527 s, s/pt = 4.9140e-06 s
+  Memory: max = 1.66 GB, avg = 1.32 GB, total = 84.33 GB (64 ranks)
+Step  101: t = 0.0199, dt = 1.9580e-04, wall = 5.0247 s, s/pt = 4.7919e-06 s
+Step  102: t = 0.0201, dt = 1.9576e-04, wall = 5.0950 s, s/pt = 4.8590e-06 s
+Step  103: t = 0.0203, dt = 1.9573e-04, wall = 5.0564 s, s/pt = 4.8222e-06 s
+Step  104: t = 0.0205, dt = 1.9570e-04, wall = 4.9963 s, s/pt = 4.7648e-06 s
+Step  105: t = 0.0207, dt = 1.9567e-04, wall = 5.0020 s, s/pt = 4.7703e-06 s
+Step  106: t = 0.0209, dt = 1.9564e-04, wall = 5.1208 s, s/pt = 4.8836e-06 s
+Step  107: t = 0.0211, dt = 1.9561e-04, wall = 5.0131 s, s/pt = 4.7809e-06 s
+Step  108: t = 0.0213, dt = 1.9558e-04, wall = 5.0653 s, s/pt = 4.8307e-06 s
+Step  109: t = 0.0215, dt = 1.9555e-04, wall = 5.0759 s, s/pt = 4.8408e-06 s
+Step  110: t = 0.0217, dt = 1.9551e-04, wall = 4.9790 s, s/pt = 4.7483e-06 s
+  Memory: max = 1.66 GB, avg = 1.32 GB, total = 84.69 GB (64 ranks)
+Step  111: t = 0.0219, dt = 1.9548e-04, wall = 5.0792 s, s/pt = 4.8439e-06 s
+Step  112: t = 0.0221, dt = 1.9545e-04, wall = 4.9985 s, s/pt = 4.7669e-06 s
+Step  113: t = 0.0223, dt = 1.9542e-04, wall = 5.0387 s, s/pt = 4.8053e-06 s
+Step  114: t = 0.0225, dt = 1.9539e-04, wall = 5.0357 s, s/pt = 4.8024e-06 s
+Step  115: t = 0.0227, dt = 1.9536e-04, wall = 5.0166 s, s/pt = 4.7842e-06 s
+Step  116: t = 0.0229, dt = 1.9533e-04, wall = 5.0489 s, s/pt = 4.8150e-06 s
+Step  117: t = 0.0231, dt = 1.9530e-04, wall = 4.9283 s, s/pt = 4.7000e-06 s
+Step  118: t = 0.0233, dt = 1.9526e-04, wall = 5.0423 s, s/pt = 4.8088e-06 s
+Step  119: t = 0.0235, dt = 1.9523e-04, wall = 5.1112 s, s/pt = 4.8744e-06 s
+Step  120: t = 0.0237, dt = 1.9520e-04, wall = 5.0331 s, s/pt = 4.7999e-06 s
+  Memory: max = 1.66 GB, avg = 1.33 GB, total = 85.02 GB (64 ranks)
+Step  121: t = 0.0239, dt = 1.9517e-04, wall = 4.8283 s, s/pt = 4.6047e-06 s
+Step  122: t = 0.0241, dt = 1.9514e-04, wall = 5.0366 s, s/pt = 4.8033e-06 s
+Step  123: t = 0.0242, dt = 1.9511e-04, wall = 5.1197 s, s/pt = 4.8825e-06 s
+Step  124: t = 0.0244, dt = 1.9508e-04, wall = 5.0793 s, s/pt = 4.8440e-06 s
+Step  125: t = 0.0246, dt = 1.9505e-04, wall = 5.0420 s, s/pt = 4.8085e-06 s
+Step  126: t = 0.0248, dt = 1.9502e-04, wall = 5.0045 s, s/pt = 4.7726e-06 s
+Step  127: t = 0.0250, dt = 1.9499e-04, wall = 5.0984 s, s/pt = 4.8622e-06 s
+Step  128: t = 0.0252, dt = 1.9496e-04, wall = 4.9540 s, s/pt = 4.7245e-06 s
+Step  129: t = 0.0254, dt = 1.9493e-04, wall = 4.9438 s, s/pt = 4.7148e-06 s
+Step  130: t = 0.0256, dt = 1.9491e-04, wall = 4.8422 s, s/pt = 4.6179e-06 s
+  Memory: max = 1.66 GB, avg = 1.33 GB, total = 85.40 GB (64 ranks)
+Step  131: t = 0.0258, dt = 1.9488e-04, wall = 5.1283 s, s/pt = 4.8908e-06 s
+Step  132: t = 0.0260, dt = 1.9485e-04, wall = 5.0327 s, s/pt = 4.7996e-06 s
+Step  133: t = 0.0262, dt = 1.9483e-04, wall = 4.8094 s, s/pt = 4.5866e-06 s
+Step  134: t = 0.0264, dt = 1.9480e-04, wall = 4.7858 s, s/pt = 4.5641e-06 s
+Step  135: t = 0.0266, dt = 1.9477e-04, wall = 4.7967 s, s/pt = 4.5745e-06 s
+Step  136: t = 0.0268, dt = 1.9475e-04, wall = 4.9202 s, s/pt = 4.6922e-06 s
+Step  137: t = 0.0270, dt = 1.9473e-04, wall = 5.0940 s, s/pt = 4.8580e-06 s
+Step  138: t = 0.0272, dt = 1.9470e-04, wall = 5.0578 s, s/pt = 4.8235e-06 s
+Step  139: t = 0.0274, dt = 1.9468e-04, wall = 5.0470 s, s/pt = 4.8132e-06 s
+Step  140: t = 0.0276, dt = 1.9465e-04, wall = 5.1286 s, s/pt = 4.8910e-06 s
+  Memory: max = 1.66 GB, avg = 1.34 GB, total = 85.81 GB (64 ranks)
+Step  141: t = 0.0278, dt = 1.9463e-04, wall = 4.7606 s, s/pt = 4.5401e-06 s
+Step  142: t = 0.0279, dt = 1.9460e-04, wall = 4.8226 s, s/pt = 4.5992e-06 s
+Step  143: t = 0.0281, dt = 1.9457e-04, wall = 4.7631 s, s/pt = 4.5425e-06 s
+Step  144: t = 0.0283, dt = 1.9455e-04, wall = 5.0082 s, s/pt = 4.7762e-06 s
+Step  145: t = 0.0285, dt = 1.9452e-04, wall = 5.0478 s, s/pt = 4.8140e-06 s
+Step  146: t = 0.0287, dt = 1.9450e-04, wall = 4.8414 s, s/pt = 4.6171e-06 s
+Step  147: t = 0.0289, dt = 1.9447e-04, wall = 5.1383 s, s/pt = 4.9002e-06 s
+Step  148: t = 0.0291, dt = 1.9444e-04, wall = 4.9876 s, s/pt = 4.7565e-06 s
+Step  149: t = 0.0293, dt = 1.9441e-04, wall = 5.0738 s, s/pt = 4.8388e-06 s
+Step  150: t = 0.0295, dt = 1.9438e-04, wall = 5.0383 s, s/pt = 4.8049e-06 s
+  Memory: max = 1.66 GB, avg = 1.35 GB, total = 86.20 GB (64 ranks)
+Step  151: t = 0.0297, dt = 1.9436e-04, wall = 5.1578 s, s/pt = 4.9189e-06 s
+Step  152: t = 0.0299, dt = 1.9433e-04, wall = 4.8721 s, s/pt = 4.6464e-06 s
+Step  153: t = 0.0301, dt = 1.9430e-04, wall = 5.0161 s, s/pt = 4.7838e-06 s
+Step  154: t = 0.0303, dt = 1.9427e-04, wall = 5.0649 s, s/pt = 4.8303e-06 s
+Step  155: t = 0.0305, dt = 1.9425e-04, wall = 5.0773 s, s/pt = 4.8421e-06 s
+Step  156: t = 0.0307, dt = 1.9422e-04, wall = 4.8651 s, s/pt = 4.6398e-06 s
+Step  157: t = 0.0309, dt = 1.9420e-04, wall = 5.0199 s, s/pt = 4.7873e-06 s
+Step  158: t = 0.0311, dt = 1.9417e-04, wall = 5.0571 s, s/pt = 4.8228e-06 s
+Step  159: t = 0.0313, dt = 1.9414e-04, wall = 5.0728 s, s/pt = 4.8378e-06 s
+Step  160: t = 0.0314, dt = 1.9412e-04, wall = 5.0180 s, s/pt = 4.7856e-06 s
+  Memory: max = 1.68 GB, avg = 1.35 GB, total = 86.44 GB (64 ranks)
+Step  161: t = 0.0316, dt = 1.9409e-04, wall = 5.0359 s, s/pt = 4.8026e-06 s
+Step  162: t = 0.0318, dt = 1.9407e-04, wall = 5.0448 s, s/pt = 4.8111e-06 s
+Step  163: t = 0.0320, dt = 1.9405e-04, wall = 5.0303 s, s/pt = 4.7973e-06 s
+Step  164: t = 0.0322, dt = 1.9402e-04, wall = 5.0004 s, s/pt = 4.7687e-06 s
+Step  165: t = 0.0324, dt = 1.9400e-04, wall = 5.0118 s, s/pt = 4.7796e-06 s
+Step  166: t = 0.0326, dt = 1.9398e-04, wall = 5.0783 s, s/pt = 4.8431e-06 s
+Step  167: t = 0.0328, dt = 1.9396e-04, wall = 5.0401 s, s/pt = 4.8066e-06 s
+Step  168: t = 0.0330, dt = 1.9394e-04, wall = 5.0434 s, s/pt = 4.8098e-06 s
+Step  169: t = 0.0332, dt = 1.9391e-04, wall = 5.0701 s, s/pt = 4.8352e-06 s
+Step  170: t = 0.0334, dt = 1.9389e-04, wall = 5.0609 s, s/pt = 4.8264e-06 s
+  Memory: max = 1.68 GB, avg = 1.36 GB, total = 86.72 GB (64 ranks)
+Step  171: t = 0.0336, dt = 1.9387e-04, wall = 5.0943 s, s/pt = 4.8583e-06 s
+Step  172: t = 0.0338, dt = 1.9385e-04, wall = 4.9817 s, s/pt = 4.7509e-06 s
+Step  173: t = 0.0340, dt = 1.9383e-04, wall = 5.1430 s, s/pt = 4.9048e-06 s
+Step  174: t = 0.0342, dt = 1.9381e-04, wall = 5.0945 s, s/pt = 4.8585e-06 s
+Step  175: t = 0.0344, dt = 1.9378e-04, wall = 5.1475 s, s/pt = 4.9090e-06 s
+Step  176: t = 0.0346, dt = 1.9376e-04, wall = 5.0896 s, s/pt = 4.8538e-06 s
+Step  177: t = 0.0347, dt = 1.9374e-04, wall = 4.9711 s, s/pt = 4.7408e-06 s
+Step  178: t = 0.0349, dt = 1.9372e-04, wall = 5.1611 s, s/pt = 4.9220e-06 s
+Step  179: t = 0.0351, dt = 1.9370e-04, wall = 5.0315 s, s/pt = 4.7984e-06 s
+Step  180: t = 0.0353, dt = 1.9368e-04, wall = 5.1122 s, s/pt = 4.8754e-06 s
+  Memory: max = 1.69 GB, avg = 1.36 GB, total = 86.95 GB (64 ranks)
+Step  181: t = 0.0355, dt = 1.9366e-04, wall = 5.0688 s, s/pt = 4.8340e-06 s
+Step  182: t = 0.0357, dt = 1.9363e-04, wall = 5.0398 s, s/pt = 4.8063e-06 s
+Step  183: t = 0.0359, dt = 1.9361e-04, wall = 4.8005 s, s/pt = 4.5781e-06 s
+Step  184: t = 0.0361, dt = 1.9359e-04, wall = 5.1941 s, s/pt = 4.9535e-06 s
+Step  185: t = 0.0363, dt = 1.9357e-04, wall = 5.1095 s, s/pt = 4.8728e-06 s
+Step  186: t = 0.0365, dt = 1.9355e-04, wall = 4.8991 s, s/pt = 4.6721e-06 s
+Step  187: t = 0.0367, dt = 1.9353e-04, wall = 5.0858 s, s/pt = 4.8502e-06 s
+Step  188: t = 0.0369, dt = 1.9350e-04, wall = 5.2113 s, s/pt = 4.9699e-06 s
+Step  189: t = 0.0371, dt = 1.9348e-04, wall = 4.7516 s, s/pt = 4.5314e-06 s
+Step  190: t = 0.0373, dt = 1.9346e-04, wall = 5.0800 s, s/pt = 4.8446e-06 s
+  Memory: max = 1.71 GB, avg = 1.36 GB, total = 87.34 GB (64 ranks)
+Step  191: t = 0.0375, dt = 1.9344e-04, wall = 5.0884 s, s/pt = 4.8527e-06 s
+Step  192: t = 0.0376, dt = 1.9342e-04, wall = 5.1090 s, s/pt = 4.8723e-06 s
+Step  193: t = 0.0378, dt = 1.9340e-04, wall = 4.8484 s, s/pt = 4.6238e-06 s
+Step  194: t = 0.0380, dt = 1.9338e-04, wall = 5.1285 s, s/pt = 4.8909e-06 s
+Step  195: t = 0.0382, dt = 1.9336e-04, wall = 5.0672 s, s/pt = 4.8324e-06 s
+Step  196: t = 0.0384, dt = 1.9334e-04, wall = 4.8872 s, s/pt = 4.6608e-06 s
+Step  197: t = 0.0386, dt = 1.9332e-04, wall = 5.1294 s, s/pt = 4.8917e-06 s
+Step  198: t = 0.0388, dt = 1.9330e-04, wall = 4.8463 s, s/pt = 4.6217e-06 s
+Step  199: t = 0.0390, dt = 1.9328e-04, wall = 5.1075 s, s/pt = 4.8709e-06 s
+Step  200: t = 0.0392, dt = 1.9326e-04, wall = 5.0771 s, s/pt = 4.8419e-06 s
+  Memory: max = 1.71 GB, avg = 1.37 GB, total = 87.71 GB (64 ranks)
+Step  201: t = 0.0394, dt = 1.9323e-04, wall = 5.1477 s, s/pt = 4.9092e-06 s
+Step  202: t = 0.0396, dt = 1.9321e-04, wall = 5.1542 s, s/pt = 4.9154e-06 s
+Step  203: t = 0.0398, dt = 1.9319e-04, wall = 5.1167 s, s/pt = 4.8797e-06 s
+Step  204: t = 0.0400, dt = 1.9317e-04, wall = 4.8121 s, s/pt = 4.5891e-06 s
+Step  205: t = 0.0402, dt = 1.9316e-04, wall = 4.9558 s, s/pt = 4.7262e-06 s
+Step  206: t = 0.0404, dt = 1.9314e-04, wall = 5.0996 s, s/pt = 4.8633e-06 s
+Step  207: t = 0.0405, dt = 1.9312e-04, wall = 5.0317 s, s/pt = 4.7986e-06 s
+Step  208: t = 0.0407, dt = 1.9310e-04, wall = 5.1126 s, s/pt = 4.8757e-06 s
+Step  209: t = 0.0409, dt = 1.9308e-04, wall = 5.0991 s, s/pt = 4.8629e-06 s
+Step  210: t = 0.0411, dt = 1.9306e-04, wall = 5.1508 s, s/pt = 4.9121e-06 s
+  Memory: max = 1.71 GB, avg = 1.38 GB, total = 88.02 GB (64 ranks)
+Step  211: t = 0.0413, dt = 1.9304e-04, wall = 4.9407 s, s/pt = 4.7118e-06 s
+Step  212: t = 0.0415, dt = 1.9302e-04, wall = 5.1317 s, s/pt = 4.8939e-06 s
+Step  213: t = 0.0417, dt = 1.9300e-04, wall = 5.1157 s, s/pt = 4.8787e-06 s
+Step  214: t = 0.0419, dt = 1.9298e-04, wall = 4.8132 s, s/pt = 4.5902e-06 s
+Step  215: t = 0.0421, dt = 1.9296e-04, wall = 4.9848 s, s/pt = 4.7539e-06 s
+Step  216: t = 0.0423, dt = 1.9294e-04, wall = 5.1875 s, s/pt = 4.9472e-06 s
+Step  217: t = 0.0425, dt = 1.9293e-04, wall = 5.0598 s, s/pt = 4.8254e-06 s
+Step  218: t = 0.0427, dt = 1.9291e-04, wall = 5.0926 s, s/pt = 4.8566e-06 s
+Step  219: t = 0.0429, dt = 1.9289e-04, wall = 5.0799 s, s/pt = 4.8445e-06 s
+Step  220: t = 0.0431, dt = 1.9287e-04, wall = 5.0506 s, s/pt = 4.8166e-06 s
+  Memory: max = 1.71 GB, avg = 1.38 GB, total = 88.42 GB (64 ranks)
+Step  221: t = 0.0432, dt = 1.9285e-04, wall = 5.2435 s, s/pt = 5.0006e-06 s
+Step  222: t = 0.0434, dt = 1.9283e-04, wall = 4.9488 s, s/pt = 4.7195e-06 s
+Step  223: t = 0.0436, dt = 1.9282e-04, wall = 4.9810 s, s/pt = 4.7502e-06 s
+Step  224: t = 0.0438, dt = 1.9280e-04, wall = 4.8590 s, s/pt = 4.6339e-06 s
+Step  225: t = 0.0440, dt = 1.9278e-04, wall = 4.8071 s, s/pt = 4.5844e-06 s
+Step  226: t = 0.0442, dt = 1.9276e-04, wall = 5.1087 s, s/pt = 4.8720e-06 s
+Step  227: t = 0.0444, dt = 1.9275e-04, wall = 5.1317 s, s/pt = 4.8940e-06 s
+Step  228: t = 0.0446, dt = 1.9273e-04, wall = 5.0864 s, s/pt = 4.8508e-06 s
+Step  229: t = 0.0448, dt = 1.9271e-04, wall = 5.0885 s, s/pt = 4.8527e-06 s
+Step  230: t = 0.0450, dt = 1.9269e-04, wall = 5.0876 s, s/pt = 4.8519e-06 s
+  Memory: max = 1.71 GB, avg = 1.39 GB, total = 88.67 GB (64 ranks)
+Step  231: t = 0.0452, dt = 1.9268e-04, wall = 4.7927 s, s/pt = 4.5707e-06 s
+Step  232: t = 0.0454, dt = 1.9266e-04, wall = 5.0323 s, s/pt = 4.7991e-06 s
+Step  233: t = 0.0456, dt = 1.9264e-04, wall = 4.8624 s, s/pt = 4.6372e-06 s
+Step  234: t = 0.0458, dt = 1.9263e-04, wall = 5.0376 s, s/pt = 4.8042e-06 s
+Step  235: t = 0.0459, dt = 1.9261e-04, wall = 5.1889 s, s/pt = 4.9485e-06 s
+Step  236: t = 0.0461, dt = 1.9259e-04, wall = 4.9969 s, s/pt = 4.7654e-06 s
+Step  237: t = 0.0463, dt = 1.9258e-04, wall = 4.9558 s, s/pt = 4.7262e-06 s
+Step  238: t = 0.0465, dt = 1.9256e-04, wall = 5.0697 s, s/pt = 4.8348e-06 s
+Step  239: t = 0.0467, dt = 1.9254e-04, wall = 5.1718 s, s/pt = 4.9323e-06 s
+Step  240: t = 0.0469, dt = 1.9253e-04, wall = 4.9772 s, s/pt = 4.7467e-06 s
+  Memory: max = 1.71 GB, avg = 1.39 GB, total = 88.98 GB (64 ranks)
+Step  241: t = 0.0471, dt = 1.9251e-04, wall = 4.8493 s, s/pt = 4.6247e-06 s
+Step  242: t = 0.0473, dt = 1.9250e-04, wall = 5.0857 s, s/pt = 4.8501e-06 s
+Step  243: t = 0.0475, dt = 1.9248e-04, wall = 5.1199 s, s/pt = 4.8827e-06 s
+Step  244: t = 0.0477, dt = 1.9246e-04, wall = 5.0591 s, s/pt = 4.8248e-06 s
+Step  245: t = 0.0479, dt = 1.9245e-04, wall = 5.1438 s, s/pt = 4.9055e-06 s
+Step  246: t = 0.0481, dt = 1.9243e-04, wall = 5.0292 s, s/pt = 4.7962e-06 s
+Step  247: t = 0.0483, dt = 1.9242e-04, wall = 5.1114 s, s/pt = 4.8746e-06 s
+Step  248: t = 0.0484, dt = 1.9240e-04, wall = 5.1838 s, s/pt = 4.9436e-06 s
+Step  249: t = 0.0486, dt = 1.9239e-04, wall = 5.1839 s, s/pt = 4.9437e-06 s
+Step  250: t = 0.0488, dt = 1.9237e-04, wall = 5.2310 s, s/pt = 4.9887e-06 s
+  Memory: max = 1.73 GB, avg = 1.40 GB, total = 89.33 GB (64 ranks)
+Step  251: t = 0.0490, dt = 1.9236e-04, wall = 4.9741 s, s/pt = 4.7437e-06 s
+Step  252: t = 0.0492, dt = 1.9234e-04, wall = 4.7645 s, s/pt = 4.5438e-06 s
+Step  253: t = 0.0494, dt = 1.9233e-04, wall = 5.1752 s, s/pt = 4.9355e-06 s
+Step  254: t = 0.0496, dt = 1.9231e-04, wall = 5.1631 s, s/pt = 4.9240e-06 s
+Step  255: t = 0.0498, dt = 1.9230e-04, wall = 5.0913 s, s/pt = 4.8555e-06 s
+Step  256: t = 0.0500, dt = 1.9228e-04, wall = 5.1102 s, s/pt = 4.8734e-06 s
+Step  257: t = 0.0500, dt = 1.2125e-05, wall = 5.1010 s, s/pt = 4.8647e-06 s
+Time evolution complete: 257 steps, t = 0.05
+Final memory: max = 1.73 GB, avg = 1.40 GB, total = 89.57 GB (64 ranks)
+  steps=257  t=0.05  wall=1286.9s  rho[min,max]=[1.0000,1.3961]  edge<rho>=1.00001
+  wrote /storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/studies/bubble/out/bubble_smooth_Kn1_N1024.bin
+N=1024 Kn=1 steps=257  frac_real=9.3039e-01 frac_hyp=8.6090e-07 frac_any=9.4364e-01  mean_dM=2.6858e-07 max_dM=2.9126e-03  max_dCons/corr=1.295e-15
+    global conserved rel-drift: mass=4.23e-07 mom_x=1.15e-10 mom_y=1.15e-10 mom_z=0.00e+00 M200=1.37e-05 M020=1.37e-05 M002=3.04e-05 
+
+Done.
+===== ANALYSIS (smooth) Kn=0.01 =====
+========================================================================
+Bubble convergence  Kn=0.01   grids: 128, 256, 512, 1024
+========================================================================
+  N=128   steps=32    t=0.05
+  N=256   steps=64    t=0.05
+  N=512   steps=128   t=0.05
+  N=1024  steps=256   t=0.05
+
+Density (moment index 1):
+  pair           L1 diff        L2 diff        p(L1)    p(L2)   
+  128-256        7.8422e-04     1.8557e-03     -        -       
+  256-512        4.0283e-04     9.6375e-04     0.961    0.945   
+  512-1024       2.0419e-04     4.9114e-04     0.980    0.973   
+
+(Observed order p from successive Richardson differences; p≈1 expected
+ for a discontinuous solution, higher in smooth regions.)
+============================================================
+Rotational-invariance (azimuthal density deviation)  Kn=0.01
+============================================================
+  N      rms_all       rms_smooth    max_smooth    p(smooth)
+  128    2.9259e-03    5.0142e-04    1.0641e-03    -       
+  256    3.0268e-03    4.8386e-04    1.1455e-03    0.051   
+  512    3.0905e-03    4.7386e-04    1.1358e-03    0.030   
+  1024   3.1213e-03    4.6722e-04    1.1269e-03    0.020   
+
+(rms_all is interface-dominated (Cartesian staircasing of the circular
+ front). rms_smooth excludes front shells => closure's intrinsic rotational
+ asymmetry: a small (<0.1%) bound that does not grow under refinement.
+ Answers Reviewer #1, Q1 as a quantitative invariance bound.)
+===== ANALYSIS (smooth) Kn=0.1 =====
+========================================================================
+Bubble convergence  Kn=0.1   grids: 128, 256, 512, 1024
+========================================================================
+  N=128   steps=32    t=0.05
+  N=256   steps=64    t=0.05
+  N=512   steps=128   t=0.05
+  N=1024  steps=256   t=0.05
+
+Density (moment index 1):
+  pair           L1 diff        L2 diff        p(L1)    p(L2)   
+  128-256        7.9385e-04     1.8949e-03     -        -       
+  256-512        4.0778e-04     9.8426e-04     0.961    0.945   
+  512-1024       2.0601e-04     5.0076e-04     0.985    0.975   
+
+(Observed order p from successive Richardson differences; p≈1 expected
+ for a discontinuous solution, higher in smooth regions.)
+============================================================
+Rotational-invariance (azimuthal density deviation)  Kn=0.1
+============================================================
+  N      rms_all       rms_smooth    max_smooth    p(smooth)
+  128    2.9494e-03    5.7145e-04    1.2038e-03    -       
+  256    3.0536e-03    4.7974e-04    1.1300e-03    0.252   
+  512    3.1195e-03    4.6989e-04    1.1197e-03    0.030   
+  1024   3.1508e-03    4.6318e-04    1.1106e-03    0.021   
+
+(rms_all is interface-dominated (Cartesian staircasing of the circular
+ front). rms_smooth excludes front shells => closure's intrinsic rotational
+ asymmetry: a small (<0.1%) bound that does not grow under refinement.
+ Answers Reviewer #1, Q1 as a quantitative invariance bound.)
+===== ANALYSIS (smooth) Kn=1.0 =====
+========================================================================
+Bubble convergence  Kn=1   grids: 128, 256, 512, 1024
+========================================================================
+  N=128   steps=32    t=0.05
+  N=256   steps=64    t=0.05
+  N=512   steps=129   t=0.05
+  N=1024  steps=257   t=0.05
+
+Density (moment index 1):
+  pair           L1 diff        L2 diff        p(L1)    p(L2)   
+  128-256        7.9654e-04     1.9076e-03     -        -       
+  256-512        4.0901e-04     9.9124e-04     0.962    0.944   
+  512-1024       2.0668e-04     5.0453e-04     0.985    0.974   
+
+(Observed order p from successive Richardson differences; p≈1 expected
+ for a discontinuous solution, higher in smooth regions.)
+============================================================
+Rotational-invariance (azimuthal density deviation)  Kn=1
+============================================================
+  N      rms_all       rms_smooth    max_smooth    p(smooth)
+  128    2.9565e-03    5.7134e-04    1.1998e-03    -       
+  256    3.0612e-03    4.7864e-04    1.1258e-03    0.255   
+  512    3.1289e-03    4.6885e-04    1.1153e-03    0.030   
+  1024   3.1597e-03    4.6212e-04    1.1061e-03    0.021   
+
+(rms_all is interface-dominated (Cartesian staircasing of the circular
+ front). rms_smooth excludes front shells => closure's intrinsic rotational
+ asymmetry: a small (<0.1%) bound that does not grow under refinement.
+ Answers Reviewer #1, Q1 as a quantitative invariance bound.)
+=== smooth sweep done Mon Jun  1 11:07:24 EDT 2026 ===
+---------------------------------------
+Begin Slurm Epilog: Jun-01-2026 11:07:24
+Job ID:        9374704
+User ID:       sbryngelson3
+Account:       gts-sbryngelson3
+Job name:      bubble_smooth
+Resources:     cpu=64,mem=120G,node=1
+Rsrc Used:     cput=3-11:04:32,vmem=0,walltime=01:17:53,mem=1732916K,energy_used=0
+Partition:     cpu-gnr
+QOS:           embers
+Nodes:         atl1-1-03-019-9-0
+---------------------------------------

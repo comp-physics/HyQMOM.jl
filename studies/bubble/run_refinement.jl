@@ -29,6 +29,13 @@ const OUTDIR = joinpath(@__DIR__, "out")
 RANK == 0 && mkpath(OUTDIR)
 MPI.Barrier(COMM)
 
+# Profile selected via env var: "sharp" (discontinuous disk) or "smooth" (Gaussian).
+const PROFILE = Symbol(get(ENV, "BUBBLE_PROFILE", "sharp"))
+const PREFIX  = PROFILE == :smooth ? "bubble_smooth_" : "bubble_"
+# Gentler amplitude for the smooth case so the solution stays smooth (clean order).
+const RHO_IN  = parse(Float64, get(ENV, "BUBBLE_RHO_IN", PROFILE == :smooth ? "1.5" : "2.0"))
+const WIDTH   = parse(Float64, get(ENV, "BUBBLE_WIDTH", "0.1"))
+
 function make_params(N, Kn, tmax)
     Nz = 1
     CFL = 0.5
@@ -43,9 +50,9 @@ function make_params(N, Kn, tmax)
         flag2D = 0, CFL = CFL,
         dx = dx, dy = dy, dz = dz,
         Nmom = 35, nnmax = nnmax, dtmax = dtmax,
-        # IC: isothermal bubble, density/pressure ratio 2
-        ic_type = :bubble,
-        rho_in = 2.0, rho_out = 1.0, bubble_radius = 0.25,
+        # IC: isothermal bubble (sharp disk or smooth Gaussian), zero velocity
+        ic_type = :bubble, bubble_profile = PROFILE, bubble_width = WIDTH,
+        rho_in = RHO_IN, rho_out = 1.0, bubble_radius = 0.25,
         bubble_xc = 0.0, bubble_yc = 0.0,
         # unused-by-bubble jet params still read by the runner
         rhol = 1.0, rhor = 1.0, T = 1.0,
@@ -83,7 +90,7 @@ for N in Ns
         # M is (N, N, 1, 35); store the z=1 slice
         slice = M[:, :, 1, :]                      # (N, N, 35)
         rho = slice[:, :, 1]
-        fname = joinpath(OUTDIR, @sprintf("bubble_Kn%g_N%d.bin", Kn, N))
+        fname = joinpath(OUTDIR, @sprintf("%sKn%g_N%d.bin", PREFIX, Kn, N))
         open(fname, "w") do io
             write(io, Int64(N)); write(io, Int64(N)); write(io, Int64(35))
             write(io, Float64(final_time)); write(io, Int64(steps))
@@ -94,7 +101,7 @@ for N in Ns
                 (sum(@view rho[1, :]) + sum(@view rho[end, :]) +
                  sum(@view rho[:, 1]) + sum(@view rho[:, end])) / (4N))
         @printf("  wrote %s\n", fname)
-        open(joinpath(OUTDIR, @sprintf("corrections_Kn%g.txt", Kn)), "a") do io
+        open(joinpath(OUTDIR, @sprintf("corrections_%sKn%g.txt", PREFIX, Kn)), "a") do io
             dump_corrections(io, N, Kn)
         end
         dump_corrections(stdout, N, Kn)

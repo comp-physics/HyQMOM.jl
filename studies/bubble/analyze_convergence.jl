@@ -15,9 +15,10 @@ Ns = length(ARGS) >= 2 ? parse.(Int, ARGS[2:end]) : [64, 128, 256]
 sort!(Ns)
 
 const OUTDIR = joinpath(@__DIR__, "out")
+const PREFIX = Symbol(get(ENV, "BUBBLE_PROFILE", "sharp")) == :smooth ? "bubble_smooth_" : "bubble_"
 
 function load_run(Kn, N)
-    fname = joinpath(OUTDIR, @sprintf("bubble_Kn%g_N%d.bin", Kn, N))
+    fname = joinpath(OUTDIR, @sprintf("%sKn%g_N%d.bin", PREFIX, Kn, N))
     isfile(fname) || error("missing $fname")
     open(fname, "r") do io
         nx = read(io, Int64); ny = read(io, Int64); nm = read(io, Int64)

@@ -224,6 +224,11 @@ function simulation_runner(params)
         radius  = get(params, :bubble_radius, 0.25)
         xc      = get(params, :bubble_xc, 0.0)
         yc      = get(params, :bubble_yc, 0.0)
+        # :sharp  -> discontinuous disk (Rice et al. validation case)
+        # :smooth -> Gaussian density bump rho_out + (rho_in-rho_out) exp(-r^2/2w^2),
+        #            a C-infinity IC for clean grid-convergence / rotational-invariance tests.
+        profile = get(params, :bubble_profile, :sharp)
+        width   = get(params, :bubble_width, 0.1)
 
         C200 = T
         C020 = T
@@ -243,8 +248,14 @@ function simulation_runner(params)
                 for jj in 1:ny
                     gj = j0j1[1] + jj - 1  # global j index
                     ycoord = ymin + (gj - 0.5) * dy_global
-                    rr = sqrt((xcoord - xc)^2 + (ycoord - yc)^2)
-                    M[ii + halo, jj + halo, kk, :] = (rr <= radius) ? Mr_in : Mr_out
+                    rr2 = (xcoord - xc)^2 + (ycoord - yc)^2
+                    if profile == :smooth
+                        rho_loc = rho_out + (rho_in - rho_out) * exp(-rr2 / (2 * width^2))
+                        M[ii + halo, jj + halo, kk, :] =
+                            InitializeM4_35(rho_loc, 0.0, 0.0, 0.0, C200, C110, C101, C020, C011, C002)
+                    else
+                        M[ii + halo, jj + halo, kk, :] = (sqrt(rr2) <= radius) ? Mr_in : Mr_out
+                    end
                 end
             end
         end

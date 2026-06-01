@@ -5,6 +5,44 @@ Bubble: domain [-0.5,0.5]^2, disk r=0.25, rho_in/rho_out=2 (isothermal, T=1), ze
 velocity, Nz=1, tmax=0.05, CFL=0.5. Waves stay off the wall (edge<rho>=1.0) and
 rho in [1,2] at all resolutions.
 
+## SMOOTH bubble — clean grid convergence (Reviewer #1 HEADLINE)
+
+Gaussian density bump (rho = 1 + 0.5 exp(-r^2/2w^2), w=0.1, isothermal, zero
+velocity) -> C-infinity solution, no discontinuity. Job 9374704, 64 ranks.
+Density L1 self-difference, observed order p:
+
+| pair      | Kn=0.01  p     | Kn=0.1   p     | Kn=1.0   p     |
+|-----------|----------------|----------------|----------------|
+| 128-256   | 7.84e-4   –    | 7.94e-4   –    | 7.97e-4   –    |
+| 256-512   | 4.03e-4  0.961 | 4.08e-4  0.961 | 4.09e-4  0.962 |
+| 512-1024  | 2.04e-4  0.980 | 2.06e-4  0.985 | 2.07e-4  0.985 |
+
+CLEAN first order (p -> 0.98), uniform across all regimes including rarefied
+Kn=1. Contrast with the discontinuous bubble below, where Kn=1 collapses to
+p~0.13: that collapse is the CONTACT DISCONTINUITY (L1 order ~1/2, plus rarefied
+fine structure), NOT a solver/closure defect. The smooth bubble isolates the
+scheme's true design order. -> Use this for the R1 convergence demonstration.
+
+Rotational invariance (smooth-region azimuthal density deviation), smooth bubble:
+
+| N    | Kn=0.01  | Kn=0.1   | Kn=1.0   |
+|------|----------|----------|----------|
+| 128  | 5.01e-4  | 5.71e-4  | 5.71e-4  |
+| 256  | 4.84e-4  | 4.80e-4  | 4.79e-4  |
+| 512  | 4.74e-4  | 4.70e-4  | 4.69e-4  |
+| 1024 | 4.67e-4  | 4.63e-4  | 4.62e-4  |
+
+Residual rotational asymmetry settles to ~0.046% (uniform across Kn), decreasing
+only weakly -> this is the closure's INTRINSIC anisotropy (a property of the
+closure, not a grid artifact, since the IC/solution are smooth). A clean
+quantitative invariance bound for Reviewer #1, Q1 (~0.05%), consistent with Rice
+et al.: these closures are not perfectly rotationally invariant but the deviation
+is small.
+
+---
+
+## Discontinuous bubble (Rice et al. validation case) — used for R3 diagnostics below
+
 ## Grid convergence — density L1 self-difference, observed order p = log2(e_h/e_{h/2})
 
 | pair      | Kn=0.01  p     | Kn=0.1   p     | Kn=1.0   p     |

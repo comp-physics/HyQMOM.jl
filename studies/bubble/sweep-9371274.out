@@ -2826,3 +2826,215 @@ Step  231: t = 0.0398, dt = 1.4784e-04, wall = 4.7321 s, s/pt = 7.2207e-05 s
 Step  232: t = 0.0399, dt = 1.4824e-04, wall = 4.7202 s, s/pt = 7.2024e-05 s
 Step  233: t = 0.0401, dt = 1.4894e-04, wall = 4.7216 s, s/pt = 7.2045e-05 s
 Step  234: t = 0.0402, dt = 1.4911e-04, wall = 4.7071 s, s/pt = 7.1825e-05 s
+Step  235: t = 0.0403, dt = 1.4892e-04, wall = 4.6697 s, s/pt = 7.1255e-05 s
+Step  236: t = 0.0405, dt = 1.4858e-04, wall = 4.6597 s, s/pt = 7.1101e-05 s
+Step  237: t = 0.0406, dt = 1.4755e-04, wall = 4.5957 s, s/pt = 7.0124e-05 s
+Step  238: t = 0.0408, dt = 1.4691e-04, wall = 4.5741 s, s/pt = 6.9794e-05 s
+Step  239: t = 0.0409, dt = 1.4702e-04, wall = 4.5191 s, s/pt = 6.8955e-05 s
+Step  240: t = 0.0411, dt = 1.4746e-04, wall = 4.4986 s, s/pt = 6.8642e-05 s
+  Memory: max = 1.28 GB, avg = 1.16 GB, total = 74.02 GB (64 ranks)
+Step  241: t = 0.0412, dt = 1.4822e-04, wall = 4.4516 s, s/pt = 6.7927e-05 s
+Step  242: t = 0.0414, dt = 1.4807e-04, wall = 4.4262 s, s/pt = 6.7539e-05 s
+Step  243: t = 0.0415, dt = 1.4798e-04, wall = 4.4126 s, s/pt = 6.7330e-05 s
+Step  244: t = 0.0417, dt = 1.4839e-04, wall = 4.4210 s, s/pt = 6.7460e-05 s
+Step  245: t = 0.0418, dt = 1.4840e-04, wall = 4.4241 s, s/pt = 6.7506e-05 s
+Step  246: t = 0.0420, dt = 1.4857e-04, wall = 4.4299 s, s/pt = 6.7594e-05 s
+Step  247: t = 0.0421, dt = 1.4865e-04, wall = 4.4028 s, s/pt = 6.7181e-05 s
+Step  248: t = 0.0423, dt = 1.4819e-04, wall = 4.3824 s, s/pt = 6.6870e-05 s
+Step  249: t = 0.0424, dt = 1.4838e-04, wall = 4.3342 s, s/pt = 6.6134e-05 s
+Step  250: t = 0.0426, dt = 1.4741e-04, wall = 4.2994 s, s/pt = 6.5603e-05 s
+  Memory: max = 1.28 GB, avg = 1.16 GB, total = 74.03 GB (64 ranks)
+Step  251: t = 0.0427, dt = 1.4840e-04, wall = 4.2859 s, s/pt = 6.5397e-05 s
+Step  252: t = 0.0429, dt = 1.4746e-04, wall = 4.2354 s, s/pt = 6.4628e-05 s
+Step  253: t = 0.0430, dt = 1.4859e-04, wall = 4.1869 s, s/pt = 6.3887e-05 s
+Step  254: t = 0.0432, dt = 1.4931e-04, wall = 4.1220 s, s/pt = 6.2896e-05 s
+Step  255: t = 0.0433, dt = 1.4868e-04, wall = 4.1068 s, s/pt = 6.2665e-05 s
+Step  256: t = 0.0435, dt = 1.4872e-04, wall = 4.1116 s, s/pt = 6.2739e-05 s
+Step  257: t = 0.0436, dt = 1.4841e-04, wall = 4.1012 s, s/pt = 6.2579e-05 s
+Step  258: t = 0.0438, dt = 1.4868e-04, wall = 4.1073 s, s/pt = 6.2672e-05 s
+Step  259: t = 0.0439, dt = 1.4918e-04, wall = 4.0800 s, s/pt = 6.2255e-05 s
+Step  260: t = 0.0441, dt = 1.4928e-04, wall = 4.0506 s, s/pt = 6.1808e-05 s
+  Memory: max = 1.28 GB, avg = 1.16 GB, total = 74.03 GB (64 ranks)
+Step  261: t = 0.0442, dt = 1.4903e-04, wall = 4.0696 s, s/pt = 6.2098e-05 s
+Step  262: t = 0.0444, dt = 1.4833e-04, wall = 4.0572 s, s/pt = 6.1907e-05 s
+Step  263: t = 0.0445, dt = 1.4843e-04, wall = 4.0528 s, s/pt = 6.1841e-05 s
+Step  264: t = 0.0446, dt = 1.4798e-04, wall = 4.1607 s, s/pt = 6.3487e-05 s
+Step  265: t = 0.0448, dt = 1.4756e-04, wall = 4.2053 s, s/pt = 6.4168e-05 s
+Step  266: t = 0.0449, dt = 1.4749e-04, wall = 4.2978 s, s/pt = 6.5579e-05 s
+Step  267: t = 0.0451, dt = 1.4811e-04, wall = 4.3202 s, s/pt = 6.5921e-05 s
+Step  268: t = 0.0452, dt = 1.4827e-04, wall = 4.4298 s, s/pt = 6.7593e-05 s
+Step  269: t = 0.0454, dt = 1.4772e-04, wall = 4.4627 s, s/pt = 6.8096e-05 s
+Step  270: t = 0.0455, dt = 1.4782e-04, wall = 4.5319 s, s/pt = 6.9151e-05 s
+  Memory: max = 1.28 GB, avg = 1.16 GB, total = 74.03 GB (64 ranks)
+Step  271: t = 0.0457, dt = 1.4742e-04, wall = 4.6071 s, s/pt = 7.0298e-05 s
+Step  272: t = 0.0458, dt = 1.4766e-04, wall = 4.4859 s, s/pt = 6.8449e-05 s
+Step  273: t = 0.0460, dt = 1.4750e-04, wall = 4.5586 s, s/pt = 6.9559e-05 s
+Step  274: t = 0.0461, dt = 1.4770e-04, wall = 4.6314 s, s/pt = 7.0669e-05 s
+Step  275: t = 0.0463, dt = 1.4761e-04, wall = 4.6742 s, s/pt = 7.1323e-05 s
+Step  276: t = 0.0464, dt = 1.4739e-04, wall = 4.7097 s, s/pt = 7.1864e-05 s
+Step  277: t = 0.0466, dt = 1.4760e-04, wall = 4.7042 s, s/pt = 7.1780e-05 s
+Step  278: t = 0.0467, dt = 1.4795e-04, wall = 4.7569 s, s/pt = 7.2584e-05 s
+Step  279: t = 0.0469, dt = 1.4814e-04, wall = 4.7396 s, s/pt = 7.2321e-05 s
+Step  280: t = 0.0470, dt = 1.4876e-04, wall = 4.7658 s, s/pt = 7.2720e-05 s
+  Memory: max = 1.28 GB, avg = 1.16 GB, total = 74.03 GB (64 ranks)
+Step  281: t = 0.0472, dt = 1.4798e-04, wall = 4.8260 s, s/pt = 7.3640e-05 s
+Step  282: t = 0.0473, dt = 1.4764e-04, wall = 4.9423 s, s/pt = 7.5413e-05 s
+Step  283: t = 0.0475, dt = 1.4837e-04, wall = 4.8746 s, s/pt = 7.4380e-05 s
+Step  284: t = 0.0476, dt = 1.4801e-04, wall = 4.9622 s, s/pt = 7.5717e-05 s
+Step  285: t = 0.0478, dt = 1.4791e-04, wall = 4.9753 s, s/pt = 7.5917e-05 s
+Step  286: t = 0.0479, dt = 1.4843e-04, wall = 5.0137 s, s/pt = 7.6503e-05 s
+Step  287: t = 0.0481, dt = 1.4861e-04, wall = 5.1276 s, s/pt = 7.8240e-05 s
+Step  288: t = 0.0482, dt = 1.4882e-04, wall = 5.0517 s, s/pt = 7.7083e-05 s
+Step  289: t = 0.0483, dt = 1.4883e-04, wall = 5.0734 s, s/pt = 7.7413e-05 s
+Step  290: t = 0.0485, dt = 1.4910e-04, wall = 5.1635 s, s/pt = 7.8789e-05 s
+  Memory: max = 1.28 GB, avg = 1.16 GB, total = 74.03 GB (64 ranks)
+Step  291: t = 0.0486, dt = 1.4868e-04, wall = 5.0860 s, s/pt = 7.7606e-05 s
+Step  292: t = 0.0488, dt = 1.4888e-04, wall = 5.1756 s, s/pt = 7.8973e-05 s
+Step  293: t = 0.0489, dt = 1.4879e-04, wall = 5.1946 s, s/pt = 7.9263e-05 s
+Step  294: t = 0.0491, dt = 1.4863e-04, wall = 5.1155 s, s/pt = 7.8057e-05 s
+Step  295: t = 0.0492, dt = 1.4744e-04, wall = 5.1273 s, s/pt = 7.8236e-05 s
+Step  296: t = 0.0494, dt = 1.4719e-04, wall = 5.1429 s, s/pt = 7.8474e-05 s
+Step  297: t = 0.0495, dt = 1.4722e-04, wall = 5.0630 s, s/pt = 7.7255e-05 s
+Step  298: t = 0.0497, dt = 1.4711e-04, wall = 5.1774 s, s/pt = 7.9001e-05 s
+Step  299: t = 0.0498, dt = 1.4729e-04, wall = 5.1184 s, s/pt = 7.8101e-05 s
+Step  300: t = 0.0500, dt = 1.4773e-04, wall = 5.0312 s, s/pt = 7.6770e-05 s
+  Memory: max = 1.28 GB, avg = 1.16 GB, total = 74.03 GB (64 ranks)
+Step  301: t = 0.0500, dt = 2.2845e-05, wall = 5.1453 s, s/pt = 7.8511e-05 s
+Time evolution complete: 301 steps, t = 0.05
+Final memory: max = 1.28 GB, avg = 1.16 GB, total = 74.03 GB (64 ranks)
+  Ma=4: frac_real=2.593e-01 frac_hyp=1.408e-03 frac_any=2.617e-01  max_dM=3.393e+01  max_dCons/corr=1.640e-14
+
+Done (Ma sweep).
+===== ANALYSIS Kn=0.01 =====
+========================================================================
+Bubble convergence  Kn=0.01   grids: 128, 256, 512, 1024
+========================================================================
+  N=128   steps=35    t=0.05
+  N=256   steps=70    t=0.05
+  N=512   steps=141   t=0.05
+  N=1024  steps=284   t=0.05
+
+Density (moment index 1):
+  pair           L1 diff        L2 diff        p(L1)    p(L2)   
+  128-256        4.5786e-03     8.0273e-03     -        -       
+  256-512        2.5570e-03     4.8064e-03     0.840    0.740   
+  512-1024       1.5581e-03     3.1131e-03     0.715    0.627   
+
+(Observed order p from successive Richardson differences; p≈1 expected
+ for a discontinuous solution, higher in smooth regions.)
+============================================================
+Rotational-invariance (azimuthal density deviation)  Kn=0.01
+============================================================
+  N      rms_all       rms_smooth    max_smooth    p(smooth)
+  128    7.2262e-03    8.8691e-04    2.9796e-03    -       
+  256    7.4442e-03    5.5715e-04    1.9080e-03    0.671   
+  512    7.6389e-03    7.2094e-04    3.0645e-03    -0.372  
+  1024   7.7949e-03    6.4269e-04    2.5455e-03    0.166   
+
+(rms_all is interface-dominated (Cartesian staircasing of the circular
+ front). rms_smooth excludes front shells => closure's intrinsic rotational
+ asymmetry: a small (<0.1%) bound that does not grow under refinement.
+ Answers Reviewer #1, Q1 as a quantitative invariance bound.)
+===== ANALYSIS Kn=0.1 =====
+========================================================================
+Bubble convergence  Kn=0.1   grids: 128, 256, 512, 1024
+========================================================================
+  N=128   steps=35    t=0.05
+  N=256   steps=70    t=0.05
+  N=512   steps=141   t=0.05
+  N=1024  steps=284   t=0.05
+
+Density (moment index 1):
+  pair           L1 diff        L2 diff        p(L1)    p(L2)   
+  128-256        4.9624e-03     8.5854e-03     -        -       
+  256-512        3.0592e-03     5.8665e-03     0.698    0.549   
+  512-1024       2.3395e-03     4.8628e-03     0.387    0.271   
+
+(Observed order p from successive Richardson differences; p≈1 expected
+ for a discontinuous solution, higher in smooth regions.)
+============================================================
+Rotational-invariance (azimuthal density deviation)  Kn=0.1
+============================================================
+  N      rms_all       rms_smooth    max_smooth    p(smooth)
+  128    7.3336e-03    1.2940e-03    3.9662e-03    -       
+  256    7.8136e-03    1.1110e-03    3.3594e-03    0.220   
+  512    8.8388e-03    1.5362e-03    4.4501e-03    -0.467  
+  1024   9.9414e-03    1.6113e-03    4.6988e-03    -0.069  
+
+(rms_all is interface-dominated (Cartesian staircasing of the circular
+ front). rms_smooth excludes front shells => closure's intrinsic rotational
+ asymmetry: a small (<0.1%) bound that does not grow under refinement.
+ Answers Reviewer #1, Q1 as a quantitative invariance bound.)
+===== ANALYSIS Kn=1.0 =====
+========================================================================
+Bubble convergence  Kn=1   grids: 128, 256, 512, 1024
+========================================================================
+  N=128   steps=35    t=0.05
+  N=256   steps=70    t=0.05
+  N=512   steps=141   t=0.05
+  N=1024  steps=286   t=0.05
+
+Density (moment index 1):
+  pair           L1 diff        L2 diff        p(L1)    p(L2)   
+  128-256        5.2747e-03     9.3421e-03     -        -       
+  256-512        4.0325e-03     8.1260e-03     0.387    0.201   
+  512-1024       3.6727e-03     7.8575e-03     0.135    0.048   
+
+(Observed order p from successive Richardson differences; p≈1 expected
+ for a discontinuous solution, higher in smooth regions.)
+============================================================
+Rotational-invariance (azimuthal density deviation)  Kn=1
+============================================================
+  N      rms_all       rms_smooth    max_smooth    p(smooth)
+  128    7.4483e-03    1.2960e-03    3.8304e-03    -       
+  256    8.3770e-03    1.2535e-03    3.4219e-03    0.048   
+  512    1.0376e-02    1.8533e-03    4.4400e-03    -0.564  
+  1024   1.2480e-02    2.3121e-03    4.7304e-03    -0.319  
+
+(rms_all is interface-dominated (Cartesian staircasing of the circular
+ front). rms_smooth excludes front shells => closure's intrinsic rotational
+ asymmetry: a small (<0.1%) bound that does not grow under refinement.
+ Answers Reviewer #1, Q1 as a quantitative invariance bound.)
+=== sweep done Mon Jun  1 04:07:01 EDT 2026 ===
+--- correction summaries ---
+N=128 Kn=0.01 steps=35  frac_real=3.3072e-01 frac_hyp=4.1853e-05 frac_any=3.3265e-01  mean_dM=1.4144e-06 max_dM=7.0423e-03  max_dCons/corr=1.332e-15
+    global conserved rel-drift: mass=1.92e-13 mom_x=9.73e-19 mom_y=1.39e-17 mom_z=0.00e+00 M200=2.13e-03 M020=2.13e-03 M002=4.26e-03 
+N=256 Kn=0.01 steps=70  frac_real=3.1241e-01 frac_hyp=5.0572e-05 frac_any=3.1523e-01  mean_dM=2.4967e-06 max_dM=1.8784e-02  max_dCons/corr=1.332e-15
+    global conserved rel-drift: mass=0.00e+00 mom_x=7.81e-18 mom_y=1.39e-17 mom_z=0.00e+00 M200=2.31e-03 M020=2.31e-03 M002=4.61e-03 
+N=512 Kn=0.01 steps=141  frac_real=2.8879e-01 frac_hyp=3.2249e-05 frac_any=2.9147e-01  mean_dM=2.8789e-06 max_dM=3.5546e-02  max_dCons/corr=1.439e-15
+    global conserved rel-drift: mass=7.42e-16 mom_x=4.77e-18 mom_y=6.94e-18 mom_z=0.00e+00 M200=2.41e-03 M020=2.41e-03 M002=4.82e-03 
+N=1024 Kn=0.01 steps=284  frac_real=2.6805e-01 frac_hyp=1.7744e-05 frac_any=2.7025e-01  mean_dM=2.5394e-06 max_dM=4.8189e-02  max_dCons/corr=1.831e-15
+    global conserved rel-drift: mass=5.57e-16 mom_x=2.93e-18 mom_y=2.78e-17 mom_z=0.00e+00 M200=2.47e-03 M020=2.47e-03 M002=4.94e-03 
+N=128 Kn=0.1 steps=35  frac_real=3.3947e-01 frac_hyp=0.0000e+00 frac_any=3.4033e-01  mean_dM=3.4714e-06 max_dM=1.5360e-05  max_dCons/corr=1.332e-15
+    global conserved rel-drift: mass=2.24e-12 mom_x=1.09e-18 mom_y=3.47e-18 mom_z=0.00e+00 M200=1.38e-03 M020=1.38e-03 M002=2.76e-03 
+N=256 Kn=0.1 steps=70  frac_real=3.2809e-01 frac_hyp=5.0572e-05 frac_any=3.3004e-01  mean_dM=8.0485e-06 max_dM=6.3555e-02  max_dCons/corr=1.676e-15
+    global conserved rel-drift: mass=0.00e+00 mom_x=6.07e-18 mom_y=1.04e-17 mom_z=0.00e+00 M200=1.50e-03 M020=1.50e-03 M002=3.00e-03 
+N=512 Kn=0.1 steps=141  frac_real=3.0507e-01 frac_hyp=2.5323e-05 frac_any=3.0714e-01  mean_dM=6.8548e-06 max_dM=6.1551e-02  max_dCons/corr=2.176e-15
+    global conserved rel-drift: mass=3.71e-16 mom_x=6.49e-19 mom_y=1.39e-17 mom_z=0.00e+00 M200=1.58e-03 M020=1.58e-03 M002=3.15e-03 
+N=1024 Kn=0.1 steps=284  frac_real=2.8137e-01 frac_hyp=1.9396e-05 frac_any=2.8309e-01  mean_dM=7.0510e-06 max_dM=8.2731e-02  max_dCons/corr=2.176e-15
+    global conserved rel-drift: mass=1.86e-16 mom_x=2.61e-18 mom_y=1.73e-17 mom_z=0.00e+00 M200=1.62e-03 M020=1.62e-03 M002=3.25e-03 
+N=48 Kn=1 steps=3  frac_real=3.2986e-02 frac_hyp=0.0000e+00 frac_any=3.2986e-02  mean_dM=2.5789e-06 max_dM=5.2913e-06  max_dCons/corr=7.692e-16
+    global conserved rel-drift: mass=1.30e-15 mom_x=4.52e-21 mom_y=8.67e-19 mom_z=0.00e+00 M200=5.35e-06 M020=5.35e-06 M002=1.07e-05 
+N=128 Kn=1 steps=35  frac_real=3.4010e-01 frac_hyp=1.3951e-05 frac_any=3.4100e-01  mean_dM=6.1237e-06 max_dM=4.0639e-02  max_dCons/corr=1.332e-15
+    global conserved rel-drift: mass=4.14e-12 mom_x=2.20e-19 mom_y=6.94e-18 mom_z=0.00e+00 M200=2.22e-04 M020=2.22e-04 M002=4.44e-04 
+N=256 Kn=1 steps=70  frac_real=3.2930e-01 frac_hyp=6.9754e-06 frac_any=3.3122e-01  mean_dM=5.9697e-06 max_dM=4.0578e-02  max_dCons/corr=1.538e-15
+    global conserved rel-drift: mass=1.86e-16 mom_x=2.92e-18 mom_y=6.94e-18 mom_z=0.00e+00 M200=2.42e-04 M020=2.42e-04 M002=4.84e-04 
+N=512 Kn=1 steps=141  frac_real=3.0598e-01 frac_hyp=3.4630e-06 frac_any=3.0800e-01  mean_dM=6.6326e-06 max_dM=5.5604e-02  max_dCons/corr=1.998e-15
+    global conserved rel-drift: mass=1.86e-16 mom_x=1.41e-18 mom_y=6.94e-18 mom_z=0.00e+00 M200=2.56e-04 M020=2.56e-04 M002=5.12e-04 
+N=1024 Kn=1 steps=286  frac_real=2.8392e-01 frac_hyp=3.1745e-06 frac_any=2.8560e-01  mean_dM=7.4926e-06 max_dM=5.0065e-02  max_dCons/corr=1.998e-15
+    global conserved rel-drift: mass=3.71e-16 mom_x=3.23e-18 mom_y=6.94e-17 mom_z=0.00e+00 M200=2.65e-04 M020=2.65e-04 M002=5.30e-04 
+Ma=0 N=256 steps=103  frac_real=1.7052e-01 frac_hyp=7.9405e-05 frac_any=1.7235e-01  mean_dM=7.5507e-06 max_dM=5.3221e-02  max_dCons/corr=6.661e-16  massdrift=4.333e-15
+Ma=2 N=256 steps=173  frac_real=1.8130e-01 frac_hyp=9.1747e-04 frac_any=1.8469e-01  mean_dM=3.9378e-04 max_dM=5.1555e+00  max_dCons/corr=3.768e-15  massdrift=6.561e-09
+Ma=4 N=256 steps=301  frac_real=2.5934e-01 frac_hyp=1.4083e-03 frac_any=2.6166e-01  mean_dM=2.0468e-03 max_dM=3.3932e+01  max_dCons/corr=1.640e-14  massdrift=1.494e-07
+---------------------------------------
+Begin Slurm Epilog: Jun-01-2026 04:07:01
+Job ID:        9371274
+User ID:       sbryngelson3
+Account:       gts-sbryngelson3
+Job name:      bubble_sweep
+Resources:     cpu=64,mem=120G,node=1
+Rsrc Used:     cput=5-01:54:08,vmem=0,walltime=01:54:17,mem=1730984K,energy_used=0
+Partition:     cpu-gnr
+QOS:           embers
+Nodes:         atl1-1-03-018-10-0
+---------------------------------------

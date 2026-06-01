@@ -61,11 +61,13 @@ Key R3 findings:
 |----|-----------|----------|-----------|----------|-----------------|------------|
 | 0  | 0.171     | 7.9e-5   | 7.6e-6    | 0.053    | 6.7e-16         | 4.3e-15    |
 | 2  | 0.181     | 9.2e-4   | 3.9e-4    | 5.16     | 3.8e-15         | 6.6e-9     |
-| 4  | (pending job completion; see corrections_jets_Kn1.txt)                       |
+| 4  | 0.259     | 1.4e-3   | 2.0e-3    | 33.9     | 1.6e-14         | 1.5e-7     |
 
-Correction activity grows sharply with Ma (frac_hyp ~12x, magnitude ~100x from
-Ma 0->2) -> confirms R3-4: low-speed needs little correction, high-Ma needs it.
-Conserved moments still preserved to ~1e-15 by the correction at all Ma.
+Correction activity grows sharply and monotonically with Ma (frac_hyp x18,
+mean|dM| x270 from Ma 0->4) -> confirms R3-4: low-speed needs ~no correction,
+high-Ma needs it. The correction preserves conserved moments to ~1e-14 even at
+Ma=4. Global mass drift grows with Ma (4e-15 -> 1.5e-7) but stays at 7+ digits.
+Job 9371274 COMPLETED (exit 0, 1:54 walltime, 64 ranks).
 
 ## Note
 Raw moment fields (studies/bubble/out/*.bin) are NOT in git (1024^2 = 287 MB each

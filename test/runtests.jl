@@ -30,6 +30,7 @@ const TOL = 1e-10
         include("test_simulation_runner.jl")
         include("test_realizability.jl")
         include("test_closures.jl")
+        include("test_hyqmom_closure_golden.jl")
         include("test_numerical_schemes.jl")
         
         # Regression and bug fix tests

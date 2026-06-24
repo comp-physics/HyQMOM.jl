@@ -23,6 +23,9 @@ include("realizability_S310_220.jl")
 include("realizablity_S220.jl")
 include("realizable_2D.jl")
 include("realizable_3D.jl")
+# Revised moment-projection method (Appendix B): projection35 + M4 wrapper
+include("projection35.jl")
+include("realize_M4_projection.jl")
 
 """
     realizability(operation::Symbol, args...)

@@ -31,6 +31,7 @@ export CubicRegion, initialize_moment_field, initialize_moment_field_mpi, crossi
 # Export key functions for testing
 export InitializeM4_35, M2CS4_35, Moments5_3D, hyqmom_3D
 export realizability, realizable_2D, realizable_3D
+export projection35, realizable_3D_M4
 export closure_and_eigenvalues, eigenvalues6_hyperbolic_3D, eigenvalues6z_hyperbolic_3D
 export Flux_closure35_and_realizable_3D
 export flux_HLL, pas_HLL, collision35

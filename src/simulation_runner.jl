@@ -441,13 +441,15 @@ function simulation_runner(params)
                     jh = j + halo
                     MOM = M[ih, jh, k, :]
 
-                    _, _, _, Mr = Flux_closure35_and_realizable_3D(MOM, flag2D, Ma)
-                    Mr_a = track_corrections ? copy(Mr) : Mr     # after realizability stage 1
-                    v6xmin[i,j,k], v6xmax[i,j,k], Mr = eigenvalues6_hyperbolic_3D(Mr, 1, flag2D, Ma)
+                    # Revised projection method: NO realizability in the flux stage.
+                    # Only hyperbolicity correction here; realizability is enforced
+                    # after the spatial update (matches the revised MATLAB main loop).
+                    Mr_a = MOM                                   # (stage-1 realizability removed)
+                    v6xmin[i,j,k], v6xmax[i,j,k], Mr = eigenvalues6_hyperbolic_3D(MOM, 1, flag2D, Ma)
                     v6ymin[i,j,k], v6ymax[i,j,k], Mr = eigenvalues6_hyperbolic_3D(Mr, 2, flag2D, Ma)
                     v6zmin[i,j,k], v6zmax[i,j,k], Mr = eigenvalues6z_hyperbolic_3D(Mr, flag2D, Ma)
                     Mr_b = track_corrections ? copy(Mr) : Mr     # after hyperbolicity stage
-                    Mx, My, Mz, Mr = Flux_closure35_and_realizable_3D(Mr, flag2D, Ma)
+                    Mx, My, Mz = Flux_closure35_3D(Mr)
 
                     if track_corrections
                         d_real1 = norm(Mr_a .- MOM)
@@ -635,11 +637,10 @@ function simulation_runner(params)
                     jh = j + halo
                     MOM = M[ih, jh, k, :]
                     
-                    _, _, _, Mr = Flux_closure35_and_realizable_3D(MOM, flag2D, Ma)
-                    v6xmin[i,j,k], v6xmax[i,j,k], Mr = eigenvalues6_hyperbolic_3D(Mr, 1, flag2D, Ma)
-                    v6ymin[i,j,k], v6ymax[i,j,k], Mr = eigenvalues6_hyperbolic_3D(Mr, 2, flag2D, Ma)
-                    _, _, _, Mr = Flux_closure35_and_realizable_3D(Mr, flag2D, Ma)
-                    
+                    # Revised projection-based realizability: a single projection
+                    # step (matches realizable_3D(MOM,Ma) in the MATLAB main loop).
+                    Mr = realizable_3D_M4(MOM, Ma)
+
                     Mnp[ih, jh, k, :] = Mr
                 end
             end

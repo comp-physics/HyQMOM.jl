@@ -4,25 +4,21 @@ authors = ["Spencer <shb@gatech.edu>"]
 version = "0.1.0"
 
 [deps]
-ColorSchemes = "35d6a980-a343-548e-a6ea-1d62b119f2f4"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
-FileIO = "5789e2e9-d7fb-5bc7-8068-2c6fae9b9549"
-GLMakie = "e9467ef8-e4e7-5192-8a1a-b1aee30e663a"
 JLD2 = "033835bb-8acc-5ee8-8aae-3f567f8a3819"
-LaTeXStrings = "b964fa9f-0449-5b57-a5c2-d3ea65f4040f"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
-MAT = "23992714-dd62-5051-b70f-ba57cb901cac"
 MPI = "da04e1cc-30fd-572f-bb4f-1f8673147195"
+MPIPreferences = "3da0fdf6-3ccc-4f1b-acd9-58baa6c99267"
 Printf = "de0858da-6303-5e67-8744-51eddeeeb8d7"
 StaticArrays = "90137ffa-7385-5640-81b9-e52037218182"
 
 [compat]
-ColorSchemes = "3"
 GLMakie = "0.8, 0.9, 0.10"
 JLD2 = "0.4"
 MAT = "0.10"
 MPI = "0.20"
+MPIPreferences = "0.1.12"
 StaticArrays = "1"
 julia = "1.9, 1.10, 1.11"
 

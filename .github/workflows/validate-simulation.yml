@@ -6,9 +6,12 @@ on:
 
 jobs:
   test:
+    # Requires a MATLAB license; only the upstream repo has one configured.
+    # Skips on forks (e.g. sbryngelson/HyQMOM-revision) to avoid license-error noise.
+    if: github.repository == 'comp-physics/HyQMOM.jl'
     strategy:
       matrix:
-        os: [ubuntu-latest]  
+        os: [ubuntu-latest]
     runs-on: ${{ matrix.os }}
     timeout-minutes: 240  
 

@@ -9,6 +9,9 @@ jobs:
   # Job 1: Ensure MATLAB golden files are up to date
   validate-matlab:
     name: Validate MATLAB Implementation
+    # Requires a MATLAB license; only the upstream repo has one configured.
+    # Skips on forks to avoid license-error noise (validate-julia needs this job).
+    if: github.repository == 'comp-physics/HyQMOM.jl'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     

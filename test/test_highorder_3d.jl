@@ -22,3 +22,13 @@ using LinearAlgebra
     Rperiodic = residual_1d(base, dx, 0.0; order=2, bc=:periodic)
     @test maximum(abs.(Rline .- Rperiodic)) < 1e-10
 end
+
+@testset "residual_ho_3d uniform -> 0" begin
+    halo=2; nx=6; ny=6; nz=6
+    M0 = InitializeM4_35(1.0, 0.1, -0.1, 0.05, 1.0,0.0,0.0,1.0,0.0,1.0)
+    M = zeros(nx+2halo, ny+2halo, nz, 35)
+    for i in 1:nx+2halo, j in 1:ny+2halo, k in 1:nz; M[i,j,k,:]=M0; end
+    R = zeros(size(M))
+    residual_ho_3d!(R, M, nx,ny,nz,halo, 0.1,0.1,0.1, 0.0; order=2)
+    @test maximum(abs.(R[halo+1:halo+nx, halo+1:halo+ny, :, :])) < 1e-9
+end

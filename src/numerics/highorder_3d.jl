@@ -37,3 +37,33 @@ function residual_line(Mext::AbstractMatrix, ds::Real, axis::Int, Ma::Real; orde
     end
     return R
 end
+
+function residual_ho_3d!(R::Array{Float64,4}, M::Array{Float64,4},
+                         nx::Int, ny::Int, nz::Int, halo::Int,
+                         dx::Real, dy::Real, dz::Real, Ma::Real; order::Int=2)
+    fill!(R, 0.0)
+    g = halo
+    # X: lines along i (have halos), for each interior (jh,k)
+    for k in 1:nz, j in 1:ny
+        jh = j + halo
+        Mext = @view M[:, jh, k, :]                 # (nx+2halo, 35)
+        Rl = residual_line(Mext, dx, 1, Ma; order=order, g=g)   # (nx,35)
+        for i in 1:nx; R[i+halo, jh, k, :] .+= Rl[i, :]; end
+    end
+    # Y: lines along j, for each interior (ih,k)
+    for k in 1:nz, i in 1:nx
+        ih = i + halo
+        Mext = @view M[ih, :, k, :]
+        Rl = residual_line(Mext, dy, 2, Ma; order=order, g=g)
+        for j in 1:ny; R[ih, j+halo, k, :] .+= Rl[j, :]; end
+    end
+    # Z: no halo in z -> pad with outflow ghosts (copy edge), for each interior (ih,jh)
+    for i in 1:nx, j in 1:ny
+        ih = i + halo; jh = j + halo
+        col = M[ih, jh, :, :]                        # (nz,35)
+        Mext = vcat(repeat(col[1:1,:], g, 1), col, repeat(col[nz:nz,:], g, 1))  # outflow pad
+        Rl = residual_line(Mext, dz, 3, Ma; order=order, g=g)   # (nz,35)
+        for k in 1:nz; R[ih, jh, k, :] .+= Rl[k, :]; end
+    end
+    return R
+end

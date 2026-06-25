@@ -15,7 +15,7 @@ function residual_line(Mext::AbstractMatrix, ds::Real, axis::Int, Ma::Real; orde
     # interface fluxes at i+1/2 for interior interfaces: need faces at indices
     # spanning g..Ntot-g. Compute Fhat at every interface that bounds an interior cell.
     # Interior cells are rows g+1 .. g+Ni; their bounding interfaces are g+1/2 .. g+Ni+1/2.
-    Fhat = Dict{Int,Vector{Float64}}()
+    Fhat = Vector{Vector{Float64}}(undef, g + Ni)
     function face_states(iL)  # interface between cell iL and iL+1
         if order == 1
             return Mext[iL, :], Mext[iL+1, :]

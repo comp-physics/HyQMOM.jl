@@ -29,19 +29,42 @@ comm = MPI.COMM_WORLD
 rank = MPI.Comm_rank(comm)
 
 # ---------------------------------------------------------------------------
-# Helper: compute max |∇ρ| over the global domain using finite differences
+# Helper: compute max |∇ρ| over the global domain using finite differences.
+# Uses proper one-sided differences at domain boundaries so the metric is
+# well-defined everywhere (no silent zero-gradient at boundary cells):
+#   interior:     (rho[i+1] - rho[i-1]) / (2*dx)   (centered)
+#   low boundary: (rho[2]   - rho[1])   / dx         (forward)
+#   high boundary:(rho[N]   - rho[N-1]) / dx         (backward)
+# and analogously for y, z.
 # ---------------------------------------------------------------------------
 function max_density_gradient(rho::Array{Float64,3}, dx, dy, dz)
     Nx, Ny, Nz = size(rho)
     max_g = 0.0
     for k in 1:Nz, j in 1:Ny, i in 1:Nx
-        # Central differences with one-sided at boundaries
-        im = max(i-1, 1); ip = min(i+1, Nx); fxi = (ip > im) ? (ip - im) * dx : dx
-        jm = max(j-1, 1); jp = min(j+1, Ny); fyj = (jp > jm) ? (jp - jm) * dy : dy
-        km = max(k-1, 1); kp = min(k+1, Nz); fzk = (kp > km) ? (kp - km) * dz : dz
-        drx = (rho[ip,j,k] - rho[im,j,k]) / fxi
-        dry = (rho[i,jp,k] - rho[i,jm,k]) / fyj
-        drz = (rho[i,j,kp] - rho[i,j,km]) / fzk
+        # x-direction
+        if i == 1
+            drx = (rho[2,j,k] - rho[1,j,k]) / dx
+        elseif i == Nx
+            drx = (rho[Nx,j,k] - rho[Nx-1,j,k]) / dx
+        else
+            drx = (rho[i+1,j,k] - rho[i-1,j,k]) / (2*dx)
+        end
+        # y-direction
+        if j == 1
+            dry = (rho[i,2,k] - rho[i,1,k]) / dy
+        elseif j == Ny
+            dry = (rho[i,Ny,k] - rho[i,Ny-1,k]) / dy
+        else
+            dry = (rho[i,j+1,k] - rho[i,j-1,k]) / (2*dy)
+        end
+        # z-direction
+        if k == 1
+            drz = (rho[i,j,2] - rho[i,j,1]) / dz
+        elseif k == Nz
+            drz = (rho[i,j,Nz] - rho[i,j,Nz-1]) / dz
+        else
+            drz = (rho[i,j,k+1] - rho[i,j,k-1]) / (2*dz)
+        end
         g = sqrt(drx^2 + dry^2 + drz^2)
         if g > max_g; max_g = g; end
     end
@@ -166,7 +189,10 @@ if rank == 0 && sharp1 !== nothing && sharp2 !== nothing
     @printf("      max|grad(rho)| order=2  : %.6e\n", sharp2)
     @printf("      ratio order2/order1     : %.4f\n", ratio)
     if ratio > 1.0
-        println("  ==> HIGH-ORDER is SHARPER (ratio > 1) — reduced numerical diffusion confirmed.")
+        @printf("  ==> high-order produces sharper gradients (ratio = %.4f) at the same\n", ratio)
+        @printf("      final time t=%.4f — consistent with reduced numerical diffusion.\n", tmax_main)
+        println("      (A sharper max|∇ρ| is consistent with, but not a rigorous proof of,")
+        println("       reduced diffusion; MUSCL can locally over-sharpen at a compression.)")
     else
         println("  ==> HIGH-ORDER is NOT sharper (ratio <= 1).")
         println("      Possible causes: face projection diffusion, limiter, CFL, short tmax.")
@@ -205,7 +231,9 @@ if rank == 0 && sharp_r1 !== nothing && sharp_r2 !== nothing
     @printf("      max|grad(rho)| order=2  : %.6e\n", sharp_r2)
     @printf("      ratio order2/order1     : %.4f\n", ratio_r)
     if ratio_r > 1.0
-        println("  ==> HIGH-ORDER is SHARPER (ratio > 1) — regression passes.")
+        @printf("  ==> high-order produces sharper gradients (ratio = %.4f) at the same\n", ratio_r)
+        @printf("      final time t=%.4f — consistent with reduced numerical diffusion.\n", tmax_reg)
+        println("      Regression check passes.")
     else
         println("  ==> HIGH-ORDER is NOT sharper (ratio <= 1) at Ma=$(Ma_reg).")
     end
@@ -225,6 +253,14 @@ if rank == 0
         _, t1, steps1, _ = result1
         _, t2, steps2, _ = result2
         ratio = sharp2 / sharp1
+        # Both orders are compared at the SAME final time (tmax_main).  The time
+        # loop clips the last dt to land exactly on tmax, so t_final is identical
+        # for both runs even though step counts may differ (adaptive dt differs
+        # between orders).  We assert this to catch any regression in the solver.
+        @assert isapprox(t1, t2; atol=1e-12) "t_final mismatch: order1=$(t1) order2=$(t2)"
+        @printf("  NOTE: both orders reach the same t_final=%.6f (matched-time comparison).\n", t1)
+        @printf("        Step counts may differ due to adaptive dt (order1: %d, order2: %d).\n",
+                steps1, steps2)
         @printf("  MAIN  Np=%d Ma=%.1f tmax=%.4f:\n", Np_main, Ma_main, tmax_main)
         @printf("    order=1  steps=%d  t=%.6f  sharp=%.4e\n", steps1, t1, sharp1)
         @printf("    order=2  steps=%d  t=%.6f  sharp=%.4e\n", steps2, t2, sharp2)
@@ -235,6 +271,11 @@ if rank == 0
         _, tr1, stepsr1, _ = result_r1
         _, tr2, stepsr2, _ = result_r2
         ratio_r = sharp_r2 / sharp_r1
+        # Same matched-time guarantee as MAIN — assert identical t_final.
+        @assert isapprox(tr1, tr2; atol=1e-12) "t_final mismatch: order1=$(tr1) order2=$(tr2)"
+        @printf("  NOTE: both orders reach the same t_final=%.6f (matched-time comparison).\n", tr1)
+        @printf("        Step counts may differ due to adaptive dt (order1: %d, order2: %d).\n",
+                stepsr1, stepsr2)
         @printf("  REG   Np=%d Ma=%.1f tmax=%.4f:\n", Np_reg, Ma_reg, tmax_reg)
         @printf("    order=1  steps=%d  t=%.6f  sharp=%.4e\n", stepsr1, tr1, sharp_r1)
         @printf("    order=2  steps=%d  t=%.6f  sharp=%.4e\n", stepsr2, tr2, sharp_r2)

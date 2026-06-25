@@ -22,8 +22,7 @@ function residual_line(Mext::AbstractMatrix, ds::Real, axis::Int, Ma::Real; orde
         else
             Vl = muscl_faces(to_recon_vars(Mext[iL-1,:]), to_recon_vars(Mext[iL,:]), to_recon_vars(Mext[iL+1,:]))[2]
             Vr = muscl_faces(to_recon_vars(Mext[iL,:]),   to_recon_vars(Mext[iL+1,:]), to_recon_vars(Mext[iL+2,:]))[1]
-            Li = from_recon_vars(Vl); Ri = from_recon_vars(Vr)
-            (Li[1] > 0 && Ri[1] > 0) ? (Li, Ri) : (Mext[iL,:], Mext[iL+1,:])
+            recon_face_pair(Vl, Vr, Mext[iL,:], Mext[iL+1,:])
         end
     end
     _ho_debug = get(ENV, "HO_DEBUG", "") == "1"

@@ -34,6 +34,9 @@ vmax = Uc + 4.0*2.334*sqrt(T)
 dt = (1/3)*dx/vmax
 @printf("1D repro: Ma=%.0f N=%d order=%d  Uc=%.3f dx=%.3e dt=%.3e\n", Ma,N,order,Uc,dx,dt)
 
+HyQMOM.HO_VACUUM_FLOOR[] = parse(Float64, get(ENV,"R1D_VACFLOOR","0.0"))
+@printf("HO_VACUUM_FLOOR = %.3e\n", HyQMOM.HO_VACUUM_FLOOR[])
+
 project_cells!(U) = (for i in 1:size(U,1); U[i,:] = realizable_3D_M4(U[i,:], Ma); end)
 
 L(U) = residual_1d(U, dx, Ma; order=order, bc=:outflow)
@@ -51,13 +54,25 @@ function check_residual(R, U, tag)
                 @printf("    stencil cell %d: rho=%.4e u=%.3f C200=%.4e C020=%.4e C002=%.4e finite=%s\n",
                         j, m[1], m[2]/m[1], C4[3], C4[10], C4[20], all(isfinite,m))
             end
-            # show the reconstructed faces around cell i (right face of i-1, both faces of i)
-            for ii in (i-1, i)
-                (1 <= ii-1 && ii+1 <= size(U,1)) || continue
-                Vl = muscl_faces(to_recon_vars(U[ii-1,:]), to_recon_vars(U[ii,:]), to_recon_vars(U[ii+1,:]))
-                Lface = from_recon_vars(Vl[2]); Rface = from_recon_vars(Vl[1])
-                @printf("    cell %d recon faces: rho_Lface=%.4e rho_Rface=%.4e finiteL=%s finiteR=%s\n",
-                        ii, Lface[1], Rface[1], all(isfinite,Lface), all(isfinite,Rface))
+            # face-level diagnosis at interfaces i-1/2 (=Fhat[i-1]) and i+1/2 (=Fhat[i])
+            for iface in (i-1, i)
+                (2 <= iface && iface+2 <= size(U,1)) || continue
+                Vlp = muscl_faces(to_recon_vars(U[iface-1,:]), to_recon_vars(U[iface,:]), to_recon_vars(U[iface+1,:]))[2]
+                Vrm = muscl_faces(to_recon_vars(U[iface,:]),   to_recon_vars(U[iface+1,:]), to_recon_vars(U[iface+2,:]))[1]
+                MLf, MRf = HyQMOM.recon_face_pair(Vlp, Vrm, U[iface,:], U[iface+1,:])
+                fellback = !(MLf ≈ from_recon_vars(Vlp))
+                F = try face_flux_1d(MLf, MRf, 1, Ma) catch e; ["THREW:"*sprint(showerror,e)] end
+                @printf("    interface %d/%d: fallback=%s  Mface finite L=%s R=%s  flux finite=%s\n",
+                        iface, iface+1, fellback, all(isfinite,MLf), all(isfinite,MRf),
+                        (F isa Vector{Float64} ? string(all(isfinite,F)) : string(F[1])))
+                if F isa Vector{Float64} && !all(isfinite,F)
+                    # which side projects to non-finite? recompute the realizable face
+                    MLc = realizable_3D_M4(MLf, Ma); MRc = realizable_3D_M4(MRf, Ma)
+                    @printf("       realizable(ML) finite=%s  realizable(MR) finite=%s  uL=%.2f uR=%.2f\n",
+                            all(isfinite,MLc), all(isfinite,MRc), MLf[2]/MLf[1], MRf[2]/MRf[1])
+                    @printf("       max|ML|=%.3e max|MR|=%.3e max|realizable(ML)|=%.3e\n",
+                            maximum(abs.(MLf)), maximum(abs.(MRf)), maximum(abs.(filter(isfinite,MLc));init=0.0))
+                end
             end
             return true
         end

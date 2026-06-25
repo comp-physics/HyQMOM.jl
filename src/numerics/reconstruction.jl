@@ -132,3 +132,45 @@ function from_recon_vars(V::AbstractVector)::Vector{Float64}
                                S101, S201, S301, S102, S202, S003, S103, S004,
                                S011, S111, S211, S021, S121, S031, S012, S112, S013, S022)
 end
+
+"""
+    recon_vars_ok(V) -> Bool
+
+True if a reconstructed recon-var vector `V` is usable for high-order face
+reconstruction: all entries finite, positive density `V[1]`, and positive
+directional variances `V[5],V[6],V[7]` (so `from_recon_vars`' `sqrt(C2)` is real).
+MUSCL slopes can drive these negative in near-vacuum; this is the realizability
+guard for the high-order path. See docs/ma100-highorder-crash-analysis.md.
+"""
+@inline function recon_vars_ok(V::AbstractVector)
+    @inbounds return all(isfinite, V) && V[1] > 0 && V[5] > 0 && V[6] > 0 && V[7] > 0
+end
+
+"""
+    recon_face_pair(Vl, Vr, ML0, MR0) -> (ML, MR)
+
+Convert the reconstructed left/right recon-var faces `(Vl, Vr)` to raw 35-moment
+states, with first-order fallback to the cell-centered states `(ML0, MR0)` if
+either reconstructed face is unrealizable (nonpositive/non-finite density or
+directional variance) or if the reconstructed raw moments come out non-finite.
+This is the single realizability gate for high-order face reconstruction: it
+prevents `sqrt(negative)` / `Inf` from the reconstruction reaching the
+realizability + flux machinery in near-vacuum.
+"""
+function recon_face_pair(Vl::AbstractVector, Vr::AbstractVector,
+                         ML0::AbstractVector, MR0::AbstractVector)
+    # near-vacuum gate: below the floor, cell moments are cancellation-garbage, so
+    # use the first-order state (the vacuum then evolves like the robust 1st-order
+    # scheme; resolved cells above the floor still get high-order reconstruction).
+    vac = HO_VACUUM_FLOOR[]
+    if vac > 0 && (ML0[1] < vac || MR0[1] < vac)
+        return collect(ML0), collect(MR0)
+    end
+    if recon_vars_ok(Vl) && recon_vars_ok(Vr)
+        Li = from_recon_vars(Vl); Ri = from_recon_vars(Vr)
+        if Li[1] > 0 && Ri[1] > 0 && all(isfinite, Li) && all(isfinite, Ri)
+            return Li, Ri
+        end
+    end
+    return collect(ML0), collect(MR0)
+end

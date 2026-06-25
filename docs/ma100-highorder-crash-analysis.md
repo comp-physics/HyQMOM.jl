@@ -173,17 +173,32 @@ HO_DEBUG=1 R1D_ORDER=2 R1D_N=512 julia --project=. debug/repro_1d_crash.jl
    but via `from_recon_vars` a MUSCL-reconstructed face variance can be negative →
    `DomainError`. Flooring it would match MATLAB and remove the hard error, but —
    like fix 1 — only converts a crash into silently-wrong (huge/garbage) moments.
-3. **Real fix (reconstruction level — the open question Rodney flagged).** The
-   high-order face reconstruction already falls back to first order when a
-   reconstructed face *density* is nonpositive (`Li[1] > 0 && Ri[1] > 0`). Extend
-   that fallback to also trigger on a **nonpositive or non-finite reconstructed
-   directional variance** (and non-finite higher moments), checked on the
-   recon-vars *before* `from_recon_vars`. That removes the source of the
-   unrealizable face states in near-vacuum instead of patching symptoms downstream,
-   and is the natural home for the realizability-preserving reconstruction the
-   high-order roadmap (and Jacob's Riemann-solver work) needs. This is
-   reconstruction-design work, i.e. Jacob's high-order territory, so it is left
-   unapplied pending that direction.
+3. **Real fix (reconstruction level — the open question Rodney flagged) — IMPLEMENTED
+   as a near-vacuum gate.** First attempt: extend the existing density fallback to
+   also reject nonpositive/non-finite reconstructed *variance*. This proved
+   **insufficient** — `to_recon_vars` floors `C200` at `1e-12`, so the reconstructed
+   variance is always positive, and the true pathology is subtler: in deep vacuum
+   the *cell-mean* velocity (`M100/M000`) and variance (`M200/M000 - u^2`) are
+   dominated by catastrophic cancellation, giving finite-but-unphysical states
+   (captured: `u=-415`/`+747` vs physical 70.7, `C200=2e5`). MUSCL barely changes
+   these, so finiteness checks pass, yet the wave-speed eigensolve returns `NaN`
+   and the HLL flux is non-finite — and a first-order flux of the *same* cells
+   breaks too, so a face-choice fallback cannot help. The cells must never form.
+
+   Implemented fix: a **near-vacuum density gate** (`HO_VACUUM_FLOOR`, exposed as
+   the `ho_vacuum_floor` solver param; `0` = off, default off). Interfaces whose
+   adjacent cell density is below the floor use the first-order state, so the
+   vacuum region evolves like the robust first-order scheme (which never forms the
+   pathological cells) while resolved cells above the floor keep full high-order
+   reconstruction. With the floor set to the background density (`rhor=1e-3`), the
+   1D Ma=100 reproducer that previously crashed at step 147 now **completes 200
+   steps**, peak density 2.099 vs first-order's 2.000 (high-order sharpness
+   retained), and ρ_min holds at the background instead of over-sharpening into
+   `2e-5` garbage. All 155 high-order tests pass unchanged (floor defaults off).
+   `recon_vars_ok` / the finiteness post-check are also kept as cheap belt-and-
+   suspenders guards. A fully realizability-preserving high-order reconstruction
+   (limiting that keeps cell means physical without a hand-set floor) remains the
+   proper long-term solution — Jacob's high-order territory.
 
 ## Investigation instrumentation left in place (ENV-gated, zero production cost)
 

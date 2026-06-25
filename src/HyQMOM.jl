@@ -19,6 +19,16 @@ using JLD2  # Always needed for snapshot I/O
 # Set at runtime from params in `simulation_runner` (defaults to true).
 const POSITIVITY_ENABLED = Ref(true)
 
+# Near-vacuum density floor for high-order reconstruction. In deep vacuum the cell
+# velocity (M100/M000) and variance (M200/M000 - u^2) are dominated by catastrophic
+# cancellation, producing finite-but-unphysical states (|u|>>physical, |C200|~noise)
+# whose MUSCL reconstruction + wave-speed eigensolve yields non-finite HLL fluxes.
+# When > 0, an interface whose adjacent cell density falls below this floor uses the
+# first-order (cell-centered) state, so the vacuum region evolves like the robust
+# first-order scheme while resolved regions stay high-order. 0 disables the gate.
+# See docs/ma100-highorder-crash-analysis.md.
+const HO_VACUUM_FLOOR = Ref(0.0)
+
 # Guarded eigvals: matches MATLAB's `eig`, which returns NaN eigenvalues on a
 # matrix containing Inf/NaN rather than throwing. Julia's `eigvals` throws
 # `ArgumentError: matrix contains Infs or NaNs`, so every eigen site in this

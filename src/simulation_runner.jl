@@ -122,6 +122,12 @@ function simulation_runner(params)
     # Spatial order (1 = first-order HLL/Euler, 2 = high-order SSP-RK3)
     spatial_order = get(params, :spatial_order, 1)
 
+    # Near-vacuum density floor for high-order reconstruction (0 = off). Below this
+    # density, the high-order path falls back to first order to avoid the
+    # cancellation-driven near-vacuum breakdown. See
+    # docs/ma100-highorder-crash-analysis.md.
+    HO_VACUUM_FLOOR[] = get(params, :ho_vacuum_floor, 0.0)
+
     # Snapshot saving parameters
     snapshot_interval = get(params, :snapshot_interval, 0)
     save_snapshots = (snapshot_interval > 0)

@@ -82,13 +82,8 @@ function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc
                 Vminus[i], Vplus[i] = muscl_faces(V[wrap(i-1)], V[i], V[wrap(i+1)])
             end
             for i in 1:Nc
-                Li = from_recon_vars(Vplus[i])            # right face of cell i
-                Ri = from_recon_vars(Vminus[wrap(i+1)])   # left face of cell i+1
-                if Li[1] > 0 && Ri[1] > 0
-                    ML[i] = Li; MR[i] = Ri
-                else
-                    ML[i] = Mline[i, :]; MR[i] = Mline[wrap(i+1), :]
-                end
+                ML[i], MR[i] = recon_face_pair(Vplus[i], Vminus[wrap(i+1)],
+                                               Mline[i, :], Mline[wrap(i+1), :])
             end
         end
         Fhat = [face_flux_1d(ML[i], MR[i], axis, Ma) for i in 1:Nc]
@@ -112,14 +107,10 @@ function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc
                 Vminus[i], Vplus[i] = muscl_faces(vm, v0, vp)
             end
             for i in 1:Nc-1
-                Li = from_recon_vars(Vplus[i])     # right face of cell i
-                Ri = from_recon_vars(Vminus[i+1])  # left face of cell i+1
-                # local order degradation: fall back to 1st order if EITHER face has bad density
-                if Li[1] > 0 && Ri[1] > 0
-                    ML[i] = Li; MR[i] = Ri
-                else
-                    ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
-                end
+                # local order degradation: fall back to 1st order if either face is
+                # unrealizable (bad density OR variance OR non-finite reconstruction)
+                ML[i], MR[i] = recon_face_pair(Vplus[i], Vminus[i+1],
+                                               Mline[i, :], Mline[i+1, :])
             end
         end
         Fhat = [face_flux_1d(ML[i], MR[i], axis, Ma) for i in 1:Nc-1]

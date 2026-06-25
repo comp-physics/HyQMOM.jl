@@ -7,6 +7,11 @@ high-order, realizability-preserving Godunov scheme so the 3D jet-crossing probl
 can be run at high Mach (target Ma≈100) **without numerical diffusion** smearing the
 crossing.
 
+**Target quality:** *match* the behavior/robustness of Jacob Posey's high-order QBMM
+method (arXiv:2603.13697) on equivalent problems. Jacob is a collaborator pursuing
+the same ideas; the aim is to be as good as his method first, not to one-up it. Any
+HyQMOM-specific enhancements are later refinements, not the headline.
+
 ## 1. Background and motivation
 
 The solver is currently **first-order in space and time**: first-order HLL
@@ -29,10 +34,12 @@ recipe is the template:
 - **3-stage SSP-RK3** in time; 2nd-order Strang splitting for sources.
 - They *delete* unrealizable cells; moment-correction (projection) is "future work."
 
-**Our advantage.** HyQMOM.jl already has the validated moment-**projection**
+**Our realizability tool.** HyQMOM.jl already has the validated moment-**projection**
 (`realizable_3D_M4`) and **hyperbolicity correction** (`eigenvalues6{x,y,z}`,
-`jacobian15`) that Jacob's paper defers. We will apply these to the *reconstructed
-face states*, giving a stronger realizability guarantee than cell-deletion.
+`jacobian15`). For a single-phase kinetic gas we cannot "delete cells" the way Jacob
+removes empty particle cells, so projection is our *natural* realizability safeguard
+for reconstructed face states — the equivalent of the moment-correction Jacob defers,
+used to reach his level of robustness, not to exceed it.
 
 ## 2. Design decisions (locked)
 
@@ -108,7 +115,9 @@ Three layers, weakest-to-strongest:
    stay near the cell-average manifold.
 3. **Project every face state** through `realizable_3D_M4` + hyperbolicity correction
    before it enters the flux — guarantees the flux sees only realizable, hyperbolic
-   moments. This is the piece Jacob defers; we have it validated.
+   moments. This is our equivalent of Jacob's cell-removal / deferred moment
+   correction; it is how we reach his robustness for a single-phase gas, not a
+   claim to exceed it.
 4. **Order degradation** (2nd → 1st) at cells flagged unrealizable before projection,
    adjacent to vacuum (ρ→0), or with large variation across the stencil — mirrors
    Jacob's island/lake/abscissa-variation handling.

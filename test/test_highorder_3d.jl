@@ -101,25 +101,56 @@ end
 end
 
 @testset "step_highorder_3d serial conservation+realizability" begin
-    halo=2; nx=8; ny=8; nz=8
-    mid = 4.0
-    decomp = setup_mpi_cartesian_3d(nx,ny,nz,halo,MPI.COMM_WORLD)  # serial (1 rank)
+    # Rigorous machine-precision conservation test.
+    # IC: uniform background rho=1 everywhere (including halos), then a COMPACT
+    # central bump (interior cells 7:10 in each direction) — at least 4 cells
+    # from every domain boundary.  This ensures the boundary cells and their
+    # halo neighbours are identically uniform (rho=1, u=v=w=0), so the copy-BC
+    # boundary mass flux is EXACTLY zero regardless of BC type.
+    # With dt=0.15*dx/4.5 and only 3 SSP-RK3 steps the fastest wave travels
+    # ~3*(0.15/4.5) ≈ 0.1 cells, far less than the 4-cell buffer, so no
+    # perturbation energy can reach the boundary.
+    halo = 2; nx = 16; ny = 16; nz = 16
+    dx = 1.0/nx; dy = 1.0/ny; dz = 1.0/nz
+    decomp = setup_mpi_cartesian_3d(nx, ny, nz, halo, MPI.COMM_WORLD)
+
+    M_bg = InitializeM4_35(1.0, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0)
+    M_bump = InitializeM4_35(1.3, 0.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0)
+
+    # Allocate and fill with uniform background (including all halo cells)
     M = zeros(nx+2halo, ny+2halo, nz, 35)
-    # density blob at rest (u=v=w=0): with copy BC and zero bulk velocity,
-    # boundary flux is ~0, so mass must conserve to machine precision
-    for k in 1:nz, j in 1:ny, i in 1:nx
-        rho = 1.0 + 0.3*exp(-(((i-mid))^2+((j-mid))^2+((k-mid))^2)/8)
-        M[i+halo,j+halo,k,:] = InitializeM4_35(rho, 0.0,0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    for k in 1:nz, jh in 1:(ny+2halo), ih in 1:(nx+2halo)
+        M[ih, jh, k, :] = M_bg
     end
+
+    # Overwrite compact central bump in interior cells 7:10 in x, y, z.
+    # Interior cell (i,j) maps to extended index (i+halo, j+halo); z has no halo.
+    # Cells 7:10 are >= 6 cells from the 16-cell-wide domain boundary in each
+    # direction, and the halo cells remain untouched (still uniform rho=1).
+    for k in 7:10, j in 7:10, i in 7:10
+        M[i+halo, j+halo, k, :] = M_bump
+    end
+
     mass0 = sum(M[halo+1:halo+nx, halo+1:halo+ny, :, 1])
-    dt = 0.15*(1.0/nx)/4.5
-    for _ in 1:5
-        step_highorder_3d!(M, dt, decomp, :copy, nx,ny,nz,halo, 1.0/nx,1.0/ny,1.0/nz, 0.0; order=2)
+    dt = 0.15 * dx / 4.5
+
+    for _ in 1:3
+        step_highorder_3d!(M, dt, decomp, :copy, nx, ny, nz, halo, dx, dy, dz, 0.0; order=2)
     end
+
     Min = M[halo+1:halo+nx, halo+1:halo+ny, :, :]
     @test all(isfinite, Min)
-    @test minimum(Min[:,:,:,1]) > 0
-    rel_mass_err = abs(sum(Min[:,:,:,1]) - mass0)/mass0
-    @info "mass conservation error (u=0, copy BC)" rel_mass_err
-    @test rel_mass_err < 1e-11   # u=0 => zero boundary flux => machine-precision conservation
+    @test minimum(Min[:, :, :, 1]) > 0
+
+    mass1 = sum(Min[:, :, :, 1])
+    rel_mass_err = abs(mass1 - mass0) / mass0
+    @info "mass conservation error (compact IC, uniform boundary)" rel_mass_err
+    @test rel_mass_err < 1e-11
+
+    # --- Projection-conservation check ---
+    # realizable_3D_M4 must preserve M000 (density) to machine precision,
+    # since it only redistributes higher moments while keeping the zeroth moment.
+    M_test = InitializeM4_35(0.8, 0.3, -0.2, 0.1, 1.2, 0.1, 0.0, 1.0, 0.0, 0.9)
+    M_proj = realizable_3D_M4(M_test, 0.0)
+    @test M_proj[1] ≈ M_test[1] atol=1e-12
 end

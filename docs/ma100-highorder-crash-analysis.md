@@ -19,6 +19,47 @@ codebase that is not guarded against non-finite input** — `projection35` — w
 throws. Coarser grids and the first-order scheme keep the near-vacuum state smooth
 enough that the overflow never forms.
 
+## Is this a MATLAB-port bug? Did Rodney suggest a fix?
+
+Both questions were investigated directly against Rodney's canonical MATLAB
+(`Code_Riemann_3D_35mom_july2026_GT/src/`). The honest answer is **partly yes, and
+it matters — but it is not the whole story.**
+
+- **Genuine port-fidelity gap (now fixed).** MATLAB's `eig` returns `NaN`
+  eigenvalues on a matrix containing `Inf`/`NaN`; it does **not** throw. Julia's
+  `eigvals` throws. Every eigen site in this codebase was ported *with* an explicit
+  `if any(!isfinite) return NaN` guard to preserve MATLAB semantics — *except*
+  `projection35`, which was ported faithfully line-for-line but without that guard.
+  So the thrown exception is, narrowly, a port-fidelity gap. Fixed by routing
+  `projection35` through the shared `_geigvals` guard (same behavior as the other
+  six sites). The rest of the realizability port is faithful: `realizable_3D_M4`
+  floors `C200` after standardization exactly as `realizable_3D.m` does, and
+  `M2CS4_35.jl` replicates `sqrt(max(C200, eps))` (so a negative variance does not
+  produce a NaN there).
+
+- **...but fixing it does not fix the crash — it moves it.** With the
+  `projection35` guard in place, the same near-vacuum order-2 run now throws a
+  `DomainError` from `sqrt(C200)` in `standardized_to_M4` (`reconstruction.jl:27`),
+  reached via `from_recon_vars` during **face reconstruction**: MUSCL drives a
+  reconstructed face variance negative, and `sqrt` of it fails. Same root cause,
+  next strict-Julia operation. MATLAB would survive both points (complex `sqrt`,
+  NaN-returning `eig`) and simply propagate garbage — but **MATLAB never executes
+  this path: the shipped solver is first-order HLL + explicit Euler, with no
+  reconstruction** (`main_crossing_3DHyQMOM35.m`).
+
+- **Rodney did not provide a fix — he flagged this exact difficulty.** From his
+  `readme.md`: *"the next step would be to go higher-order spatial fluxes... The
+  goal will be to eliminate numerical diffusion for large Ma case (e.g., jet
+  crossing with Ma = 100). I'm not sure what difficulties we run into when mixing
+  high-order reconstruction and projection, so let's cross this step before
+  deciding on what to do after it."* The crash is precisely the
+  reconstruction↔projection interaction he anticipated as an open question.
+
+**Conclusion:** the unfaithful `eigvals` is a real and worth-fixing port gap, but
+the crash is fundamentally a property of the **new** high-order reconstruction
+producing unrealizable near-vacuum states — not a mis-port of Rodney's algorithm.
+The durable fix lives at the reconstruction level (below).
+
 ## Exact crash site (by elimination *and* direct capture)
 
 Every `eigvals`/eigen call in `src/` guards its input and returns `NaN` on a
@@ -117,23 +158,32 @@ HO_DEBUG=1 R1D_ORDER=2 R1D_N=512 julia --project=. debug/repro_1d_crash.jl
   (`debug/ma100_np128_ma100_o1.jld2`).
 - 1D analogs: **order=2 at N≤256**, or **order=1 at any N** (above).
 
-## Recommended fixes (not applied here — out of scope of this analysis)
+## Recommended fixes
 
-1. **Immediate robustness (matches existing convention).** Guard
-   `projection35`'s two `eigvals(E1)` calls the same way every other eigen site is
-   guarded: if `any(!isfinite, E1)`, treat the moments as needing correction /
-   return the MATLAB-equivalent `NaN` path rather than throwing. This converts an
-   opaque crash into the same graceful degradation the rest of the code already
-   uses — but it does **not** fix the underlying garbage moments.
-2. **Real fix (reconstruction level).** The high-order face reconstruction already
-   falls back to first order when a reconstructed face density is nonpositive
-   (`Li[1] > 0 && Ri[1] > 0`). Extend that fallback to also trigger on a
-   **nonpositive or non-finite reconstructed directional variance** (and on
-   non-finite higher moments). That removes the source of the unrealizable face
-   states in near-vacuum instead of patching the symptom downstream. This is the
-   natural place for the more careful near-vacuum / realizability-preserving
-   reconstruction that the high-order roadmap (and Jacob's Riemann-solver work)
-   will need anyway.
+1. **Port-fidelity fix — DONE.** `projection35`'s two `eigvals(E1)` calls now go
+   through the shared `_geigvals` guard, which returns `NaN` eigenvalues on
+   non-finite input exactly as MATLAB's `eig` does (and as the other six eigen
+   sites already did). This makes the port faithful and removes the *opaque*
+   `ArgumentError`. It does **not** fix the underlying garbage moments — with it in
+   place the same run instead throws a `DomainError` from `sqrt` one step earlier
+   (see below).
+2. **Same-class robustness gap (not yet applied).** `standardized_to_M4`
+   (`reconstruction.jl:27`) calls `sqrt(C200)` with no floor, unlike `M2CS4_35`'s
+   `sqrt(max(C200, eps))`. Via `realizable_3D_M4` this is safe (C200 pre-floored),
+   but via `from_recon_vars` a MUSCL-reconstructed face variance can be negative →
+   `DomainError`. Flooring it would match MATLAB and remove the hard error, but —
+   like fix 1 — only converts a crash into silently-wrong (huge/garbage) moments.
+3. **Real fix (reconstruction level — the open question Rodney flagged).** The
+   high-order face reconstruction already falls back to first order when a
+   reconstructed face *density* is nonpositive (`Li[1] > 0 && Ri[1] > 0`). Extend
+   that fallback to also trigger on a **nonpositive or non-finite reconstructed
+   directional variance** (and non-finite higher moments), checked on the
+   recon-vars *before* `from_recon_vars`. That removes the source of the
+   unrealizable face states in near-vacuum instead of patching symptoms downstream,
+   and is the natural home for the realizability-preserving reconstruction the
+   high-order roadmap (and Jacob's Riemann-solver work) needs. This is
+   reconstruction-design work, i.e. Jacob's high-order territory, so it is left
+   unapplied pending that direction.
 
 ## Investigation instrumentation left in place (ENV-gated, zero production cost)
 

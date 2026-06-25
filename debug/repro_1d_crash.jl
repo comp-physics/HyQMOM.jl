@@ -66,11 +66,11 @@ function check_residual(R, U, tag)
 end
 
 function step!(M, dt, n)
-    R0 = L(M); check_residual(R0, M, "step $n stage1 L(M)") && error("non-finite residual born")
+    R0 = L(M); check_residual(R0, M, "step $n stage1 L(M)") && (get(ENV,"R1D_NOFATAL","")!="1" && error("non-finite residual born"))
     M1 = M .+ dt.*R0;                            project_cells!(M1)
-    R1 = L(M1); check_residual(R1, M1, "step $n stage2 L(M1)") && error("non-finite residual born")
+    R1 = L(M1); check_residual(R1, M1, "step $n stage2 L(M1)") && (get(ENV,"R1D_NOFATAL","")!="1" && error("non-finite residual born"))
     M2 = 0.75.*M .+ 0.25.*(M1 .+ dt.*R1);       project_cells!(M2)
-    R2 = L(M2); check_residual(R2, M2, "step $n stage3 L(M2)") && error("non-finite residual born")
+    R2 = L(M2); check_residual(R2, M2, "step $n stage3 L(M2)") && (get(ENV,"R1D_NOFATAL","")!="1" && error("non-finite residual born"))
     M3 = (1/3).*M .+ (2/3).*(M2 .+ dt.*R2);     project_cells!(M3)
     M .= M3
 end

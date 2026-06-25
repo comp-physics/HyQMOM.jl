@@ -43,3 +43,13 @@ end
     @test Fhat ≈ Fx atol=1e-10 rtol=1e-10
     @test length(Fhat) == 35
 end
+
+@testset "1D residual" begin
+    Ncell = 16
+    M0 = InitializeM4_35(1.0, 0.2, 0.0, 0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    # uniform field -> zero residual (interior)
+    Mline = repeat(reshape(M0,1,35), Ncell, 1)
+    R = residual_1d(Mline, 0.1, 0.0; order=2)
+    @test maximum(abs.(R[3:Ncell-2, :])) < 1e-9
+    @test size(R) == (Ncell, 35)
+end

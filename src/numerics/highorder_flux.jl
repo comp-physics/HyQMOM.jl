@@ -47,3 +47,46 @@ function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::R
         return (sR .* FL .- sL .* FR .+ (sL*sR) .* (MRr .- MLr)) ./ (sR - sL)
     end
 end
+
+"""
+    residual_1d(Mline, dx, Ma; order=2)
+
+Method-of-lines spatial residual for a 1D row of 35-moment cells (Ncell x 35) in
+the x-direction. order=1: first-order (cell-centered). order=2: MUSCL on the
+bounded reconstruction variables, with local fallback to first order if a
+reconstructed face has nonpositive density.
+"""
+function residual_1d(Mline::AbstractMatrix, dx::Float64, Ma::Real; order::Int=2)
+    Nc = size(Mline, 1)
+    axis = 1
+    # Right-face L/R moment states at each interface i+1/2, i=1..Nc-1
+    ML = [zeros(35) for _ in 1:Nc-1]   # left state at interface i+1/2 (from cell i)
+    MR = [zeros(35) for _ in 1:Nc-1]   # right state at interface i+1/2 (from cell i+1)
+    if order == 1
+        for i in 1:Nc-1
+            ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
+        end
+    else
+        V = [to_recon_vars(Mline[i, :]) for i in 1:Nc]
+        # per-cell left/right face recon-vars with zero-gradient BC
+        Vminus = [zeros(35) for _ in 1:Nc]; Vplus = [zeros(35) for _ in 1:Nc]
+        for i in 1:Nc
+            vm = V[max(i-1,1)]; v0 = V[i]; vp = V[min(i+1,Nc)]
+            Vminus[i], Vplus[i] = muscl_faces(vm, v0, vp)
+        end
+        for i in 1:Nc-1
+            Li = from_recon_vars(Vplus[i])     # right face of cell i
+            Ri = from_recon_vars(Vminus[i+1])  # left face of cell i+1
+            # local order degradation: fall back to 1st order on bad reconstruction
+            ML[i] = (Li[1] > 0) ? Li : Mline[i, :]
+            MR[i] = (Ri[1] > 0) ? Ri : Mline[i+1, :]
+        end
+    end
+    Fhat = [face_flux_1d(ML[i], MR[i], axis, Ma) for i in 1:Nc-1]
+    R = zeros(Nc, 35)
+    for i in 2:Nc-1
+        R[i, :] = -(Fhat[i] .- Fhat[i-1]) ./ dx
+    end
+    # zero-gradient BC: no net flux at the physical boundary cells
+    return R
+end

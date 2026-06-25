@@ -102,20 +102,24 @@ end
 
 @testset "step_highorder_3d serial conservation+realizability" begin
     halo=2; nx=8; ny=8; nz=8
+    mid = 4.0
     decomp = setup_mpi_cartesian_3d(nx,ny,nz,halo,MPI.COMM_WORLD)  # serial (1 rank)
     M = zeros(nx+2halo, ny+2halo, nz, 35)
-    # a smooth blob in density
+    # density blob at rest (u=v=w=0): with copy BC and zero bulk velocity,
+    # boundary flux is ~0, so mass must conserve to machine precision
     for k in 1:nz, j in 1:ny, i in 1:nx
-        rho = 1.0 + 0.3*exp(-(((i-4.0))^2+((j-4.0))^2+((k-4.0))^2)/8)
-        M[i+halo,j+halo,k,:] = InitializeM4_35(rho,0.1,0.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0)
+        rho = 1.0 + 0.3*exp(-(((i-mid))^2+((j-mid))^2+((k-mid))^2)/8)
+        M[i+halo,j+halo,k,:] = InitializeM4_35(rho, 0.0,0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
     end
     mass0 = sum(M[halo+1:halo+nx, halo+1:halo+ny, :, 1])
     dt = 0.15*(1.0/nx)/4.5
     for _ in 1:5
-        step_highorder_3d!(M, dt, decomp, :outflow, nx,ny,nz,halo, 1.0/nx,1.0/ny,1.0/nz, 0.0; order=2)
+        step_highorder_3d!(M, dt, decomp, :copy, nx,ny,nz,halo, 1.0/nx,1.0/ny,1.0/nz, 0.0; order=2)
     end
     Min = M[halo+1:halo+nx, halo+1:halo+ny, :, :]
     @test all(isfinite, Min)
     @test minimum(Min[:,:,:,1]) > 0
-    @test abs(sum(Min[:,:,:,1]) - mass0)/mass0 < 1e-3   # mass approximately conserved (outflow BC allows some flux at boundaries)
+    rel_mass_err = abs(sum(Min[:,:,:,1]) - mass0)/mass0
+    @info "mass conservation error (u=0, copy BC)" rel_mass_err
+    @test rel_mass_err < 1e-11   # u=0 => zero boundary flux => machine-precision conservation
 end

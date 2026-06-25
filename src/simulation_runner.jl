@@ -664,6 +664,11 @@ function simulation_runner(params)
             # SSP-RK3 step with per-stage halo exchange + realizability projection.
             # step_highorder_3d! handles its own halos and projection internally;
             # it leaves M in a valid halo'd state ready for the next iteration.
+            # NOTE: M here is already hyperbolicity-pre-corrected by the shared
+            # dt/eigenvalue stage above (M[interior]=Mnp[interior] stored the
+            # eigenvalues6-corrected Mr). That correction is per-cell and
+            # density-preserving, so conservation and MPI-losslessness are
+            # unaffected; the high-order step advances this hyperbolic state.
             step_highorder_3d!(M, dt, decomp, bc, nx, ny, nz, halo, dx, dy, dz, Ma; order=2)
         else
             # --- FIRST-ORDER PATH (spatial_order=1, default) ---

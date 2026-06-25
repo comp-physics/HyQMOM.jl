@@ -259,10 +259,48 @@ function simulation_runner(params)
                 end
             end
         end
+    elseif haskey(params, :ic_type) && params.ic_type == :crossing_matlab
+        # Faithful reproduction of the MATLAB main_crossing_3DHyQMOM35 IC:
+        # two FULL 3D cubes of jet fluid (density rhol) diagonally offset about the
+        # box center, in a low-density background (rhor), with 3D jet velocity
+        # Uc = Ma/sqrt(3) along all axes (top moves (-Uc,-Uc,-Uc), bottom (Uc,Uc,Uc)).
+        # Cube index ranges (1-based, global): bottom [Np/2-Csize : Np/2],
+        # top [Np/2+1 : Np/2+1+Csize], Csize = floor(0.1*Np).
+        C200 = T; C020 = T; C002 = T
+        C110 = r110 * sqrt(C200 * C020)
+        C101 = r101 * sqrt(C200 * C002)
+        C011 = r011 * sqrt(C020 * C002)
+
+        Uc = Ma / sqrt(3.0)
+        Mr_bg = InitializeM4_35(rhor, 0.0, 0.0, 0.0, C200, C110, C101, C020, C011, C002)
+        Mt    = InitializeM4_35(rhol, -Uc, -Uc, -Uc, C200, C110, C101, C020, C011, C002)
+        Mb    = InitializeM4_35(rhol,  Uc,  Uc,  Uc, C200, C110, C101, C020, C011, C002)
+
+        Csize = floor(Int, 0.1 * Nx)   # assumes cubic grid Nx==Ny==Nz (as in MATLAB)
+        Minb = div(Nx, 2) - Csize; Maxb = div(Nx, 2)
+        Mint = div(Nx, 2) + 1;     Maxt = div(Nx, 2) + 1 + Csize
+
+        for kk in 1:nz
+            gk = k0k1[1] + kk - 1
+            for ii in 1:nx
+                gi = i0i1[1] + ii - 1
+                for jj in 1:ny
+                    gj = j0j1[1] + jj - 1
+                    Mr = Mr_bg
+                    if Minb <= gi <= Maxb && Minb <= gj <= Maxb && Minb <= gk <= Maxb
+                        Mr = Mb
+                    end
+                    if Mint <= gi <= Maxt && Mint <= gj <= Maxt && Mint <= gk <= Maxt
+                        Mr = Mt
+                    end
+                    M[ii + halo, jj + halo, kk, :] = Mr
+                end
+            end
+        end
     else
         # Use original hardcoded crossing jets IC
         U0, V0, W0 = 0.0, 0.0, 0.0
-        
+
         # Covariance matrix
         C200 = T
         C020 = T
@@ -505,9 +543,22 @@ function simulation_runner(params)
                                                M, vpxmin, vpxmax, vpymin, vpymax, vpzmin, vpzmax,
                                                nx, ny, nz, halo, flag2D, Ma)
         
-        # Global reduction for time step
-        vmax_local = maximum([abs.(vpxmax); abs.(vpxmin); abs.(vpymax); abs.(vpymin); abs.(vpzmax); abs.(vpzmin)])
-        vmax = MPI.Allreduce(vmax_local, max, comm)
+        # Global reduction for time step.
+        # Match the MATLAB main loop: bound dt by BOTH the realizability spread
+        # rp = max(0,vp+) - min(0,vp-) AND the max |eigenvalue|, per direction.
+        rpx_loc = maximum(max.(0.0, vpxmax) .- min.(0.0, vpxmin))
+        rpy_loc = maximum(max.(0.0, vpymax) .- min.(0.0, vpymin))
+        rpz_loc = maximum(max.(0.0, vpzmax) .- min.(0.0, vpzmin))
+        vx_loc  = maximum(max.(abs.(vpxmax), abs.(vpxmin)))
+        vy_loc  = maximum(max.(abs.(vpymax), abs.(vpymin)))
+        vz_loc  = maximum(max.(abs.(vpzmax), abs.(vpzmin)))
+        rpx_g = MPI.Allreduce(rpx_loc, max, comm)
+        rpy_g = MPI.Allreduce(rpy_loc, max, comm)
+        rpz_g = MPI.Allreduce(rpz_loc, max, comm)
+        vx_g  = MPI.Allreduce(vx_loc,  max, comm)
+        vy_g  = MPI.Allreduce(vy_loc,  max, comm)
+        vz_g  = MPI.Allreduce(vz_loc,  max, comm)
+        vmax = max(vx_g, vy_g, vz_g)  # retained for diagnostics below
         
         # Detailed diagnostics on first step
         if rank == 0 && nn == 1
@@ -535,8 +586,11 @@ function simulation_runner(params)
             @printf("  ══════════════════════════════\n\n")
         end
         
-        # Apply Kn cap to time step (matches MATLAB behavior: dtmax = Kn)
-        dt = min(CFL*min(dx,dy,dz)/vmax, min(dtmax, Kn))
+        # MATLAB dt: min over spread-based and eigenvalue-based bounds in each
+        # direction, then capped by dtmax (= Kn) and the remaining time.
+        dt = minimum((CFL*dx/rpx_g, CFL*dy/rpy_g, CFL*dz/rpz_g,
+                      CFL*dx/vx_g,  CFL*dy/vy_g,  CFL*dz/vz_g))
+        dt = min(dt, dtmax)
         dt = min(dt, tmax-t)
         
         # Debug: print vmax if it's unusually large

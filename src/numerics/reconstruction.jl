@@ -76,6 +76,27 @@ function standardized_to_M4(M000::Real, umean::Real, vmean::Real, wmean::Real,
             M5[1,3,3]]
 end
 
+"minmod slope limiter"
+@inline function minmod(a::Real, b::Real)
+    (a*b <= 0) ? 0.0 : (abs(a) < abs(b) ? Float64(a) : Float64(b))
+end
+
+"Per-component limited slope for cell V0 given neighbors Vm1, Vp1."
+function muscl_slopes(Vm1::AbstractVector, V0::AbstractVector, Vp1::AbstractVector; limiter=minmod)
+    n = length(V0)
+    s = Vector{Float64}(undef, n)
+    @inbounds for k in 1:n
+        s[k] = limiter(V0[k]-Vm1[k], Vp1[k]-V0[k])
+    end
+    return s
+end
+
+"Left/right face recon-var states for cell V0 (V0 ∓ 0.5*slope)."
+function muscl_faces(Vm1::AbstractVector, V0::AbstractVector, Vp1::AbstractVector; limiter=minmod)
+    s = muscl_slopes(Vm1, V0, Vp1; limiter=limiter)
+    return (V0 .- 0.5 .* s, V0 .+ 0.5 .* s)
+end
+
 """
     to_recon_vars(M) / from_recon_vars(V)
 

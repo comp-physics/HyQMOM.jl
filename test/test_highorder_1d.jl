@@ -19,3 +19,18 @@ using LinearAlgebra
         @test M2 ≈ M atol=1e-10 rtol=1e-10
     end
 end
+
+@testset "MUSCL limiter + faces" begin
+    @test minmod(2.0, 3.0) == 2.0
+    @test minmod(-2.0, 3.0) == 0.0
+    @test minmod(-2.0, -5.0) == -2.0
+    # On a LINEAR field, minmod returns the exact slope (2nd-order, no clamping)
+    Vm1 = fill(1.0, 35); V0 = fill(2.0, 35); Vp1 = fill(3.0, 35)
+    s = muscl_slopes(Vm1, V0, Vp1)
+    @test all(s .≈ 1.0)
+    Vminus, Vplus = muscl_faces(Vm1, V0, Vp1)
+    @test all(Vminus .≈ 1.5) && all(Vplus .≈ 2.5)
+    # At a local MAX, limiter clamps slope to 0 (1st-order, TVD)
+    s2 = muscl_slopes(fill(1.0,35), fill(3.0,35), fill(1.0,35))
+    @test all(s2 .== 0.0)
+end

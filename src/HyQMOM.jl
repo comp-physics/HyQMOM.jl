@@ -39,6 +39,7 @@ export moment_idx, M4_to_vars, M5_to_vars
 export delta2star3D, delta2star3D_permutation, jacobian6, M4toC4_3D, C4toM4_3D, S4toC4_3D_r, C5toM5_3D
 export axis_moment_slice
 export to_recon_vars, from_recon_vars, standardized_to_M4
+export minmod, muscl_slopes, muscl_faces
 export setup_mpi_cartesian_3d, halo_exchange_3d!, apply_flux_update_3d!
 export compute_halo_fluxes_and_wavespeeds_3d!
 export compute_standardized_field, compute_central_field, get_standardized_moment, get_central_moment

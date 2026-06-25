@@ -43,10 +43,11 @@ function _jac15_eig(m15::NTuple{15,<:Real})
     r3, has_complex = eig3_realparts(J[13,13], J[13,14], J[13,15],
                                      J[14,13], J[14,14], J[14,15],
                                      J[15,13], J[15,14], J[15,15])
-    # 4x4 block J[6:9,6:9]: kept on LAPACK (real min/max of its spectrum)
-    lam4r = sort(real(eigvals(J[6:9, 6:9])))
-    vmin = min(r3[1], lam4r[1])
-    vmax = max(r3[3], lam4r[4])
+    # 4x4 block J[6:9,6:9]: same LAPACK dgeev as eigvals, via reused-buffer direct
+    # call (bit-identical, no slice/workspace/result allocation)
+    e4lo, e4hi = jac4_realpart_minmax(J, 6, 6)
+    vmin = min(r3[1], e4lo)
+    vmax = max(r3[3], e4hi)
     return vmin, vmax, has_complex
 end
 

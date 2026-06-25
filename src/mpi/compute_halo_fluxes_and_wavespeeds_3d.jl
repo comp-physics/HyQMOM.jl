@@ -54,11 +54,13 @@ function compute_halo_fluxes_and_wavespeeds_3d!(Fx::Array{Float64,4}, Fy::Array{
             for j in 1:ny
                 jh = j + halo
                 MOM = M[i, jh, k, :]
-                _, _, _, Mr = Flux_closure35_and_realizable_3D(MOM, flag2D, Ma)
-                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 1, flag2D, Ma)
+                # Must match the interior flux path in simulation_runner EXACTLY
+                # (hyperbolicity correction from MOM + pure flux, no realizability)
+                # so rank-boundary cells are bit-identical to a single-rank run.
+                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(MOM, 1, flag2D, Ma)
                 v6y_min, v6y_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 2, flag2D, Ma)
                 v6z_min, v6z_max, Mr = eigenvalues6z_hyperbolic_3D(Mr, flag2D, Ma)
-                Mx, My, _, Mr = Flux_closure35_and_realizable_3D(Mr, flag2D, Ma)
+                Mx, My, _ = Flux_closure35_3D(Mr)
                 Fx[i, jh, k, :] = Mx
                 Fy[i, jh, k, :] = My
                 _, v5x_min, v5x_max = closure_and_eigenvalues(Mr[[1,2,3,4,5]])
@@ -74,11 +76,13 @@ function compute_halo_fluxes_and_wavespeeds_3d!(Fx::Array{Float64,4}, Fy::Array{
             for j in 1:ny
                 jh = j + halo
                 MOM = M[i, jh, k, :]
-                _, _, _, Mr = Flux_closure35_and_realizable_3D(MOM, flag2D, Ma)
-                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 1, flag2D, Ma)
+                # Must match the interior flux path in simulation_runner EXACTLY
+                # (hyperbolicity correction from MOM + pure flux, no realizability)
+                # so rank-boundary cells are bit-identical to a single-rank run.
+                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(MOM, 1, flag2D, Ma)
                 v6y_min, v6y_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 2, flag2D, Ma)
                 v6z_min, v6z_max, Mr = eigenvalues6z_hyperbolic_3D(Mr, flag2D, Ma)
-                Mx, My, _, Mr = Flux_closure35_and_realizable_3D(Mr, flag2D, Ma)
+                Mx, My, _ = Flux_closure35_3D(Mr)
                 Fx[i, jh, k, :] = Mx
                 Fy[i, jh, k, :] = My
                 _, v5x_min, v5x_max = closure_and_eigenvalues(Mr[[1,2,3,4,5]])
@@ -94,11 +98,13 @@ function compute_halo_fluxes_and_wavespeeds_3d!(Fx::Array{Float64,4}, Fy::Array{
             ih = i + halo
             for j in 1:halo
                 MOM = M[ih, j, k, :]
-                _, _, _, Mr = Flux_closure35_and_realizable_3D(MOM, flag2D, Ma)
-                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 1, flag2D, Ma)
+                # Must match the interior flux path in simulation_runner EXACTLY
+                # (hyperbolicity correction from MOM + pure flux, no realizability)
+                # so rank-boundary cells are bit-identical to a single-rank run.
+                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(MOM, 1, flag2D, Ma)
                 v6y_min, v6y_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 2, flag2D, Ma)
                 v6z_min, v6z_max, Mr = eigenvalues6z_hyperbolic_3D(Mr, flag2D, Ma)
-                Mx, My, _, Mr = Flux_closure35_and_realizable_3D(Mr, flag2D, Ma)
+                Mx, My, _ = Flux_closure35_3D(Mr)
                 Fx[ih, j, k, :] = Mx
                 Fy[ih, j, k, :] = My
                 _, v5y_min, v5y_max = closure_and_eigenvalues(Mr[[1,6,10,13,15]])
@@ -114,11 +120,13 @@ function compute_halo_fluxes_and_wavespeeds_3d!(Fx::Array{Float64,4}, Fy::Array{
             ih = i + halo
             for j in halo+ny+1:ny+2*halo
                 MOM = M[ih, j, k, :]
-                _, _, _, Mr = Flux_closure35_and_realizable_3D(MOM, flag2D, Ma)
-                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 1, flag2D, Ma)
+                # Must match the interior flux path in simulation_runner EXACTLY
+                # (hyperbolicity correction from MOM + pure flux, no realizability)
+                # so rank-boundary cells are bit-identical to a single-rank run.
+                v6x_min, v6x_max, Mr = eigenvalues6_hyperbolic_3D(MOM, 1, flag2D, Ma)
                 v6y_min, v6y_max, Mr = eigenvalues6_hyperbolic_3D(Mr, 2, flag2D, Ma)
                 v6z_min, v6z_max, Mr = eigenvalues6z_hyperbolic_3D(Mr, flag2D, Ma)
-                Mx, My, _, Mr = Flux_closure35_and_realizable_3D(Mr, flag2D, Ma)
+                Mx, My, _ = Flux_closure35_3D(Mr)
                 Fx[ih, j, k, :] = Mx
                 Fy[ih, j, k, :] = My
                 _, v5y_min, v5y_max = closure_and_eigenvalues(Mr[[1,6,10,13,15]])

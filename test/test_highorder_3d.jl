@@ -154,3 +154,74 @@ end
     M_proj = realizable_3D_M4(M_test, 0.0)
     @test M_proj[1] ≈ M_test[1] atol=1e-12
 end
+
+@testset "simulation_runner spatial_order=2" begin
+    # Tiny crossing-jets run at spatial_order=2.
+    # Uses ic_type=:crossing_matlab (Ma=0 => Uc=0, so jets have zero bulk velocity;
+    # density contrast is the only non-trivial structure).
+    # With Ma=0 and Kn=1000 (nearly free-streaming) the run is very mild.
+    # Mass conservation: outflow BCs allow some drift, so we allow < 1e-3.
+    Np = 16
+    params_ho = (
+        Nx = Np, Ny = Np, Nz = Np,
+        tmax    = 0.02,
+        Kn      = 1000.0,
+        Ma      = 0.0,
+        flag2D  = 0,
+        CFL     = 1/3,
+        Nmom    = 35,
+        nnmax   = 100000,
+        dtmax   = 1000.0,
+        rhol    = 1.0,
+        rhor    = 0.001,
+        T       = 1.0,
+        r110    = 0.0,
+        r101    = 0.0,
+        r011    = 0.0,
+        symmetry_check_interval = 1000,
+        homogeneous_z = false,
+        debug_output  = false,
+        snapshot_interval = 0,
+        ic_type = :crossing_matlab,
+        spatial_order = 2,
+    )
+
+    result_ho = simulation_runner(params_ho)
+
+    # Return shape: (M_final, t, steps, grid) on rank 0; (nothing, t, steps, nothing) on others.
+    @test length(result_ho) == 4
+
+    rank = MPI.Comm_rank(MPI.COMM_WORLD)
+    M_final, t_final, steps, grid = result_ho
+
+    # All ranks: at least one step taken, time advanced
+    @test steps >= 1
+    @test t_final > 0.0
+
+    if rank == 0
+        # Finite moments
+        @test all(isfinite, M_final)
+        # Positive density everywhere
+        @test minimum(M_final[:, :, :, 1]) > 0.0
+
+        # Mass conservation (outflow BCs => modest drift allowed)
+        # Initial mass: rhol in two cubes, rhor elsewhere
+        # We measure drift relative to the initial total mass.
+        dx_g = 1.0 / Np; dy_g = 1.0 / Np; dz_g = 1.0 / Np
+        mass_final = sum(M_final[:, :, :, 1]) * dx_g * dy_g * dz_g
+        # Compute initial mass analytically from the crossing_matlab IC
+        Csize = floor(Int, 0.1 * Np)
+        n_bottom = (Csize + 1)^3   # cells in bottom cube
+        n_top    = (Csize + 1)^3   # cells in top cube
+        n_total  = Np^3
+        mass0 = (n_bottom + n_top) * params_ho.rhol * dx_g * dy_g * dz_g +
+                (n_total - n_bottom - n_top) * params_ho.rhor * dx_g * dy_g * dz_g
+        rel_mass_drift = abs(mass_final - mass0) / mass0
+        @info "spatial_order=2 mass drift" rel_mass_drift steps t_final
+        @test rel_mass_drift < 1e-3
+
+        # Same tuple shape as order=1: grid is a NamedTuple with expected keys
+        @test grid isa NamedTuple
+        @test haskey(grid, :x) && haskey(grid, :xm)
+    end
+end

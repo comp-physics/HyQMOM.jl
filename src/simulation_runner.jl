@@ -119,6 +119,9 @@ function simulation_runner(params)
     homogeneous_z = params.homogeneous_z
     debug_output = params.debug_output
     
+    # Spatial order (1 = first-order HLL/Euler, 2 = high-order SSP-RK3)
+    spatial_order = get(params, :spatial_order, 1)
+
     # Snapshot saving parameters
     snapshot_interval = get(params, :snapshot_interval, 0)
     save_snapshots = (snapshot_interval > 0)
@@ -655,54 +658,65 @@ function simulation_runner(params)
         end
         
         t += dt
-        
-        # X-direction flux update
-        Mnpx = similar(M)
-        apply_flux_update_3d!(Mnpx, M, Fx, vpxmin, vpxmax, vpxmin_ext, vpxmax_ext,
-                              nx, ny, nz, halo, dt, dx, decomp, 1)
-        
-        # Y-direction flux update
-        Mnpy = similar(M)
-        apply_flux_update_3d!(Mnpy, M, Fy, vpymin, vpymax, vpymin_ext, vpymax_ext,
-                              nx, ny, nz, halo, dt, dy, decomp, 2)
-        
-        # Z-direction flux update
-        Mnpz = similar(M)
-        vpzmin_ext = zeros(Float64, nx+2*halo, ny, nz)  # Not used for Z (no halo extension)
-        vpzmax_ext = zeros(Float64, nx+2*halo, ny, nz)  # Not used for Z (no halo extension)
-        apply_flux_update_3d!(Mnpz, M, Fz, vpzmin, vpzmax, vpzmin_ext, vpzmax_ext,
-                              nx, ny, nz, halo, dt, dz, decomp, 3)
-        
-        # Combine updates (Strang splitting) - INTERIOR ONLY
-        M[halo+1:halo+nx, halo+1:halo+ny, :, :] =
-            Mnpx[halo+1:halo+nx, halo+1:halo+ny, :, :] +
-            Mnpy[halo+1:halo+nx, halo+1:halo+ny, :, :] +
-            Mnpz[halo+1:halo+nx, halo+1:halo+ny, :, :] -
-            2.0 .* M[halo+1:halo+nx, halo+1:halo+ny, :, :]
-        
-        # Exchange halos before realizability enforcement
-        halo_exchange_3d!(M, decomp, bc)
-        
-        # Enforce realizability
-        for k in 1:nz
-            for i in 1:nx
-                for j in 1:ny
-                    ih = i + halo
-                    jh = j + halo
-                    MOM = M[ih, jh, k, :]
-                    
-                    # Revised projection-based realizability: a single projection
-                    # step (matches realizable_3D(MOM,Ma) in the MATLAB main loop).
-                    Mr = realizable_3D_M4(MOM, Ma)
 
-                    Mnp[ih, jh, k, :] = Mr
+        if spatial_order == 2
+            # --- HIGH-ORDER PATH (spatial_order=2) ---
+            # SSP-RK3 step with per-stage halo exchange + realizability projection.
+            # step_highorder_3d! handles its own halos and projection internally;
+            # it leaves M in a valid halo'd state ready for the next iteration.
+            step_highorder_3d!(M, dt, decomp, bc, nx, ny, nz, halo, dx, dy, dz, Ma; order=2)
+        else
+            # --- FIRST-ORDER PATH (spatial_order=1, default) ---
+            # Byte-identical to the original validated path.
+
+            # X-direction flux update
+            Mnpx = similar(M)
+            apply_flux_update_3d!(Mnpx, M, Fx, vpxmin, vpxmax, vpxmin_ext, vpxmax_ext,
+                                  nx, ny, nz, halo, dt, dx, decomp, 1)
+
+            # Y-direction flux update
+            Mnpy = similar(M)
+            apply_flux_update_3d!(Mnpy, M, Fy, vpymin, vpymax, vpymin_ext, vpymax_ext,
+                                  nx, ny, nz, halo, dt, dy, decomp, 2)
+
+            # Z-direction flux update
+            Mnpz = similar(M)
+            vpzmin_ext = zeros(Float64, nx+2*halo, ny, nz)  # Not used for Z (no halo extension)
+            vpzmax_ext = zeros(Float64, nx+2*halo, ny, nz)  # Not used for Z (no halo extension)
+            apply_flux_update_3d!(Mnpz, M, Fz, vpzmin, vpzmax, vpzmin_ext, vpzmax_ext,
+                                  nx, ny, nz, halo, dt, dz, decomp, 3)
+
+            # Combine updates (Strang splitting) - INTERIOR ONLY
+            M[halo+1:halo+nx, halo+1:halo+ny, :, :] =
+                Mnpx[halo+1:halo+nx, halo+1:halo+ny, :, :] +
+                Mnpy[halo+1:halo+nx, halo+1:halo+ny, :, :] +
+                Mnpz[halo+1:halo+nx, halo+1:halo+ny, :, :] -
+                2.0 .* M[halo+1:halo+nx, halo+1:halo+ny, :, :]
+
+            # Exchange halos before realizability enforcement
+            halo_exchange_3d!(M, decomp, bc)
+
+            # Enforce realizability
+            for k in 1:nz
+                for i in 1:nx
+                    for j in 1:ny
+                        ih = i + halo
+                        jh = j + halo
+                        MOM = M[ih, jh, k, :]
+
+                        # Revised projection-based realizability: a single projection
+                        # step (matches realizable_3D(MOM,Ma) in the MATLAB main loop).
+                        Mr = realizable_3D_M4(MOM, Ma)
+
+                        Mnp[ih, jh, k, :] = Mr
+                    end
                 end
             end
-        end
-        
-        M[halo+1:halo+nx, halo+1:halo+ny, :, :] = Mnp[halo+1:halo+nx, halo+1:halo+ny, :, :]
-        
-        # Apply BGK collision
+
+            M[halo+1:halo+nx, halo+1:halo+ny, :, :] = Mnp[halo+1:halo+nx, halo+1:halo+ny, :, :]
+        end  # spatial_order branch
+
+        # Apply BGK collision (both paths)
         for k in 1:nz
             for i in 1:nx
                 for j in 1:ny

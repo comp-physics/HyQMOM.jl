@@ -84,3 +84,61 @@ end
     @test e2 < e1
     @test log2(e1/e2) > 2.7   # ~3rd-order convergence
 end
+
+# advance a 1D periodic moment field; helper used by the tests below
+function _advance_1d(Mline, dx, dt, nsteps, Ma)
+    L(M) = residual_1d(M, dx, Ma; order=2)
+    for _ in 1:nsteps
+        Mline = ssp_rk3_step(Mline, dt, L)
+    end
+    return Mline
+end
+
+@testset "1D smooth order-of-accuracy" begin
+    # smooth density bump advecting at u=1; measure self-convergence under refinement
+    Ma = 0.0; u = 1.0; tfinal = 0.05
+    function setup(N)
+        dx = 1.0/N
+        Mline = zeros(N, 35)
+        for i in 1:N
+            x = (i-0.5)*dx
+            rho = 1.0 + 0.2*sin(2pi*x)
+            Mline[i, :] = InitializeM4_35(rho, u, 0.0, 0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+        end
+        return Mline, dx
+    end
+    function run(N)
+        Mline, dx = setup(N)
+        dt = 0.2*dx/(u + 3.0)          # CFL-safe for the moment wave speeds
+        nsteps = ceil(Int, tfinal/dt); dt = tfinal/nsteps
+        _advance_1d(Mline, dx, dt, nsteps, Ma)
+    end
+    # Richardson self-convergence on density (M000): rate between N, 2N, 4N
+    d(N) = run(N)[:, 1]
+    coarsen(a) = (a[1:2:end] .+ a[2:2:end]) ./ 2
+    eC = maximum(abs.(coarsen(d(64)) .- d(32)))
+    eF = maximum(abs.(coarsen(d(128)) .- d(64)))
+    @test eF < eC
+    @test log2(eC/eF) > 1.6        # ~2nd order (limiter may shave it slightly)
+end
+
+@testset "1D realizability + conservation (shock tube)" begin
+    Ma = 0.0; N = 100; dx = 1.0/N
+    Ml = InitializeM4_35(1.0,   0.0,0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    Mr = InitializeM4_35(0.125, 0.0,0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    Mline = zeros(N, 35)
+    for i in 1:N
+        Mline[i, :] = (i <= N÷2) ? Ml : Mr
+    end
+    mass0 = sum(Mline[:, 1])
+    dt = 0.2*dx/3.0; nsteps = 40
+    Mline = _advance_1d(Mline, dx, dt, nsteps, Ma)
+    @test all(isfinite, Mline)
+    @test minimum(Mline[:, 1]) > 0                     # density positive
+    # realizable: variances positive everywhere
+    for i in 1:N
+        _, S4 = M2CS4_35(Mline[i, :])
+        @test (S4[5]-S4[4]^2-1) > -1e-8                # H200 >= 0 (x)
+    end
+    @test abs(sum(Mline[:, 1]) - mass0) / mass0 < 1e-12  # mass conserved (no through-flow @ walls)
+end

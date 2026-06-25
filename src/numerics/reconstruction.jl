@@ -117,7 +117,8 @@ function to_recon_vars(M::AbstractVector)::Vector{Float64}
     C4, S4 = M2CS4_35(M)
     M000 = M[1]
     u = M[2]/M000; v = M[6]/M000; w = M[16]/M000
-    C200 = max(0.0, C4[3]); C020 = max(0.0, C4[10]); C002 = max(0.0, C4[20])
+    # match realizable_3D_M4 c2min floor; avoids sqrt(0) on degenerate input
+    C200 = max(1.0e-12, C4[3]); C020 = max(1.0e-12, C4[10]); C002 = max(1.0e-12, C4[20])
     return vcat([M000, u, v, w, C200, C020, C002], S4[_SIDX])
 end
 

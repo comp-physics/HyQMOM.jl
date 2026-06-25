@@ -85,7 +85,7 @@ end
     @test log2(e1/e2) > 2.7   # ~3rd-order convergence
 end
 
-# advance a 1D periodic moment field; helper used by the tests below
+# advance a 1D moment field with outflow (zero-gradient) BCs; helper used by the tests below
 function _advance_1d(Mline, dx, dt, nsteps, Ma)
     L(M) = residual_1d(M, dx, Ma; order=2)
     for _ in 1:nsteps

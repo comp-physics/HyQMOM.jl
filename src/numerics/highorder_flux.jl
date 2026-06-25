@@ -95,7 +95,7 @@ function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc
         for i in 1:Nc
             R[i, :] = -(Fhat[i] .- Fhat[wrap(i-1)]) ./ dx
         end
-    else  # :outflow — zero-gradient BCs, existing behavior
+    elseif bc == :outflow  # zero-gradient BCs
         # Right-face L/R moment states at each interface i+1/2, i=1..Nc-1
         ML = [zeros(35) for _ in 1:Nc-1]   # left state at interface i+1/2 (from cell i)
         MR = [zeros(35) for _ in 1:Nc-1]   # right state at interface i+1/2 (from cell i+1)
@@ -127,6 +127,8 @@ function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc
             R[i, :] = -(Fhat[i] .- Fhat[i-1]) ./ dx
         end
         # zero-gradient BC: no net flux at the physical boundary cells (i=1, i=Nc remain zero)
+    else
+        throw(ArgumentError("residual_1d: unknown bc=$bc (use :outflow or :periodic)"))
     end
     return R
 end

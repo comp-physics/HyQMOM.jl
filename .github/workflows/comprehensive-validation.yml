@@ -180,7 +180,14 @@ jobs:
             println("Resolving dependencies...")
             Pkg.resolve()
             println()
-            
+
+            # MAT is a test-only dependency (kept out of [deps] so the package
+            # loads headless); the standalone golden-file steps below run with
+            # --project and need MAT explicitly provisioned here.
+            println("Adding MAT (golden-file test dependency)...")
+            Pkg.add("MAT")
+            println()
+
             println("Precompiling packages...")
             Pkg.precompile()
             println()

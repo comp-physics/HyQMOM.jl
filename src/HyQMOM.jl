@@ -19,6 +19,24 @@ using JLD2  # Always needed for snapshot I/O
 # Set at runtime from params in `simulation_runner` (defaults to true).
 const POSITIVITY_ENABLED = Ref(true)
 
+# HO_DEBUG: crash-investigation instrumentation. When ENV["HO_DEBUG"]=="1" the
+# guarded eigvals helper reports the exact call site + offending matrix before a
+# non-finite matrix would otherwise throw the opaque "matrix contains Infs or
+# NaNs" deep in LinearAlgebra. Zero overhead when off (a Ref read + isfinite scan
+# only when the flag is set).
+const HO_DEBUG = Ref(get(ENV, "HO_DEBUG", "") == "1")
+@inline function _geigvals(A::AbstractMatrix, label::AbstractString)
+    if HO_DEBUG[] && !all(isfinite, A)
+        io = IOBuffer()
+        println(io, "HO_DEBUG: non-finite matrix into eigvals @ ", label,
+                "  size=", size(A), "  (", count(!isfinite, A), "/", length(A), " non-finite)")
+        show(io, "text/plain", A)
+        @error String(take!(io))
+        error("HO_DEBUG eigvals non-finite @ " * label)
+    end
+    return eigvals(A)
+end
+
 # Export main entry points
 export run_simulation, simulation_runner, run_simulation_with_snapshots
 

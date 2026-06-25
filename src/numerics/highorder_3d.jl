@@ -26,8 +26,22 @@ function residual_line(Mext::AbstractMatrix, ds::Real, axis::Int, Ma::Real; orde
             (Li[1] > 0 && Ri[1] > 0) ? (Li, Ri) : (Mext[iL,:], Mext[iL+1,:])
         end
     end
+    _ho_debug = get(ENV, "HO_DEBUG", "") == "1"
     for iface in g:(g+Ni)            # interfaces bounding interior cells
         ML, MR = face_states(iface)
+        if _ho_debug
+            if !all(isfinite, ML) || !all(isfinite, MR)
+                @error "HO_DEBUG: non-finite reconstructed face (reconstruction overflow)" axis iface ML MR stencil=Mext[max(iface-1,1):min(iface+2,size(Mext,1)), :]
+                error("HO_DEBUG non-finite reconstructed face axis=$axis iface=$iface")
+            end
+            Fhat[iface] = try
+                face_flux_1d(ML, MR, axis, Ma)
+            catch e
+                @error "HO_DEBUG: face_flux_1d threw on a FINITE-but-extreme face" axis iface ML MR exception=(e, catch_backtrace())
+                rethrow(e)
+            end
+            continue
+        end
         Fhat[iface] = face_flux_1d(ML, MR, axis, Ma)
     end
     R = zeros(Ni, 35)

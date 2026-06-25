@@ -29,6 +29,14 @@ function realizable_3D_M4(M4::AbstractVector, Ma::Real)
 
     # central and standardized moments
     C4, S4 = M2CS4_35(M4)
+    if HO_DEBUG[] && any(!isfinite, S4)
+        @error string("HO_DEBUG: M2CS4_35 produced non-finite standardized moments.\n",
+            "  raw M000(density) = ", M000, "\n",
+            "  directional variances C200=C4[3]=", C4[3],
+            "  C020=C4[10]=", C4[10], "  C002=C4[20]=", C4[20], "\n",
+            "  (any C2<=0 => sqrt(C2)=NaN cascades to all standardized moments)\n",
+            "  raw M4 = ", M4)
+    end
     C200 = max(c2min, C4[3])
     C020 = max(c2min, C4[10])
     C002 = max(c2min, C4[20])

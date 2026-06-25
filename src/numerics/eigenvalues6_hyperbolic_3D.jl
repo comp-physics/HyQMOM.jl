@@ -35,15 +35,19 @@ Matches MATLAB: `lam6a = eig(J6(13:15,13:15)); lam4 = eig(J6(6:9,6:9))`.
 function _jac15_eig(m15::NTuple{15,<:Real})
     J = jacobian15(m15...)
     if any(!isfinite, J)
-        return NaN, NaN, (NaN+0im, NaN+0im, NaN+0im)
+        # matches the original: NaN eigenvalues, no hyperbolicity correction triggered
+        return NaN, NaN, false
     end
-    lam3 = eigvals(J[13:15, 13:15])
-    lam4 = eigvals(J[6:9, 6:9])
-    lam3r = sort(real(lam3))
-    lam4r = sort(real(lam4))
-    vmin = min(lam3r[1], lam4r[1])
-    vmax = max(lam3r[3], lam4r[4])
-    return vmin, vmax, lam3
+    # 3x3 block J[13:15,13:15]: analytic eigenvalues (real parts + complex flag),
+    # passing entries directly (no slice alloc). Replaces eigvals(J[13:15,13:15]).
+    r3, has_complex = eig3_realparts(J[13,13], J[13,14], J[13,15],
+                                     J[14,13], J[14,14], J[14,15],
+                                     J[15,13], J[15,14], J[15,15])
+    # 4x4 block J[6:9,6:9]: kept on LAPACK (real min/max of its spectrum)
+    lam4r = sort(real(eigvals(J[6:9, 6:9])))
+    vmin = min(r3[1], lam4r[1])
+    vmax = max(r3[3], lam4r[4])
+    return vmin, vmax, has_complex
 end
 
 # MATLAB ~isreal: any nonzero imaginary part (LAPACK returns exact 0 for real eigs)
@@ -112,13 +116,13 @@ function eigenvalues6_hyperbolic_3D(M::AbstractVector, axis::Int, flag2D::Int, M
     else
         pa, pb = _plane_VU(M), _plane_VW(M)
     end
-    va_min, va_max, lam6a = _jac15_eig(pa)
-    vb_min, vb_max, lam6b = _jac15_eig(pb)
+    va_min, va_max, hca = _jac15_eig(pa)
+    vb_min, vb_max, hcb = _jac15_eig(pb)
     v6min = min(va_min, vb_min)
     v6max = max(va_max, vb_max)
     Mr = M
 
-    if _has_complex(lam6a) || _has_complex(lam6b)
+    if hca || hcb
         Mr = correct_moments_hyperbolic_3D(M)
         if axis == 1
             qa, qb = _plane_UV(Mr), _plane_UW(Mr)

@@ -15,13 +15,13 @@ are defined in eigenvalues6_hyperbolic_3D.jl.
 """
 function eigenvalues6z_hyperbolic_3D(M::AbstractVector, flag2D::Int, Ma::Real; debug_output=false)
     pa, pb = _plane_WU(M), _plane_WV(M)
-    va_min, va_max, lam6a = _jac15_eig(pa)
-    vb_min, vb_max, lam6b = _jac15_eig(pb)
+    va_min, va_max, hca = _jac15_eig(pa)
+    vb_min, vb_max, hcb = _jac15_eig(pb)
     v6min = min(va_min, vb_min)
     v6max = max(va_max, vb_max)
     Mr = M
 
-    if _has_complex(lam6a) || _has_complex(lam6b)
+    if hca || hcb
         Mr = correct_moments_hyperbolic_3D(M)
         a_min, a_max, _ = _jac15_eig(_plane_WU(Mr))
         b_min, b_max, _ = _jac15_eig(_plane_WV(Mr))

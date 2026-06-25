@@ -111,6 +111,7 @@ include("realizability/realizability.jl")
 include("realizability/edge_corner_correction.jl")
 
 # Numerics
+include("numerics/small_eig.jl")
 include("numerics/closure_and_eigenvalues.jl")
 include("numerics/compute_jacobian_eigenvalues.jl")
 include("numerics/eigenvalues6_hyperbolic_3D.jl")

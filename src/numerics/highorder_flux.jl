@@ -49,47 +49,84 @@ function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::R
 end
 
 """
-    residual_1d(Mline, dx, Ma; order=2)
+    residual_1d(Mline, dx, Ma; order=2, bc=:outflow)
 
 Method-of-lines spatial residual for a 1D row of 35-moment cells (Ncell x 35) in
 the x-direction. order=1: first-order (cell-centered). order=2: MUSCL on the
 bounded reconstruction variables, with local fallback to first order if a
 reconstructed face has nonpositive density.
+
+bc=:outflow (default): zero-gradient boundary conditions — boundary cells i=1 and
+  i=Nc receive zero residual (no net flux through the domain walls).
+bc=:periodic: wrap neighbor indices so the domain is periodic. All Nc interfaces
+  i+1/2 (i=1..Nc, with i+1 wrapping) are computed and every cell gets a residual.
 """
-function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2)
+function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc::Symbol=:outflow)
     Nc = size(Mline, 1)
     axis = 1
-    # Right-face L/R moment states at each interface i+1/2, i=1..Nc-1
-    ML = [zeros(35) for _ in 1:Nc-1]   # left state at interface i+1/2 (from cell i)
-    MR = [zeros(35) for _ in 1:Nc-1]   # right state at interface i+1/2 (from cell i+1)
-    if order == 1
-        for i in 1:Nc-1
-            ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
-        end
-    else
-        V = [to_recon_vars(Mline[i, :]) for i in 1:Nc]
-        # per-cell left/right face recon-vars with zero-gradient BC
-        Vminus = [zeros(35) for _ in 1:Nc]; Vplus = [zeros(35) for _ in 1:Nc]
-        for i in 1:Nc
-            vm = V[max(i-1,1)]; v0 = V[i]; vp = V[min(i+1,Nc)]
-            Vminus[i], Vplus[i] = muscl_faces(vm, v0, vp)
-        end
-        for i in 1:Nc-1
-            Li = from_recon_vars(Vplus[i])     # right face of cell i
-            Ri = from_recon_vars(Vminus[i+1])  # left face of cell i+1
-            # local order degradation: fall back to 1st order if EITHER face has bad density
-            if Li[1] > 0 && Ri[1] > 0
-                ML[i] = Li; MR[i] = Ri
-            else
-                ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
+    R = zeros(Nc, 35)
+
+    if bc == :periodic
+        wrap(i) = mod(i-1, Nc) + 1
+        # Face states at interface i+1/2 for i=1..Nc (i+1 wraps)
+        ML = [zeros(35) for _ in 1:Nc]
+        MR = [zeros(35) for _ in 1:Nc]
+        if order == 1
+            for i in 1:Nc
+                ML[i] = Mline[i, :]; MR[i] = Mline[wrap(i+1), :]
+            end
+        else
+            V = [to_recon_vars(Mline[i, :]) for i in 1:Nc]
+            Vminus = [zeros(35) for _ in 1:Nc]; Vplus = [zeros(35) for _ in 1:Nc]
+            for i in 1:Nc
+                Vminus[i], Vplus[i] = muscl_faces(V[wrap(i-1)], V[i], V[wrap(i+1)])
+            end
+            for i in 1:Nc
+                Li = from_recon_vars(Vplus[i])            # right face of cell i
+                Ri = from_recon_vars(Vminus[wrap(i+1)])   # left face of cell i+1
+                if Li[1] > 0 && Ri[1] > 0
+                    ML[i] = Li; MR[i] = Ri
+                else
+                    ML[i] = Mline[i, :]; MR[i] = Mline[wrap(i+1), :]
+                end
             end
         end
+        Fhat = [face_flux_1d(ML[i], MR[i], axis, Ma) for i in 1:Nc]
+        for i in 1:Nc
+            R[i, :] = -(Fhat[i] .- Fhat[wrap(i-1)]) ./ dx
+        end
+    else  # :outflow — zero-gradient BCs, existing behavior
+        # Right-face L/R moment states at each interface i+1/2, i=1..Nc-1
+        ML = [zeros(35) for _ in 1:Nc-1]   # left state at interface i+1/2 (from cell i)
+        MR = [zeros(35) for _ in 1:Nc-1]   # right state at interface i+1/2 (from cell i+1)
+        if order == 1
+            for i in 1:Nc-1
+                ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
+            end
+        else
+            V = [to_recon_vars(Mline[i, :]) for i in 1:Nc]
+            # per-cell left/right face recon-vars with zero-gradient BC
+            Vminus = [zeros(35) for _ in 1:Nc]; Vplus = [zeros(35) for _ in 1:Nc]
+            for i in 1:Nc
+                vm = V[max(i-1,1)]; v0 = V[i]; vp = V[min(i+1,Nc)]
+                Vminus[i], Vplus[i] = muscl_faces(vm, v0, vp)
+            end
+            for i in 1:Nc-1
+                Li = from_recon_vars(Vplus[i])     # right face of cell i
+                Ri = from_recon_vars(Vminus[i+1])  # left face of cell i+1
+                # local order degradation: fall back to 1st order if EITHER face has bad density
+                if Li[1] > 0 && Ri[1] > 0
+                    ML[i] = Li; MR[i] = Ri
+                else
+                    ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
+                end
+            end
+        end
+        Fhat = [face_flux_1d(ML[i], MR[i], axis, Ma) for i in 1:Nc-1]
+        for i in 2:Nc-1
+            R[i, :] = -(Fhat[i] .- Fhat[i-1]) ./ dx
+        end
+        # zero-gradient BC: no net flux at the physical boundary cells (i=1, i=Nc remain zero)
     end
-    Fhat = [face_flux_1d(ML[i], MR[i], axis, Ma) for i in 1:Nc-1]
-    R = zeros(Nc, 35)
-    for i in 2:Nc-1
-        R[i, :] = -(Fhat[i] .- Fhat[i-1]) ./ dx
-    end
-    # zero-gradient BC: no net flux at the physical boundary cells
     return R
 end

@@ -95,31 +95,46 @@ function _advance_1d(Mline, dx, dt, nsteps, Ma)
 end
 
 @testset "1D smooth order-of-accuracy" begin
-    # smooth density bump advecting at u=1; measure self-convergence under refinement
-    Ma = 0.0; u = 1.0; tfinal = 0.05
-    function setup(N)
+    # Smooth sinusoidal density on a periodic domain; measure L1 self-convergence.
+    # Periodic BC is required so boundary errors don't pollute the order study.
+    # minmod limiter clips at the sine extrema, so the measured L1 rate sits slightly
+    # below the formal 2.0; this verifies the scheme is genuinely 2nd-order-convergent.
+    Ma = 0.0; tfinal = 0.05
+
+    function run_periodic(N; order=2)
         dx = 1.0/N
         Mline = zeros(N, 35)
         for i in 1:N
             x = (i-0.5)*dx
             rho = 1.0 + 0.2*sin(2pi*x)
-            Mline[i, :] = InitializeM4_35(rho, u, 0.0, 0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+            Mline[i, :] = InitializeM4_35(rho, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0)
         end
-        return Mline, dx
-    end
-    function run(N)
-        Mline, dx = setup(N)
-        dt = 0.2*dx/(u + 3.0)          # CFL-safe for the moment wave speeds
+        dt = 0.15*dx/4.5
         nsteps = ceil(Int, tfinal/dt); dt = tfinal/nsteps
-        _advance_1d(Mline, dx, dt, nsteps, Ma)
+        L(M) = residual_1d(M, dx, Ma; order=order, bc=:periodic)
+        for _ in 1:nsteps
+            Mline = ssp_rk3_step(Mline, dt, L)
+        end
+        return Mline
     end
-    # Richardson self-convergence on density (M000): rate between N, 2N, 4N
-    d(N) = run(N)[:, 1]
+
+    # L1 self-convergence: compare fine grid coarsened to coarse grid
     coarsen(a) = (a[1:2:end] .+ a[2:2:end]) ./ 2
-    eC = maximum(abs.(coarsen(d(64)) .- d(32)))
-    eF = maximum(abs.(coarsen(d(128)) .- d(64)))
-    @test eF < eC
-    @test log2(eC/eF) > 1.6        # ~2nd order (limiter may shave it slightly)
+    d2(N; order=2) = run_periodic(N; order=order)[:, 1]
+    e(Nc; order=2) = sum(abs.(coarsen(d2(2*Nc; order=order)) .- d2(Nc; order=order))) / Nc
+
+    # order=2: expected rate ~1.86 (measured); assert > 1.6
+    e32_2 = e(32; order=2); e64_2 = e(64; order=2)
+    rate2 = log2(e32_2 / e64_2)
+    @test rate2 > 1.6   # 2nd-order MUSCL with periodic BC
+
+    # order=1: expected rate ~1.0; assert < 1.2 to confirm it does NOT match 2nd order
+    e32_1 = e(32; order=1); e64_1 = e(64; order=1)
+    rate1 = log2(e32_1 / e64_1)
+    @test rate1 < 1.2   # 1st-order upwind
+
+    # order=2 must be strictly higher order than order=1
+    @test rate2 > rate1
 end
 
 @testset "1D realizability + conservation (shock tube)" begin

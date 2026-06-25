@@ -1,3 +1,5 @@
+using MPI
+MPI.Initialized() || MPI.Init()
 using Test
 using HyQMOM
 using LinearAlgebra
@@ -96,4 +98,24 @@ end
     Mext_z = vcat(repeat(col_z[1:1,:], halo, 1), col_z, repeat(col_z[nz:nz,:], halo, 1))
     Rline_z = residual_line(Mext_z, dz, 3, Ma; order=2, g=halo)  # (nz, 35)
     @test maximum(abs.(Rz[ih_rep2, jh_rep2, :, :] .- Rline_z)) < 1e-12
+end
+
+@testset "step_highorder_3d serial conservation+realizability" begin
+    halo=2; nx=8; ny=8; nz=8
+    decomp = setup_mpi_cartesian_3d(nx,ny,nz,halo,MPI.COMM_WORLD)  # serial (1 rank)
+    M = zeros(nx+2halo, ny+2halo, nz, 35)
+    # a smooth blob in density
+    for k in 1:nz, j in 1:ny, i in 1:nx
+        rho = 1.0 + 0.3*exp(-(((i-4.0))^2+((j-4.0))^2+((k-4.0))^2)/8)
+        M[i+halo,j+halo,k,:] = InitializeM4_35(rho,0.1,0.0,0.0,1.0,0.0,0.0,1.0,0.0,1.0)
+    end
+    mass0 = sum(M[halo+1:halo+nx, halo+1:halo+ny, :, 1])
+    dt = 0.15*(1.0/nx)/4.5
+    for _ in 1:5
+        step_highorder_3d!(M, dt, decomp, :outflow, nx,ny,nz,halo, 1.0/nx,1.0/ny,1.0/nz, 0.0; order=2)
+    end
+    Min = M[halo+1:halo+nx, halo+1:halo+ny, :, :]
+    @test all(isfinite, Min)
+    @test minimum(Min[:,:,:,1]) > 0
+    @test abs(sum(Min[:,:,:,1]) - mass0)/mass0 < 1e-3   # mass approximately conserved (outflow BC allows some flux at boundaries)
 end

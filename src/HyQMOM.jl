@@ -44,6 +44,7 @@ export realize_and_speed, face_flux_1d, residual_1d
 export ssp_rk3_step
 export residual_line
 export residual_ho_3d!
+export step_highorder_3d!
 export setup_mpi_cartesian_3d, halo_exchange_3d!, apply_flux_update_3d!
 export compute_halo_fluxes_and_wavespeeds_3d!
 export compute_standardized_field, compute_central_field, get_standardized_moment, get_central_moment

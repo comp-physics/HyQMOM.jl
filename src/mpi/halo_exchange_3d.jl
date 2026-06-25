@@ -147,7 +147,7 @@ function apply_physical_bc_3d!(A::Array{T,4}, decomp, bc::Symbol) where T
         return A
     end
     
-    if bc == :copy
+    if bc == :copy || bc == :outflow
         # Left boundary (global)
         if decomp.neighbors.left == -1
             for ih in 1:h

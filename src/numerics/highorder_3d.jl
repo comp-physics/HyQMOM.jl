@@ -67,3 +67,31 @@ function residual_ho_3d!(R::Array{Float64,4}, M::Array{Float64,4},
     end
     return R
 end
+
+function _project_interior!(M, nx,ny,nz,halo, Ma)
+    for k in 1:nz, j in 1:ny, i in 1:nx
+        ih=i+halo; jh=j+halo
+        M[ih,jh,k,:] = realizable_3D_M4(M[ih,jh,k,:], Ma)
+    end
+end
+
+function step_highorder_3d!(M::Array{Float64,4}, dt::Real, decomp, bc::Symbol,
+                            nx,ny,nz,halo, dx,dy,dz, Ma; order::Int=2)
+    R = similar(M)
+    int = (halo+1:halo+nx, halo+1:halo+ny, 1:nz, :)
+    # stage helper: M_in (with halos) -> returns updated interior-only array (full M-shape, halos zero)
+    function L!(Mwork)
+        halo_exchange_3d!(Mwork, decomp, bc)
+        residual_ho_3d!(R, Mwork, nx,ny,nz,halo, dx,dy,dz, Ma; order=order)
+        return R
+    end
+    M0 = copy(M)
+    # stage 1: M1 = M + dt*L(M)
+    L!(M); @views M[int...] .= M0[int...] .+ dt .* R[int...]; _project_interior!(M,nx,ny,nz,halo,Ma)
+    # stage 2: M2 = 3/4 M0 + 1/4 (M1 + dt L(M1))
+    L!(M); @views M[int...] .= (3/4).*M0[int...] .+ (1/4).*(M[int...] .+ dt .* R[int...]); _project_interior!(M,nx,ny,nz,halo,Ma)
+    # stage 3: M = 1/3 M0 + 2/3 (M2 + dt L(M2))
+    L!(M); @views M[int...] .= (1/3).*M0[int...] .+ (2/3).*(M[int...] .+ dt .* R[int...]); _project_interior!(M,nx,ny,nz,halo,Ma)
+    halo_exchange_3d!(M, decomp, bc)
+    return nothing
+end

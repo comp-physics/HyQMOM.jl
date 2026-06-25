@@ -74,3 +74,13 @@ end
     @test all(isfinite, Rg[3:N-2, 1])
     @test maximum(abs.(Rg[3:N-2, 1])) > 1e-6
 end
+
+@testset "SSP-RK3 order" begin
+    # scalar ODE dy/dt = -y, y(0)=1, exact y(T)=exp(-T)
+    L(y) = -y
+    T = 1.0
+    err(n) = (dt = T/n; y = 1.0; for _ in 1:n; y = ssp_rk3_step(y, dt, L); end; abs(y - exp(-T)))
+    e1 = err(10); e2 = err(20)
+    @test e2 < e1
+    @test log2(e1/e2) > 2.7   # ~3rd-order convergence
+end

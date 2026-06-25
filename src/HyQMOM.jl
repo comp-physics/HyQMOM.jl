@@ -40,6 +40,7 @@ export delta2star3D, delta2star3D_permutation, jacobian6, M4toC4_3D, C4toM4_3D, 
 export axis_moment_slice
 export to_recon_vars, from_recon_vars, standardized_to_M4
 export minmod, muscl_slopes, muscl_faces
+export realize_and_speed, face_flux_1d
 export setup_mpi_cartesian_3d, halo_exchange_3d!, apply_flux_update_3d!
 export compute_halo_fluxes_and_wavespeeds_3d!
 export compute_standardized_field, compute_central_field, get_standardized_moment, get_central_moment
@@ -80,6 +81,7 @@ include("numerics/eigenvalues6_hyperbolic_3D.jl")
 include("numerics/eigenvalues6z_hyperbolic_3D.jl")
 include("numerics/Flux_closure35_and_realizable_3D.jl")
 include("numerics/Flux_closure35_3D.jl")
+include("numerics/highorder_flux.jl")
 include("numerics/collision35.jl")
 include("numerics/flux_HLL.jl")
 include("numerics/pas_HLL.jl")

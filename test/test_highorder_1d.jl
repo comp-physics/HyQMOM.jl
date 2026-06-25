@@ -34,3 +34,12 @@ end
     s2 = muscl_slopes(fill(1.0,35), fill(3.0,35), fill(1.0,35))
     @test all(s2 .== 0.0)
 end
+
+@testset "HLL face flux consistency" begin
+    M = InitializeM4_35(1.0, 0.3, 0.0, 0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    # uniform L==R: HLL flux must equal the physical x-flux of M
+    Fhat = face_flux_1d(copy(M), copy(M), 1, 0.0)
+    Fx, _, _ = Flux_closure35_3D(M)
+    @test Fhat ≈ Fx atol=1e-10 rtol=1e-10
+    @test length(Fhat) == 35
+end

@@ -89,57 +89,11 @@ function realizable_3D_M4(M4::AbstractVector, Ma::Real)
                      S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,
                      S211, S021, S121, S031, S012, S112, S013, S022)
 
-    # --- central moments from corrected standardized moments ---
-    sC200 = sqrt(C200); sC020 = sqrt(C020); sC002 = sqrt(C002)
-    C110 = S110*sC200*sC020
-    C101 = S101*sC200*sC002
-    C011 = S011*sC020*sC002
-    C300 = S300*sC200*C200
-    C210 = S210*C200*sC020
-    C201 = S201*C200*sC002
-    C120 = S120*sC200*C020
-    C111 = S111*sC200*sC020*sC002
-    C102 = S102*sC200*C002
-    C030 = S030*sC020*C020
-    C021 = S021*C020*sC002
-    C012 = S012*sC020*C002
-    C003 = S003*sC002*C002
-    C400 = S400*C200^2
-    C310 = S310*sC200*C200*sC020
-    C301 = S301*sC200*C200*sC002
-    C220 = S220*C200*C020
-    C211 = S211*C200*sC020*sC002
-    C202 = S202*C200*C002
-    C130 = S130*sC200*sC020*C020
-    C121 = S121*sC200*C020*sC002
-    C112 = S112*sC200*sC020*C002
-    C103 = S103*sC200*sC002*C002
-    C040 = S040*C020^2
-    C031 = S031*sC020*C020*sC002
-    C022 = S022*C020*C002
-    C013 = S013*sC020*sC002*C002
-    C004 = S004*C002^2
-
-    # --- raw moments from central moments ---
-    M5 = C4toM4_3D(M000, umean, vmean, wmean, C200, C110, C101, C020, C011, C002,
-                   C300, C210, C201, C120, C111, C102, C030, C021, C012, C003,
-                   C400, C310, C301, C220, C211, C202, C130, C121, C112, C103,
-                   C040, C031, C022, C013, C004)
-
-    M4r = [M5[1,1,1], M5[2,1,1], M5[3,1,1], M5[4,1,1], M5[5,1,1],
-           M5[1,2,1], M5[2,2,1], M5[3,2,1], M5[4,2,1],
-           M5[1,3,1], M5[2,3,1], M5[3,3,1],
-           M5[1,4,1], M5[2,4,1],
-           M5[1,5,1],
-           M5[1,1,2], M5[2,1,2], M5[3,1,2], M5[4,1,2],
-           M5[1,1,3], M5[2,1,3], M5[3,1,3],
-           M5[1,1,4], M5[2,1,4],
-           M5[1,1,5],
-           M5[1,2,2], M5[2,2,2], M5[3,2,2],
-           M5[1,3,2], M5[2,3,2],
-           M5[1,4,2],
-           M5[1,2,3], M5[2,2,3],
-           M5[1,2,4],
-           M5[1,3,3]]
+    # --- raw moments from corrected standardized moments (via shared helper) ---
+    # Note: C200/C020/C002 are already floored by c2min above before reaching here.
+    M4r = standardized_to_M4(M000, umean, vmean, wmean, C200, C020, C002,
+                              S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
+                              S101, S201, S301, S102, S202, S003, S103, S004,
+                              S011, S111, S211, S021, S121, S031, S012, S112, S013, S022)
     return M4r
 end

@@ -56,7 +56,7 @@ the x-direction. order=1: first-order (cell-centered). order=2: MUSCL on the
 bounded reconstruction variables, with local fallback to first order if a
 reconstructed face has nonpositive density.
 """
-function residual_1d(Mline::AbstractMatrix, dx::Float64, Ma::Real; order::Int=2)
+function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2)
     Nc = size(Mline, 1)
     axis = 1
     # Right-face L/R moment states at each interface i+1/2, i=1..Nc-1
@@ -77,9 +77,12 @@ function residual_1d(Mline::AbstractMatrix, dx::Float64, Ma::Real; order::Int=2)
         for i in 1:Nc-1
             Li = from_recon_vars(Vplus[i])     # right face of cell i
             Ri = from_recon_vars(Vminus[i+1])  # left face of cell i+1
-            # local order degradation: fall back to 1st order on bad reconstruction
-            ML[i] = (Li[1] > 0) ? Li : Mline[i, :]
-            MR[i] = (Ri[1] > 0) ? Ri : Mline[i+1, :]
+            # local order degradation: fall back to 1st order if EITHER face has bad density
+            if Li[1] > 0 && Ri[1] > 0
+                ML[i] = Li; MR[i] = Ri
+            else
+                ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
+            end
         end
     end
     Fhat = [face_flux_1d(ML[i], MR[i], axis, Ma) for i in 1:Nc-1]

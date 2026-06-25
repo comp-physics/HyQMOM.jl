@@ -52,4 +52,25 @@ end
     R = residual_1d(Mline, 0.1, 0.0; order=2)
     @test maximum(abs.(R[3:Ncell-2, :])) < 1e-9
     @test size(R) == (Ncell, 35)
+
+    # order=1 path: uniform field also gives zero interior residual
+    R1 = residual_1d(Mline, 0.1, 0.0; order=1)
+    @test maximum(abs.(R1[3:Ncell-2, :])) < 1e-9
+
+    # gradient-field test: smooth density ramp exercises MUSCL (order=2)
+    N = 16
+    dx = 1.0 / N
+    Mgrad = zeros(N, 35)
+    for i in 1:N
+        rho_i = 1.0 + 0.3*(i-1)/(N-1)
+        Mgrad[i, :] = InitializeM4_35(rho_i, 0.3, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0)
+    end
+    Rg = residual_1d(Mgrad, dx, 0.0; order=2)
+    # (a) all values must be finite
+    @test all(isfinite, Rg)
+    # (b) interior residual is NOT near zero — scheme responds to the gradient
+    @test maximum(abs.(Rg[3:N-2, :])) > 1e-6
+    # (c) density residual in the interior is finite and nonzero (transport of gradient)
+    @test all(isfinite, Rg[3:N-2, 1])
+    @test maximum(abs.(Rg[3:N-2, 1])) > 1e-6
 end

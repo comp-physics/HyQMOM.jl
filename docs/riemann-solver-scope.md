@@ -270,6 +270,40 @@ analytic LD eigenstructure. Both `:hllc` and `:hllem` remain in the tree as opt-
 building blocks. (Performance note: the FD-Jacobian + `eigen` per face makes `:hllem` far too slow for
 production as-is.)
 
+## 6d. Result: the kinetic flux is BLOCKED — the closure exposes no velocity quadrature (Stage C)
+
+The realizable-by-construction kinetic (abscissa-upwind/KFVS) flux needs the velocity quadrature
+`(n_α, U_α)` of the VDF — `F̂ = Σ_{U_{α,n}>0} n_{α,L}(…) + Σ_{U_{α,n}<0} n_{α,R}(…)`. **This machinery
+does not exist in the codebase.** The 35-moment pipeline closes and fluxes **purely analytically** and
+never builds a quadrature: `hyqmom_3D` returns closed-form closing *moments*; `Flux_closure35_3D`
+assembles `Fx,Fy,Fz` directly from raw moments (`S_to_C_batch → C5toM5_3D → M5_to_vars`);
+`closure_and_eigenvalues` is a 1D Chebyshev eigenvalue routine; `projection35`/`delta2star3D` are
+moment-space realizability, not inversions. The MATLAB reference is the same — so it is **not a porting
+gap; the inversion genuinely does not exist.** Building the kinetic flux requires first writing (and
+validating) a **3D CHyQMOM conditional moment-inversion** `M(35) → {(n_α ≥ 0, U_α=(Ux,Uy,Uz))}` that
+recovers the moments — exactly the Patel–Desjardins–Fox machinery, and squarely the closure owner's
+(Jacob/Fox) domain. Fabricating approximate nodes would destroy the realizability-by-construction
+guarantee that is the whole point, so this is an honest BLOCKED, not a partial.
+
+## 6e. Bottom line of the Riemann-solver effort (A–C)
+
+Three "clever" Riemann solvers were implemented and/or investigated under a strict opt-in + golden +
+realizability discipline; **none beats HLL for the 35-moment HyQMOM closure as it currently exists**,
+for three distinct, now-precisely-understood reasons:
+
+| Solver | Status | Why |
+| --- | --- | --- |
+| `:hllc` | implemented, verified genuine | star states leave the realizable cone in the high-Ma collision → fallback to HLL (§6b) |
+| `:hllem` | implemented, verified correct | physical contact/shear jumps have ~0 projection onto the (FD-Jacobian, degenerate) LD eigenspace → anti-diffusion ≈ 0 (§6c) |
+| `:kinetic` | BLOCKED | the closure exposes no velocity quadrature; needs a 3D CHyQMOM moment→node inversion that doesn't exist (§6d) |
+
+The unifying conclusion: **the bottleneck is the closure layer, not the flux layer.** A genuinely
+low-diffusion, realizable Riemann solver for this system needs closure-level machinery that doesn't yet
+exist — either the **analytic Fox–Laurent LD eigenstructure** (to make HLLEM project correctly) or the
+**3D CHyQMOM velocity-node inversion** (to enable the kinetic flux). Both are Jacob's/Fox's domain. The
+`:hllc`/`:hllem`/`ld_eigvecs` code remains in the tree as opt-in, verified-correct building blocks for
+that work. (The relaxation path, §3.5, was not attempted — also closure-level research.)
+
 ## 7. Key references
 
 HLL family: Harten–Lax–van Leer, SIAM Rev. 25 (1983); Einfeldt–Munz–Roe–Sjögreen, JCP 92 (1991);

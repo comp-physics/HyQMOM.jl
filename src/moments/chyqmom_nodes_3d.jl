@@ -55,8 +55,12 @@ For the reference Gaussian the actually-truncated set is the six moments
 `M_{103}`); each truncated moment is still captured to small absolute or ≲1%
 relative error. Reduced (near-vacuum / cold) states return fewer nodes and may
 truncate additional high-order moments.
-The Gram solves use a pseudo-inverse with lowest-degree-first row selection, so
-rank-deficient / reduced (near-vacuum, cold) conditional systems reproduce the
+The conditional fits use a well-conditioned SPD Gram solve (`g = G⁻¹ t`, not a
+pseudo-inverse) with lowest-total-degree-first *monomial* (column) selection: a
+candidate monomial is admitted only if it keeps the design count `≤ Np` and the
+design condition number below `condmax` (= 1e4; this cap is the lever that
+governs how many z-mean cubics survive — see `_gram_fit`). Rank-deficient /
+reduced (near-vacuum, cold) conditional systems therefore reproduce the
 low-order (mass, mean, variance) constraints exactly and never crash.
 
 # 35-moment ordering

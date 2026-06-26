@@ -40,6 +40,111 @@ function hllc_contact_speed(MLr::AbstractVector, MRr::AbstractVector, sL::Real, 
 end
 
 """
+    hllc_star(MKr, sK, S_M, axis) -> U*_K  (length 35)
+
+Per-side **kinetic** HLLC star state for side `K`. It is built so that the mass-flux
+Rankine–Hugoniot across the `sK` wave holds with contact speed `S_M`, namely the
+density is rescaled `ρ* = ρ_K (sK − u_K)/(sK − S_M)` (`u_K` = normal mean velocity),
+the **normal** mean velocity is shifted to `S_M`, while the tangential mean
+velocities and **all** central (and hence standardized) moments are preserved.
+
+Because the standardized-moment structure is unchanged and the density stays
+positive, `hllc_star(MKr,…)` is realizable whenever `MKr` is. This is the physically
+correct *per-side* contact-region state and supplies the contact-jump direction.
+
+NOTE (key derivation result): a purely per-side star cannot satisfy the full
+35-component HLL-consistency identity for the **nonlinear** HyQMOM closure (it does
+hold exactly for mass and the three momenta, but fails on the higher even normal
+moments — the central→raw map is nonlinear in the mean-velocity shift). The
+consistency-exact star pair is assembled by [`hllc_star_pair`](@ref), which couples
+both sides through the HLL average. See `docs/riemann-solver-scope.md`.
+"""
+function hllc_star(MKr::AbstractVector, sK::Real, S_M::Real, axis::Int)
+    rho = MKr[1]
+    u = MKr[2]/rho; v = MKr[6]/rho; w = MKr[16]/rho
+    un = axis == 1 ? u : (axis == 2 ? v : w)
+    den = sK - S_M
+    # density rescale from the mass-flux RH; guard a vanishing star region (S_M→sK)
+    rstar = abs(den) > 1e-14 ? rho*(sK - un)/den : rho
+    C4, _ = M2CS4_35(MKr)
+    C200=C4[3];  C300=C4[4];  C400=C4[5];  C110=C4[7];  C210=C4[8];  C310=C4[9]
+    C020=C4[10]; C120=C4[11]; C220=C4[12]; C030=C4[13]; C130=C4[14]; C040=C4[15]
+    C101=C4[17]; C201=C4[18]; C301=C4[19]; C002=C4[20]; C102=C4[21]; C202=C4[22]
+    C003=C4[23]; C103=C4[24]; C004=C4[25]; C011=C4[26]; C111=C4[27]; C211=C4[28]
+    C021=C4[29]; C121=C4[30]; C031=C4[31]; C012=C4[32]; C112=C4[33]; C013=C4[34]; C022=C4[35]
+    um = axis == 1 ? S_M : u
+    vm = axis == 2 ? S_M : v
+    wm = axis == 3 ? S_M : w
+    Marr = C4toM4_3D(rstar, um, vm, wm,
+                     C200, C110, C101, C020, C011, C002,
+                     C300, C210, C201, C120, C111, C102, C030, C021, C012, C003,
+                     C400, C310, C301, C220, C211, C202, C130, C121, C112, C103,
+                     C040, C031, C022, C013, C004)
+    return Marr[_M2CS4_IDX]
+end
+
+"""
+    hllc_star_pair(MLr, MRr, sL, sR, S_M, axis) -> (U*_L, U*_R)
+
+The **consistency-exact** HLLC star pair. The two star states are the unique pair
+that simultaneously satisfies
+
+  * HLL-consistency (the integral constraint over the fan):
+    `((S_M−sL)·U*_L + (sR−S_M)·U*_R)/(sR−sL) = U_HLL`, and
+  * the kinetic contact jump: `U*_R − U*_L = hllc_star(R) − hllc_star(L)`,
+
+solved by anchoring on the HLL average `U_HLL`:
+
+    U*_L = U_HLL − (sR−S_M)/(sR−sL) · (g_R − g_L)
+    U*_R = U_HLL + (S_M−sL)/(sR−sL) · (g_R − g_L)
+
+with `g_K = hllc_star(M_K, sK, S_M, axis)`. By construction this satisfies the
+Rankine–Hugoniot condition across **each** acoustic wave AND across the contact
+(`F*_R − F*_L = S_M(U*_R − U*_L)`) for any jump direction; the kinetic jump fixes the
+physical contact closure (normal velocity = `S_M`, central-moment structure carried
+across). HLL-consistency holds to machine precision. Realizability is NOT guaranteed
+for every input (strong colliding streams can push a star state out of R — the
+documented hard case A3 handles by falling back to HLL).
+"""
+function hllc_star_pair(MLr::AbstractVector, MRr::AbstractVector,
+                        sL::Real, sR::Real, S_M::Real, axis::Int)
+    FL = _phys_flux(MLr, axis); FR = _phys_flux(MRr, axis)
+    Uhll = (sR .* MRr .- sL .* MLr .- (FR .- FL)) ./ (sR - sL)
+    gL = hllc_star(MLr, sL, S_M, axis)
+    gR = hllc_star(MRr, sR, S_M, axis)
+    K = gR .- gL                       # kinetic contact-jump direction
+    UsL = Uhll .- ((sR - S_M)/(sR - sL)) .* K
+    UsR = Uhll .+ ((S_M - sL)/(sR - sL)) .* K
+    return UsL, UsR
+end
+
+"""
+    hllc_flux(MLr, MRr, sL, sR, S_M, axis) -> length-35 interface flux
+
+Four-region HLLC numerical flux. Uses the consistency-exact star pair
+([`hllc_star_pair`](@ref)) so the star fluxes satisfy Rankine–Hugoniot across both
+acoustic waves and the contact, and the construction reduces to HLL when integrated
+over the fan. As a safety net (A3 formalizes the fallback policy) the contact-region
+star state is checked: if it is non-finite or leaves the realizable set, the flux
+falls back to the two-wave HLL flux.
+"""
+function hllc_flux(MLr::AbstractVector, MRr::AbstractVector,
+                   sL::Real, sR::Real, S_M::Real, axis::Int)
+    FL = _phys_flux(MLr, axis); FR = _phys_flux(MRr, axis)
+    if sL >= 0
+        return FL
+    elseif sR <= 0
+        return FR
+    end
+    UsL, UsR = hllc_star_pair(MLr, MRr, sL, sR, S_M, axis)
+    Us = S_M >= 0 ? UsL : UsR
+    if !all(isfinite, Us) || !is_realizable(Us)
+        return (sR .* FL .- sL .* FR .+ (sL*sR) .* (MRr .- MLr)) ./ (sR - sL)
+    end
+    return S_M >= 0 ? (FL .+ sL .* (UsL .- MLr)) : (FR .+ sR .* (UsR .- MRr))
+end
+
+"""
 Interface-flux (Riemann-solver) selector. Default `:hll` is the original, validated
 two-wave HLL flux (byte-identical). `:rusanov` is a robust local Lax–Friedrichs
 fallback. Set from `simulation_runner` via the `riemann_solver` param, or directly

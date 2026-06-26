@@ -56,6 +56,7 @@ export delta2star3D, delta2star3D_permutation, jacobian6, M4toC4_3D, C4toM4_3D, 
 export axis_moment_slice
 export to_recon_vars, from_recon_vars, standardized_to_M4
 export minmod, muscl_slopes, muscl_faces
+export scaling_limited_faces
 export realize_and_speed, face_flux_1d, residual_1d
 export ssp_rk3_step
 export residual_line

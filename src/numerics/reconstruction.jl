@@ -147,6 +147,40 @@ guard for the high-order path. See docs/ma100-highorder-crash-analysis.md.
 end
 
 """
+    scaling_limited_faces(Vm1, V0, Vp1; limiter=minmod, lam_min=0.0, nbisect=20)
+
+Zhang--Shu / Fan--Huang--Wu realizability scaling limiter. Reconstructs cell `V0`'s two faces
+from the MUSCL slope, then shrinks the slope by the largest theta in [0,1] for which BOTH faces
+map (via `from_recon_vars`) to realizable 35-moment states (oracle `is_realizable`, margin
+`lam_min`). theta=1 in smooth/realizable regions (design-order accuracy); theta=0 collapses to the
+cell mean (locally first-order) in deep vacuum. The cell mean (theta=0) is assumed realizable
+(kept so by the per-cell projection), so a feasible theta always exists.
+
+Returns `(Vminus, Vplus, theta)`.
+"""
+function scaling_limited_faces(Vm1::AbstractVector, V0::AbstractVector, Vp1::AbstractVector;
+                               limiter=minmod, lam_min::Real=0.0, nbisect::Int=20)
+    s = muscl_slopes(Vm1, V0, Vp1; limiter=limiter)
+    faces_ok(θ) = begin
+        Vminus = V0 .- 0.5θ .* s
+        Vplus  = V0 .+ 0.5θ .* s
+        (recon_vars_ok(Vminus) && recon_vars_ok(Vplus)) || return false
+        is_realizable(from_recon_vars(Vminus); lam_min=lam_min) &&
+            is_realizable(from_recon_vars(Vplus);  lam_min=lam_min)
+    end
+    if faces_ok(1.0)                       # common path: one oracle check, unlimited
+        return (V0 .- 0.5 .* s, V0 .+ 0.5 .* s, 1.0)
+    end
+    lo, hi = 0.0, 1.0                      # bisection for the largest feasible theta
+    for _ in 1:nbisect
+        mid = 0.5 * (lo + hi)
+        faces_ok(mid) ? (lo = mid) : (hi = mid)
+    end
+    θ = lo
+    return (V0 .- 0.5θ .* s, V0 .+ 0.5θ .* s, θ)
+end
+
+"""
     recon_face_pair(Vl, Vr, ML0, MR0) -> (ML, MR)
 
 Convert the reconstructed left/right recon-var faces `(Vl, Vr)` to raw 35-moment

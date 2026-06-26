@@ -35,6 +35,7 @@ const TOL = 1e-10
         include("test_highorder_1d.jl")
         include("test_highorder_3d.jl")
         include("test_numerical_schemes.jl")
+        include("test_scaling_limiter.jl")
         
         # Regression and bug fix tests
         include("test_z_eigenvalue_fix.jl")

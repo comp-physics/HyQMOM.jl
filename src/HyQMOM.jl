@@ -62,7 +62,7 @@ export ssp_rk3_step
 export residual_line
 export residual_ho_3d!
 export step_highorder_3d!
-export reset_proj_counter!, proj_correction_count, _PROJ_COUNT_ENABLED, _PROJ_CORRECTIONS
+export reset_proj_counter!, proj_correction_count
 export setup_mpi_cartesian_3d, halo_exchange_3d!, apply_flux_update_3d!
 export compute_halo_fluxes_and_wavespeeds_3d!
 export compute_standardized_field, compute_central_field, get_standardized_moment, get_central_moment

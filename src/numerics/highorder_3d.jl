@@ -88,10 +88,12 @@ function residual_ho_3d!(R::Array{Float64,4}, M::Array{Float64,4},
 end
 
 # ---------------------------------------------------------------------------
-# Projection-activation diagnostic (env-gated, zero overhead when off).
+# Projection-activation diagnostic (env-gated, zero-allocation, single cheap
+# branch per cell when off).
 # Set HYQMOM_PROJ_COUNT=1 to count how many cells _project_interior! actually
-# corrects each step.  When the env var is unset (default) the const is false
-# and the compiler elides the dead branch — zero allocation, single cheap deref.
+# corrects each step.  When the env var is unset (default) the Ref holds false
+# and the per-cell `if _PROJ_COUNT_ENABLED[]` costs one Ref dereference + a
+# predictably-false branch — zero allocation, no extra function calls.
 # ---------------------------------------------------------------------------
 const _PROJ_COUNT_ENABLED = Ref{Bool}(
     get(ENV, "HYQMOM_PROJ_COUNT", "0") != "0"

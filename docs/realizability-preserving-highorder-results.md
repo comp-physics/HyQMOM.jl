@@ -30,7 +30,7 @@ records what was built and what was measured.
 `realizability_margin(M)` / `is_realizable(M; lam_min)` in
 `src/realizability/realizability_oracle.jl`.
 
-Returns the smallest eigenvalue of `delta2star3D` — the 4×4 Hankel-like block whose
+Returns the smallest eigenvalue of `delta2star3D` — the 6×6 Hankel-like block whose
 positive semidefiniteness is the paper's realizability criterion. The oracle reuses
 exactly the same test as the shipped Appendix B projection (`projection35.jl`): there
 is no new or inconsistent realizability criterion. `is_realizable` returns true iff
@@ -38,7 +38,7 @@ is no new or inconsistent realizability criterion. `is_realizable` returns true 
 
 ### 1.2 Cell-wise Zhang–Shu scaling limiter
 
-`scaling_limited_faces` in `src/highorder/scaling_limiter.jl`.
+`scaling_limited_faces` in `src/numerics/reconstruction.jl`.
 
 For each cell and each face direction the limiter finds the largest θ∈[0,1] such that
 

@@ -26,6 +26,7 @@ const TOL = 1e-10
         include("test_autogen.jl")
         include("test_moment_conversions.jl")
         include("test_adaptive_quadrature.jl")
+        include("test_chyqmom_nodes.jl")
         include("test_initialization.jl")
         include("test_initial_conditions.jl")
         include("test_simulation_runner.jl")

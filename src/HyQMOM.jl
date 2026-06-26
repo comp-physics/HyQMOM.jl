@@ -45,6 +45,7 @@ export CubicRegion, initialize_moment_field, initialize_moment_field_mpi, crossi
 
 # Export key functions for testing
 export InitializeM4_35, M2CS4_35, Moments5_3D, hyqmom_3D, hyqmom_quadrature_1d
+export chyqmom_nodes_3d
 export realizability, realizable_2D, realizable_3D
 export projection35, realizable_3D_M4
 export realizability_margin, is_realizable
@@ -89,6 +90,7 @@ include("moments/M2CS4_35.jl")
 include("moments/Moments5_3D.jl")
 include("moments/hyqmom_3D.jl")
 include("moments/hyqmom_quadrature_1d.jl")
+include("moments/chyqmom_nodes_3d.jl")
 include("moments/enforce_univariate.jl")
 
 # Reconstruction variables (must precede realizability, which calls standardized_to_M4)

@@ -173,6 +173,11 @@ function simulation_runner(params)
     # Demo env: REPRO_PROJREC=1 in debug/run_ma100_demo.jl.
     ho_proj_first_order = get(params, :ho_proj_first_order, false)
 
+    # riemann_solver (OPT-IN, default :hll): interface flux for the high-order path.
+    # :hll = original two-wave HLL (byte-identical default); :rusanov = robust local
+    # Lax–Friedrichs fallback. Future: :hllc/:hllem/:kinetic (docs/riemann-solver-scope.md).
+    RIEMANN_SOLVER[] = get(params, :riemann_solver, :hll)
+
     # Snapshot saving parameters
     snapshot_interval = get(params, :snapshot_interval, 0)
     save_snapshots = (snapshot_interval > 0)

@@ -25,10 +25,21 @@ function _phys_flux(M::AbstractVector, axis::Int)
 end
 
 """
+Interface-flux (Riemann-solver) selector. Default `:hll` is the original, validated
+two-wave HLL flux (byte-identical). `:rusanov` is a robust local Lax–Friedrichs
+fallback. Set from `simulation_runner` via the `riemann_solver` param, or directly
+(`HyQMOM.RIEMANN_SOLVER[] = :rusanov`). Future clever solvers (`:hllc`, `:hllem`,
+`:kinetic`) plug into `face_flux_1d`'s branch — see `docs/riemann-solver-scope.md`.
+OPT-IN: anything other than `:hll` must be requested explicitly.
+"""
+const RIEMANN_SOLVER = Ref{Symbol}(:hll)
+
+"""
     face_flux_1d(M_L, M_R, axis, Ma)
 
-HLL interface flux from left/right face moment states. Each side is projected
-(realizable_3D_M4) and hyperbolicity-corrected before fluxing.
+Interface flux from left/right face moment states. Each side is projected
+(realizable_3D_M4) and hyperbolicity-corrected before fluxing. The flux formula is
+chosen by `RIEMANN_SOLVER[]` (default `:hll`, byte-identical to the original scheme).
 """
 function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::Real)
     ML = realizable_3D_M4(M_L, Ma)
@@ -39,12 +50,21 @@ function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::R
     FR = _phys_flux(MRr, axis)
     sL = min(lminL, lminR)
     sR = max(lmaxL, lmaxR)
-    if sL >= 0
-        return FL
-    elseif sR <= 0
-        return FR
+    rs = RIEMANN_SOLVER[]
+    if rs === :hll
+        if sL >= 0
+            return FL
+        elseif sR <= 0
+            return FR
+        else
+            return (sR .* FL .- sL .* FR .+ (sL*sR) .* (MRr .- MLr)) ./ (sR - sL)
+        end
+    elseif rs === :rusanov
+        # local Lax–Friedrichs (Rusanov): robust, more diffusive than HLL.
+        a = max(abs(sL), abs(sR))
+        return 0.5 .* (FL .+ FR) .- 0.5a .* (MRr .- MLr)
     else
-        return (sR .* FL .- sL .* FR .+ (sL*sR) .* (MRr .- MLr)) ./ (sR - sL)
+        throw(ArgumentError("unknown riemann_solver=$(rs); available: :hll (default), :rusanov"))
     end
 end
 

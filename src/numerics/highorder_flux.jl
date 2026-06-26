@@ -147,10 +147,12 @@ end
 """
 Interface-flux (Riemann-solver) selector. Default `:hll` is the original, validated
 two-wave HLL flux (byte-identical). `:rusanov` is a robust local Lax–Friedrichs
-fallback. Set from `simulation_runner` via the `riemann_solver` param, or directly
-(`HyQMOM.RIEMANN_SOLVER[] = :rusanov`). Future clever solvers (`:hllc`, `:hllem`,
-`:kinetic`) plug into `face_flux_1d`'s branch — see `docs/riemann-solver-scope.md`.
-OPT-IN: anything other than `:hll` must be requested explicitly.
+fallback. `:hllc` is the four-region HLLC flux with consistency-exact star pair and
+automatic realizability fallback to HLL. Set from `simulation_runner` via the
+`riemann_solver` param, or directly (`HyQMOM.RIEMANN_SOLVER[] = :hllc`). Future
+solvers (`:hllem`, `:kinetic`) plug into `face_flux_1d`'s branch — see
+`docs/riemann-solver-scope.md`. OPT-IN: anything other than `:hll` must be requested
+explicitly.
 """
 const RIEMANN_SOLVER = Ref{Symbol}(:hll)
 
@@ -183,8 +185,10 @@ function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::R
         # local Lax–Friedrichs (Rusanov): robust, more diffusive than HLL.
         a = max(abs(sL), abs(sR))
         return 0.5 .* (FL .+ FR) .- 0.5a .* (MRr .- MLr)
+    elseif rs === :hllc
+        return hllc_flux(MLr, MRr, sL, sR, hllc_contact_speed(MLr, MRr, sL, sR, axis), axis)
     else
-        throw(ArgumentError("unknown riemann_solver=$(rs); available: :hll (default), :rusanov"))
+        throw(ArgumentError("unknown riemann_solver=$(rs); available: :hll (default), :rusanov, :hllc"))
     end
 end
 

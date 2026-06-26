@@ -43,6 +43,23 @@ end
     @test min(lL,lR) <= s <= max(lL,lR)
 end
 
+@testset "hllc flux branch (face_flux_1d)" begin
+    HyQMOM.RIEMANN_SOLVER[] = :hllc
+    # Consistency: uniform state returns the physical flux (atol 1e-10).
+    Mu = InitializeM4_35(1.0, 0.25, 0, 0, 1.0, 0, 0, 1, 0, 1)
+    @test isapprox(face_flux_1d(Mu, Mu, 1, 0.0),
+                   HyQMOM._phys_flux(HyQMOM.realizable_3D_M4(Mu, 0.0), 1); atol=1e-10)
+    # Finite on a generic jump state.
+    ML = InitializeM4_35(1.0,  0.5, 0, 0, 1.0, 0, 0, 1, 0, 1)
+    MR = InitializeM4_35(0.3, -0.4, 0, 0, 1.2, 0, 0, 1, 0, 1)
+    @test all(isfinite, face_flux_1d(ML, MR, 1, 2.0))
+    # Near-vacuum Ma=100 pair: realizability fallback must keep flux finite.
+    MLv = InitializeM4_35(1.0,   60.0, 0, 0, 1.0, 0, 0, 1, 0, 1)
+    MRv = InitializeM4_35(1e-5, -60.0, 0, 0, 1.0, 0, 0, 1, 0, 1)
+    @test all(isfinite, face_flux_1d(MLv, MRv, 1, 100.0))
+    HyQMOM.RIEMANN_SOLVER[] = :hll   # reset — don't leak global state
+end
+
 @testset "hllc star states" begin
     using HyQMOM: hllc_star, hllc_star_pair, hllc_flux, hllc_contact_speed,
                   realize_and_speed, realizable_3D_M4, _phys_flux, is_realizable

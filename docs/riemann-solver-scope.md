@@ -190,11 +190,31 @@ fix and the Roe-1991 split-commutator explanation do **not** apply. A diagnostic
   reconstruction — consistent with low-dissipation amplification of a seed asymmetry (Fleischmann–Adami–
   Adams 2019), the seed here being the swap-asymmetry above and/or the nonlinear per-cell projection.
 
-**Right fixes (a separate debugging effort, not a quick task):** (i) make the directional handling
-symmetric — check the decomposition (`px=py`, halo handling) and the z-direction's outflow padding vs the
-x/y halos; (ii) reflection-symmetric reductions in `residual_ho_3d!` (the `.+=` accumulation order); (iii)
-if needed, genuinely multi-D HLL/HLLC (Balsara 2010/2012). These are independent of the Riemann-solver
-choice. **Do NOT** add Strang splitting — there is no operator split to symmetrize.
+**Further investigation (systematic-debugging, 2026-06-26) — candidates ruled out:**
+- **NOT operator splitting** — the scheme is unsplit (above).
+- **NOT the MPI decomposition** — serial (np=1) and parallel (np=4) give *bit-identical* swap values
+  (xy=xz=0.0217, yz=2e-5 at order=1, Np=32): MPI is lossless; the asymmetry is in the serial core.
+- **NOT any per-cell operation** — `realizable_3D_M4` (projection), `Flux_closure35_3D` (flux), and
+  `realize_and_speed` (eigenvalues) are all **x↔y covariant to 4e-16** (tested against the exact
+  35-moment index permutation). So the closure's conditional ordering is NOT the cause either.
+
+**The two effects, characterized:**
+1. **Swap-asymmetry (x vs y,z ≈ 2% at order 1, growing with order/time):** present at all orders, x odd
+   with y≈z (swap-yz≈2e-5). Not splitting/decomposition/per-cell → it lives in the **multi-cell
+   assembly** (`residual_ho_3d!` line handling: the z-direction uses outflow padding while x,y use
+   halos; the exact mechanism making *x* the odd one is not yet pinned). This is a *swap* (octahedral)
+   symmetry, weaker than the centro-symmetry that the crossing test actually needs.
+2. **High-order centro break (~8%; first order is EXACT to 1e-13):** the physically-relevant symmetry.
+   The per-cell projection is centro-symmetric (first order proves it) and every reconstruction
+   primitive (minmod, recon-vars, the realizability gates) is centro-covariant in exact arithmetic, so
+   the break is almost certainly **floating-point-order amplification in the sensitive high-Ma
+   collision** (low-dissipation high order grows round-off seeds that first-order's diffusion damps —
+   Fleischmann–Adami–Adams 2019, at the reduction level).
+
+**Status: root cause NOT definitively pinned; no fix applied (debugging discipline).** The likely fixes —
+reflection-symmetric reductions in `residual_ho_3d!` (effect 2) and a directional-assembly audit of the
+z-padding vs x/y halos (effect 1) — are a focused follow-up, NOT a quick task and NOT Strang splitting
+(there is no operator split to symmetrize).
 
 ---
 

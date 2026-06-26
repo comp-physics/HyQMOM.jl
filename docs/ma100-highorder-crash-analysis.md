@@ -74,3 +74,27 @@ Ma ≤ 50 and degrade gracefully (NaN, not crash) beyond.
 near-vacuum) using the same kernels and an adaptive CFL timestep. Reproduces the
 near-vacuum behaviour in seconds; sweep `R1D_MA`, `R1D_VACFLOOR` to see the floor
 dependence. `debug/run_ma100_demo.jl` runs the full 3D crossing.
+
+## Optional reconstruction-level fix (now available)
+
+A principled alternative to `ho_vacuum_floor` is now available as an opt-in:
+set `ho_realizability_limiter=true` in the simulation params.
+
+This activates `scaling_limited_faces`, a Zhang–Shu scaling limiter that applies
+to the face reconstruction step directly. For each face it finds the largest
+θ∈[0,1] keeping the reconstructed state in the realizable set R (checked via the
+same `delta2star3D` smallest-eigenvalue test as the Appendix B projection). θ=1
+recovers full MUSCL accuracy in smooth regions; θ→0 at individual faces near vacuum,
+without touching unaffected faces elsewhere in the domain.
+
+Key distinction from `ho_vacuum_floor`: the limiter is **local, continuous, and
+parameter-free** — no hand-set density threshold, realizability guaranteed by
+construction. In the 1D repro it reaches ρ_min ~9.7e-6 while the floor's effective
+cutoff is ~1e-3. It does **not** fix the underlying closure-eigensolve failure at
+Ma=100 (that requires Jacob's proper Riemann solver work), but it removes the
+reconstruction-level source of non-realizable face states without the
+robustness↔sharpness tradeoff of the global floor.
+
+`ho_vacuum_floor` remains the default (unchanged). Use `R1D_LIMITER=1` to test the
+limiter in the 1D repro; `REPRO_LIMITER=1` for the full 3D demo. Full theory
+background: `docs/realizability-highorder-literature.md` §6.

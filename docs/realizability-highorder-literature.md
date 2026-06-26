@@ -292,6 +292,64 @@ anisotropy/Mach the *closure* (not just the scheme) can lose hyperbolicity; only
 closures or floors fix that. Most rigorous proofs are 1D / structured; multi-D
 realizability across faces and dimensional splitting needs care (convexity still helps).
 
+### Implemented method (optional, `ho_realizability_limiter=true`)
+
+The Zhang–Shu scaling limiter (§3 recipe 3) has been implemented as an **opt-in
+alternative** to the default `recon_face_pair` binary fallback. The implementation
+consists of three layered components:
+
+**Realizability oracle.** `realizability_margin(m)` / `is_realizable(m)` in
+`src/realizability/realizability_oracle.jl` test whether a 35-moment vector lies in the
+realizable set R. They reuse the same `delta2star3D` smallest-eigenvalue test as the
+shipped Appendix B projection (`projection35.jl`): compute the smallest eigenvalue
+λ₁ of the 4×4 Hankel-like block; if λ₁ ≥ 0 the moment vector is realizable. This
+is the same realizability criterion the paper already uses for the cell-mean
+correction — it is not a new or inconsistent test.
+
+**Cell-wise scaling limiter.** `scaling_limited_faces` replaces `muscl_faces +
+recon_face_pair` at the face-reconstruction step. For each cell and each face
+direction it performs a bisection search (or analytic bound) for the largest θ∈[0,1]
+such that:
+```
+w̃_face = w̄_cell + θ*(w_face − w̄_cell)  ∈ R
+```
+Because R is convex and the cell mean lies in the interior of R (maintained by the
+per-cell Appendix B projection), such θ always exists. θ=1 returns the unmodified
+MUSCL reconstruction in smooth regions (full design accuracy); θ→0 degrades
+continuously to the first-order cell-centered state at individual faces near vacuum.
+The limiter is cell-local: it does not touch faces in well-resolved regions.
+
+**SSP-RK3 time integration.** Each stage of SSP-RK3 is a convex combination of
+forward-Euler steps. If each forward-Euler step maps R → R under a CFL bound (which
+the first-order HLL does, per Laurent & Fox ESAIM 2024), then every SSP-RK3 stage
+maps R → R by convexity. Combined with the scaling limiter — which guarantees
+realizable face states entering the HLL flux — realizability of cell means is
+preserved by construction through the entire high-order update.
+
+**Comparison with the default path:**
+
+| property | `ho_vacuum_floor` (default) | `ho_realizability_limiter` (opt-in) |
+| --- | --- | --- |
+| fallback granularity | global density threshold; entire cell drops to first order | per-face, continuous-θ; individual faces degrade independently |
+| threshold | hand-set (e.g. 1e-3); robustness↔sharpness tradeoff | none; θ determined automatically by the realizability test |
+| realizability guarantee | no (fallback heuristic avoids the problematic region) | yes, by construction (convexity of R + SSP-RK3) |
+| vacuum penetration (observed) | limited by the floor (~1e-3) | deeper (~9.7e-6 ρ_min observed in 1D repro) |
+| default | yes | no — `ho_vacuum_floor` retained as default |
+
+**Activation:** set `ho_realizability_limiter=true` in the params named tuple passed
+to `simulation_runner`. Demo environments: `REPRO_LIMITER=1` (3D demo) and
+`R1D_LIMITER=1` (cheap 1D serial repro, no MPI). The `ho_vacuum_floor` param is NOT
+removed; both can coexist.
+
+**Framing note.** The limiter is **not a crash-fix**: the existing `recon_face_pair`
+binary guard in the default path already prevents the original Ma=100 1D crash by
+falling back to first order when the reconstructed face is non-realizable. The
+scaling limiter's value is that it is a **principled, graduated alternative** — it
+keeps more high-order accuracy near vacuum (continuous θ rather than all-or-nothing)
+and provides a realizability guarantee by construction rather than by a hand-set
+density. Accuracy quantification across the Mach ladder is the subject of RP-T6
+(validation task — results not yet available).
+
 ---
 
 ## 7. Key references

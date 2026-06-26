@@ -41,7 +41,8 @@ high-order:
 | param | meaning |
 | --- | --- |
 | `spatial_order` | `1` = first-order HLL (diffusive), `2` = high-order HLL+MUSCL+SSP-RK3 |
-| `ho_vacuum_floor` | below this density the high-order path falls back to first order (0 = off). Set to ~10× the background density for high-Ma robustness; see §3. |
+| `ho_vacuum_floor` | below this density the high-order path falls back to first order (0 = off, default). Set to ~10× the background density for high-Ma robustness; see §3. **Default and unchanged.** |
+| `ho_realizability_limiter` | **OPT-IN, default `false`.** When `true`, switches the high-order reconstruction from the binary `recon_face_pair` fallback to a continuous Zhang–Shu scaling limiter (`scaling_limited_faces`). For each cell face the limiter finds the largest θ∈[0,1] keeping the reconstructed face state in the realizable set R; θ=1 recovers full accuracy in smooth regions, θ→0 at individual faces near vacuum. This is a local, graduated alternative to the global density floor: no hand-set threshold, realizability guaranteed by construction, reaches deeper vacuum while preserving more high-order accuracy near the vacuum interface. `ho_vacuum_floor` remains the default path and is not removed. See `docs/realizability-highorder-literature.md` §6 for the underlying theory. |
 
 ### Quick demo (the crossing jets)
 
@@ -97,11 +98,18 @@ a higher floor stabilizes more Mach numbers but first-orders more of the jet
 fringe, eroding the high-order benefit. There is no single floor that is both
 robust and maximally sharp, and Ma=100 remains chaotically sensitive.
 
+**An optional, principled alternative is now available** via
+`ho_realizability_limiter=true`: the Zhang–Shu scaling limiter applied to the
+HyQMOM moment set (see §2 table and `docs/realizability-highorder-literature.md`
+§6). It is local and graduated — no hand-set density — and guarantees realizable
+face states by construction. It is OPT-IN; `ho_vacuum_floor` remains the default.
+
 **The durable fix is a realizability-preserving high-order reconstruction**
 (limiting that keeps cell means physical in near-vacuum without a hand-set floor),
 plus the detailed Riemann solver — i.e. Jacob's high-order work. The floor + guards
-make the scheme usable for development at Ma ≤ 50 and degrade gracefully (NaN, not
-crash) beyond. Full analysis: `docs/ma100-highorder-crash-analysis.md`.
+(and the optional scaling limiter) make the scheme usable for development at Ma ≤ 50
+and degrade gracefully (NaN, not crash) beyond. Full analysis:
+`docs/ma100-highorder-crash-analysis.md`.
 
 Rodney's recommended development path: start at **Ma=10**, work up; reference
 first-order convergence on fine grids (~1024³, judged on density). Convergence
@@ -127,8 +135,9 @@ scaffolding is ready in `debug/` (`convergence_run.jl`, `convergence_analysis.jl
 | --- | --- |
 | `src/numerics/highorder_3d.jl` | unsplit 3D high-order residual + SSP-RK3 step |
 | `src/numerics/highorder_flux.jl` | HLL face flux from reconstructed L/R states; 1D residual |
-| `src/numerics/reconstruction.jl` | recon-var bijection, MUSCL, `recon_face_pair` (the vacuum gate) |
+| `src/numerics/reconstruction.jl` | recon-var bijection, MUSCL, `recon_face_pair` (binary vacuum gate, default) and `scaling_limited_faces` (Zhang–Shu θ-limiter, opt-in) |
+| `src/realizability/realizability_oracle.jl` | `realizability_margin` / `is_realizable` oracle (δ₂★ smallest-eigenvalue test, same criterion as Appendix B projection) |
 | `src/numerics/ssp_rk.jl` | SSP-RK3 |
-| `src/realizability/realize_M4_projection.jl`, `projection35.jl` | per-face/cell realizability projection |
+| `src/realizability/realize_M4_projection.jl`, `projection35.jl` | per-face/cell realizability projection (Appendix B method; always active) |
 | `src/numerics/eigenvalues6_hyperbolic_3D.jl`, `small_eig.jl` | wave speeds (jacobian15 blocks; analytic 3×3 + direct 4×4) |
-| `src/simulation_runner.jl` | time loop; `spatial_order` / `ho_vacuum_floor` wiring |
+| `src/simulation_runner.jl` | time loop; `spatial_order` / `ho_vacuum_floor` / `ho_realizability_limiter` wiring |

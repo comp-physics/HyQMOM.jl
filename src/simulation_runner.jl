@@ -129,10 +129,39 @@ function simulation_runner(params)
     HO_VACUUM_FLOOR[] = get(params, :ho_vacuum_floor, 0.0)
 
     # Optional realizability scaling limiter for the high-order residual (default off).
-    # When true, `residual_line` uses `scaling_limited_faces` instead of
-    # `muscl_faces + recon_face_pair`. This guarantees realizable face states by
-    # construction, avoiding non-finite reconstruction in near-vacuum. Default false
-    # keeps byte-identical behavior to the pre-existing path.
+    # When true, `residual_line` (and `residual_ho_3d!` / `step_highorder_3d!`) switches
+    # from the default `muscl_faces + recon_face_pair` path to `scaling_limited_faces`.
+    #
+    # The scaling limiter (Zhang–Shu template applied to the HyQMOM moment set) finds,
+    # for each cell face, the largest θ∈[0,1] such that the convex blend
+    #   w̃_face = w̄_cell + θ*(w_face − w̄_cell)
+    # remains in the realizable set R (guaranteed because R is convex and the cell mean
+    # is interior). θ=1 recovers full high-order reconstruction in smooth regions;
+    # θ→0 degrades continuously to first-order at individual faces near vacuum — a
+    # principled, cell-local, graduated alternative to the binary all-or-nothing
+    # fallback in `recon_face_pair`.
+    #
+    # Realizability is checked via the same `delta2star3D` smallest-eigenvalue test as
+    # the shipped Appendix B projection (see `src/realizability/`). The oracle is
+    # implemented in `realizability_margin` / `is_realizable`
+    # (`src/realizability/realizability_oracle.jl`). SSP-RK3
+    # stages are convex combinations of forward-Euler steps, so realizability of each
+    # stage is preserved by construction.
+    #
+    # Key distinction from `ho_vacuum_floor`:
+    #   ho_vacuum_floor    — global density threshold; below it the ENTIRE high-order
+    #                        path falls back to first order for that cell. Hand-tuned;
+    #                        robustness ↔ sharpness tradeoff. DEFAULT and unchanged.
+    #   ho_realizability_limiter — local, face-level, continuous-θ limiter; no hand-set
+    #                        density; guarantees realizable faces by construction. Reaches
+    #                        deeper vacuum (ρ_min ~9.7e-6 observed vs ~1e-3 floor) while
+    #                        preserving more high-order accuracy near the vacuum interface.
+    #                        OPT-IN (default false). `ho_vacuum_floor` is NOT removed.
+    #
+    # To enable: pass `ho_realizability_limiter=true` in the params named tuple.
+    # Demo env: REPRO_LIMITER=1 in debug/run_ma100_demo.jl; R1D_LIMITER=1 in
+    # debug/repro_1d_crash.jl. See docs/realizability-highorder-literature.md §6.
+    # Mach-ladder validation (RP-T6) will quantify the accuracy/robustness tradeoff.
     ho_realizability_limiter = get(params, :ho_realizability_limiter, false)
 
     # Snapshot saving parameters

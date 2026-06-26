@@ -24,28 +24,11 @@ function projection35(S300, S400, S110, S210, S310, S120, S220, S030, S130, S040
                       S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,
                       S211, S021, S121, S031, S012, S112, S013, S022)
 
-    if HO_DEBUG[]
-        _Sin = (S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
-                S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,
-                S211, S021, S121, S031, S012, S112, S013, S022)
-        if any(!isfinite, _Sin)
-            _names = ("S300","S400","S110","S210","S310","S120","S220","S030","S130","S040",
-                      "S101","S201","S301","S102","S202","S003","S103","S004","S011","S111",
-                      "S211","S021","S121","S031","S012","S112","S013","S022")
-            io = IOBuffer()
-            println(io, "HO_DEBUG: non-finite standardized moments entering projection35:")
-            for (n, v) in zip(_names, _Sin)
-                isfinite(v) || println(io, "    ", n, " = ", v)
-            end
-            @error String(take!(io))
-        end
-    end
-
     # <p2p2> interior of 2nd-order moment space
     E1 = delta2star3D(S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
                       S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,
                       S211, S021, S121, S031, S012, S112, S013, S022)
-    lambda = sort(real(_geigvals(E1, "projection35:E1(initial)")))
+    lambda = sort(real(_geigvals(E1)))
     if lambda[1] >= 0
         # no projection required
         return (S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
@@ -94,7 +77,7 @@ function projection35(S300, S400, S110, S210, S310, S120, S220, S030, S130, S040
     E1 = delta2star3D(S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
                       S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,
                       S211, S021, S121, S031, S012, S112, S013, S022)
-    lambda = sort(real(_geigvals(E1, "projection35:E1(target)")))
+    lambda = sort(real(_geigvals(E1)))
     if lambda[1] > -1.0e-6
         return (S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
                 S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,

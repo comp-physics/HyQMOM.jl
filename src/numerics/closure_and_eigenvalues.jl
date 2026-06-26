@@ -64,15 +64,16 @@ function closure_and_eigenvalues(mom)
     end
     z[N+1,N+1] = a[N+1]
     
-    # Compute weights and abscissas
-    # Julia's eigvals throws error on NaN/Inf, but MATLAB's eig returns NaN eigenvalues
-    # Match MATLAB behavior: if matrix contains NaN/Inf, return NaN eigenvalues
+    # Abscissas via eigenvalues. Degrade to NaN (rather than throwing) on non-finite
+    # input or LAPACK non-convergence — both occur for extreme near-vacuum states and
+    # are handled downstream like any NaN wave speed, matching the other eigen sites.
     if any(!isfinite, z)
         return Mp, NaN, NaN
     end
-    vp = eigvals(z)
-    vpmin = minimum(real(vp))
-    vpmax = maximum(real(vp))
-    
-    return Mp, vpmin, vpmax
+    vp = try
+        eigvals(z)
+    catch err
+        err isa LinearAlgebra.LAPACKException ? (return Mp, NaN, NaN) : rethrow(err)
+    end
+    return Mp, minimum(real(vp)), maximum(real(vp))
 end

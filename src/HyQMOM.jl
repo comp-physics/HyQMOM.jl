@@ -19,35 +19,18 @@ using JLD2  # Always needed for snapshot I/O
 # Set at runtime from params in `simulation_runner` (defaults to true).
 const POSITIVITY_ENABLED = Ref(true)
 
-# Near-vacuum density floor for high-order reconstruction. In deep vacuum the cell
-# velocity (M100/M000) and variance (M200/M000 - u^2) are dominated by catastrophic
-# cancellation, producing finite-but-unphysical states (|u|>>physical, |C200|~noise)
-# whose MUSCL reconstruction + wave-speed eigensolve yields non-finite HLL fluxes.
-# When > 0, an interface whose adjacent cell density falls below this floor uses the
-# first-order (cell-centered) state, so the vacuum region evolves like the robust
-# first-order scheme while resolved regions stay high-order. 0 disables the gate.
+# Near-vacuum density floor for high-order reconstruction (0 disables). Below this
+# density the cell velocity (M100/M000) and variance (M200/M000 - u^2) are
+# cancellation-dominated noise, so the interface falls back to the first-order
+# cell-centered state. Set from params in `simulation_runner`.
 # See docs/ma100-highorder-crash-analysis.md.
 const HO_VACUUM_FLOOR = Ref(0.0)
 
-# Guarded eigvals: matches MATLAB's `eig`, which returns NaN eigenvalues on a
-# matrix containing Inf/NaN rather than throwing. Julia's `eigvals` throws
-# `ArgumentError: matrix contains Infs or NaNs`, so every eigen site in this
-# codebase guards its input to preserve MATLAB semantics. `projection35` was the
-# one site originally ported without this guard; routing it through `_geigvals`
-# restores port fidelity. ENV["HO_DEBUG"]=="1" additionally logs the offending
-# site + matrix (crash-investigation aid). Zero cost on the finite fast path.
-const HO_DEBUG = Ref(get(ENV, "HO_DEBUG", "") == "1")
-@inline function _geigvals(A::AbstractMatrix, label::AbstractString)
-    if !all(isfinite, A)
-        if HO_DEBUG[]
-            io = IOBuffer()
-            println(io, "HO_DEBUG: non-finite matrix into eigvals @ ", label,
-                    "  size=", size(A), "  (", count(!isfinite, A), "/", length(A), " non-finite)")
-            show(io, "text/plain", A)
-            @error String(take!(io))
-        end
-        return fill(NaN + 0.0im, size(A, 1))   # MATLAB eig() behavior: NaN, not throw
-    end
+# Guarded eigvals matching MATLAB's `eig`, which returns NaN on a matrix containing
+# Inf/NaN instead of throwing (Julia's `eigvals` throws). Every eigen site guards
+# its input this way to preserve MATLAB semantics.
+@inline function _geigvals(A::AbstractMatrix)
+    all(isfinite, A) || return fill(NaN + 0.0im, size(A, 1))
     return eigvals(A)
 end
 

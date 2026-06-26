@@ -10,10 +10,11 @@
 ENV["HYQMOM_SKIP_PLOTTING"] = "true"; ENV["CI"] = "true"
 using HyQMOM, Printf
 
-const Ma    = parse(Float64, get(ENV, "R1D_MA",       "100.0"))
-const N     = parse(Int,     get(ENV, "R1D_N",        "512"))
-const order = parse(Int,     get(ENV, "R1D_ORDER",    "2"))
-const vacf  = parse(Float64, get(ENV, "R1D_VACFLOOR", "0.001"))
+const Ma         = parse(Float64, get(ENV, "R1D_MA",       "100.0"))
+const N          = parse(Int,     get(ENV, "R1D_N",        "512"))
+const order      = parse(Int,     get(ENV, "R1D_ORDER",    "2"))
+const vacf       = parse(Float64, get(ENV, "R1D_VACFLOOR", "0.001"))
+const use_lim    = get(ENV, "R1D_LIMITER", "0") != "0"
 const rhol, rhor, T = 1.0, 0.001, 1.0
 const dx = 1.0 / N
 
@@ -41,7 +42,7 @@ function run()
                   0.5  <= x < 0.75 ? state(rhol, -Uc) : state(rhor, 0.0)
     end
     proj!(U) = (for i in 1:N; U[i, :] = realizable_3D_M4(U[i, :], Ma); end)
-    L(U) = residual_1d(U, dx, Ma; order=order, bc=:outflow)
+    L(U) = residual_1d(U, dx, Ma; order=order, bc=:outflow, use_limiter=use_lim)
 
     tfinal = 0.1 / Uc; t = 0.0; n = 0
     while t < tfinal

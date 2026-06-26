@@ -49,7 +49,7 @@ function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::R
 end
 
 """
-    residual_1d(Mline, dx, Ma; order=2, bc=:outflow)
+    residual_1d(Mline, dx, Ma; order=2, bc=:outflow, use_limiter=false)
 
 Method-of-lines spatial residual for a 1D row of 35-moment cells (Ncell x 35) in
 the x-direction. order=1: first-order (cell-centered). order=2: MUSCL on the
@@ -60,8 +60,14 @@ bc=:outflow (default): zero-gradient boundary conditions — boundary cells i=1 
   i=Nc receive zero residual (no net flux through the domain walls).
 bc=:periodic: wrap neighbor indices so the domain is periodic. All Nc interfaces
   i+1/2 (i=1..Nc, with i+1 wrapping) are computed and every cell gets a residual.
+
+use_limiter=false (default): existing muscl_faces + recon_face_pair path (byte-identical
+  to the pre-existing behavior). use_limiter=true: order==2 faces built with
+  scaling_limited_faces instead; faces are realizable by construction so no fallback
+  is needed. The order==1 path is unaffected by this flag.
 """
-function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc::Symbol=:outflow)
+function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real;
+                     order::Int=2, bc::Symbol=:outflow, use_limiter::Bool=false)
     Nc = size(Mline, 1)
     axis = 1
     R = zeros(Nc, 35)
@@ -74,6 +80,15 @@ function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc
         if order == 1
             for i in 1:Nc
                 ML[i] = Mline[i, :]; MR[i] = Mline[wrap(i+1), :]
+            end
+        elseif use_limiter
+            Vc = [to_recon_vars(@view Mline[i, :]) for i in 1:Nc]
+            for i in 1:Nc
+                ip1 = wrap(i+1)
+                _, Vplus_i, _     = scaling_limited_faces(Vc[wrap(i-1)], Vc[i],   Vc[ip1])
+                Vminus_ip1, _, _  = scaling_limited_faces(Vc[i],         Vc[ip1], Vc[wrap(i+2)])
+                ML[i] = from_recon_vars(Vplus_i)
+                MR[i] = from_recon_vars(Vminus_ip1)
             end
         else
             V = [to_recon_vars(Mline[i, :]) for i in 1:Nc]
@@ -97,6 +112,14 @@ function residual_1d(Mline::AbstractMatrix, dx::Real, Ma::Real; order::Int=2, bc
         if order == 1
             for i in 1:Nc-1
                 ML[i] = Mline[i, :]; MR[i] = Mline[i+1, :]
+            end
+        elseif use_limiter
+            Vc = [to_recon_vars(@view Mline[i, :]) for i in 1:Nc]
+            for i in 1:Nc-1
+                _, Vplus_i, _     = scaling_limited_faces(Vc[max(i-1,1)], Vc[i],   Vc[min(i+1,Nc)])
+                Vminus_ip1, _, _  = scaling_limited_faces(Vc[i],          Vc[i+1], Vc[min(i+2,Nc)])
+                ML[i] = from_recon_vars(Vplus_i)
+                MR[i] = from_recon_vars(Vminus_ip1)
             end
         else
             V = [to_recon_vars(Mline[i, :]) for i in 1:Nc]

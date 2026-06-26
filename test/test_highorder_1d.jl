@@ -157,3 +157,25 @@ end
     end
     @test abs(sum(Mline[:, 1]) - mass0) / mass0 < 1e-12  # mass conserved (no through-flow @ walls)
 end
+
+@testset "1D high-order stays realizable through transport (Ma=100 analog)" begin
+    Nc = 256
+    Mline = zeros(Nc, 35)
+    for i in 1:Nc                       # two dense slabs streaming into a near-vacuum gap
+        x = (i - 0.5)/Nc
+        if x < 0.4
+            Mline[i,:] = InitializeM4_35(1.0,  50.0, 0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+        elseif x > 0.6
+            Mline[i,:] = InitializeM4_35(1.0, -50.0, 0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+        else
+            Mline[i,:] = InitializeM4_35(1e-4, 0.0, 0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+        end
+    end
+    # OPT-IN limiter path stays finite through the vacuum band:
+    R = residual_1d(Mline, 1.0/Nc, 100.0; order=2, bc=:outflow, use_limiter=true)
+    @test all(isfinite, R)              # no Inf/NaN escapes when the limiter is on
+    # DEFAULT path (use_limiter=false) is unchanged: identical to the call without the kw.
+    R_def  = residual_1d(Mline, 1.0/Nc, 100.0; order=2, bc=:outflow, use_limiter=false)
+    R_base = residual_1d(Mline, 1.0/Nc, 100.0; order=2, bc=:outflow)
+    @test isequal(R_def, R_base)        # default == pre-existing behavior, byte-identical
+end

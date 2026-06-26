@@ -28,3 +28,17 @@ using HyQMOM
 
     HyQMOM.RIEMANN_SOLVER[] = :hll                   # reset; don't leak global state
 end
+
+@testset "hllc contact speed" begin
+    using HyQMOM: hllc_contact_speed, realize_and_speed, realizable_3D_M4
+    Mu = InitializeM4_35(1.0, 0.37, 0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    Mr,sL,sR = realize_and_speed(Mu, 1, 0.0)
+    # uniform state: contact speed == the bulk normal velocity
+    @test isapprox(hllc_contact_speed(Mr, Mr, sL, sR, 1), 0.37; atol=1e-10)
+    # bracketed by the HLL wave speeds
+    ML = realizable_3D_M4(InitializeM4_35(1.0, 0.5,0,0,1.0,0,0,1,0,1), 2.0)
+    MR = realizable_3D_M4(InitializeM4_35(0.3,-0.4,0,0,1.2,0,0,1,0,1), 2.0)
+    MLr,lL,_ = realize_and_speed(ML,1,2.0); MRr,_,lR = realize_and_speed(MR,1,2.0)
+    s = hllc_contact_speed(MLr, MRr, min(lL,lR), max(lL,lR), 1)
+    @test min(lL,lR) <= s <= max(lL,lR)
+end

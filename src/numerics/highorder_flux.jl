@@ -24,6 +24,21 @@ function _phys_flux(M::AbstractVector, axis::Int)
     return axis == 1 ? Fx : (axis == 2 ? Fy : Fz)
 end
 
+# Normal-momentum index per axis: M[_NMOM[axis]] is the normal momentum component.
+# Density is always M[1]. Same index is valid for the flux vector F (F[1]=mass flux=M[m],
+# F[m]=normal-momentum flux=normal stress). Verified against Flux_closure35_3D output:
+#   Fx[1]=M100=M[2], Fx[2]=M200;  Fy[1]=M010=M[6], Fy[6]=M020;  Fz[1]=M001=M[16], Fz[16]=M002.
+const _NMOM = (2, 6, 16)
+
+"Contact (material) wave speed S_M = normal velocity of the HLL star state, clamped to [sL,sR]."
+function hllc_contact_speed(MLr::AbstractVector, MRr::AbstractVector, sL::Real, sR::Real, axis::Int)
+    m = _NMOM[axis]
+    FL = _phys_flux(MLr, axis); FR = _phys_flux(MRr, axis)
+    Uden = (sR*MRr[1] - sL*MLr[1] - (FR[1] - FL[1])) / (sR - sL)        # HLL density
+    Umom = (sR*MRr[m] - sL*MLr[m] - (FR[m] - FL[m])) / (sR - sL)        # HLL normal momentum
+    return clamp(Umom / Uden, sL, sR)
+end
+
 """
 Interface-flux (Riemann-solver) selector. Default `:hll` is the original, validated
 two-wave HLL flux (byte-identical). `:rusanov` is a robust local Lax–Friedrichs

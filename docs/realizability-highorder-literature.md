@@ -347,8 +347,31 @@ falling back to first order when the reconstructed face is non-realizable. The
 scaling limiter's value is that it is a **principled, graduated alternative** — it
 keeps more high-order accuracy near vacuum (continuous θ rather than all-or-nothing)
 and provides a realizability guarantee by construction rather than by a hand-set
-density. Accuracy quantification across the Mach ladder is the subject of RP-T6
-(validation task — results not yet available).
+density.
+
+### Implemented method + results summary
+
+Measured results from RP-T6/RP-T7 are available; see
+`docs/realizability-preserving-highorder-results.md` for the full collaborator-facing
+write-up. Key findings:
+
+- **Smooth accuracy preserved:** L1 self-convergence on density = 1.865 (32→64) and
+  1.973 (64→128) with limiter ON — ~2nd order, identical to limiter-off. θ fraction
+  below 1 = 0.000 on the smooth sinusoid.
+- **Locality confirmed:** θ<1 in ≈4.7% of cells on the colliding-slab+vacuum case,
+  confined to the low-density band.
+- **Sharpness gain (1D Ma=10, Nc=128):** peak density 2.035 (limiter+HO) vs. 1.843
+  (first-order); ratio ≈1.105.
+- **Two-layer design quantified:** with projection in report-only mode, the limiter
+  alone does NOT keep all cell means realizable (min margin ≈ −2.71, 102 unrealizable
+  cell-stages at CFL 0.9). The Appendix B projection backstop remains required.
+- **Stability CFL:** ≥ 0.90 in the tested 1D problem.
+- **Golden-gate:** 0 entries failing at 1e-10; default path byte-identical.
+
+Deferred (not done): full 3D Ma=10/25/50/100 Mach-ladder HPC run; finer-grid / 3D
+CFL sweep; FHW quadratic-form oracle (perf optimization); formal realizability-
+preserving HLL theorem for 3D/35-moment (the publishable extension — Jacob's
+territory).
 
 ---
 

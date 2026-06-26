@@ -15,11 +15,17 @@ using HyQMOM
     Mnan = copy(M); Mnan[5] = NaN
     @test !is_realizable(Mnan)
 
-    # Oracle agrees with the shipped projection: projection35 corrects iff oracle says unrealizable.
-    # Build a mildly unrealizable state by inflating a 4th-order cross moment.
-    Mu = copy(M); Mu[12] *= 5.0      # M220-type entry pushed out of the cone
-    if !is_realizable(Mu)
-        Mr = realizable_3D_M4(Mu, 2.0)
-        @test is_realizable(Mr)       # projection restores realizability
-    end
+    # Oracle agrees with the shipped projection: a grossly unrealizable state is
+    # flagged, and the projection restores realizability. NOTE: the Appendix B
+    # projection lands the state ON the realizable boundary (its target has
+    # |<p2 p2'>| = 0, so the smallest eigenvalue is ~0), where the eigenvalue's
+    # sign is LAPACK/platform-dependent. So assert the margin is restored to within
+    # a small FP tolerance of the boundary (not strict >= 0) and that the projection
+    # strictly improved it -- both platform-robust. (Julia 1.9's LAPACK returns a
+    # tiny negative margin here; a strict is_realizable check is not portable.)
+    Mu = copy(M); Mu[12] *= 5.0      # grossly inflate an M220-type cross moment
+    @test !is_realizable(Mu)         # oracle detects the unrealizable state
+    Mr = realizable_3D_M4(Mu, 2.0)   # shipped Appendix B projection
+    @test realizability_margin(Mr) > realizability_margin(Mu)   # projection improved it
+    @test realizability_margin(Mr) > -1e-8                       # restored to the boundary
 end

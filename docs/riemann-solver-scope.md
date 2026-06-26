@@ -35,7 +35,8 @@ Takeaways that set the Riemann-solver requirements:
 2. **Realizability is solved at the control/reconstruction layer**, so the Riemann solver does not
    have to *fix* robustness — but it must **not break it**: its star state(s) must stay in the convex
    realizable cone R near vacuum.
-3. **Symmetry is a separate, orthogonal issue** (operator splitting, not the flux) — see §6.
+3. **Symmetry is a separate, orthogonal issue** (a decomposition/reconstruction asymmetry — NOT the flux,
+   and NOT operator splitting; the scheme is unsplit) — see §6.
 
 ---
 
@@ -171,18 +172,29 @@ order needs the convex-set scaling limiter we already built.
 
 ---
 
-## 6. Orthogonal: the symmetry issue is operator splitting, not the flux
+## 6. Orthogonal: the symmetry issue (NOT operator splitting — corrected)
 
-Our ~3–9% centro-symmetry error (high-order only; first-order is exact to ~1e-13) is **not** a flux
-problem. It is dimensional-splitting: Roe 1991 (the split commutator generates O(Δt) pseudo-acoustic
-waves when the directional operators don't share eigenvectors — generic here) plus Fleischmann–Adami–Adams
-2019 (floating-point non-associativity from the sweep order, which first-order's dissipation damps). The
-magnitude (~8% at Ma=10) suggests the splitting commutator dominates. Fixes, cheapest first:
-- **Strang (symmetric) operator splitting** (x→y→z→z→y→x) — 2nd-order, much more symmetric; cheap.
-- **Reflection-symmetric floating-point ordering** of the sweep — zero FLOP cost (Fleischmann 2019).
-- **Unsplit CTU (Colella 1990)** or **genuinely multi-D HLL/HLLC (Balsara 2010/2012)** — principled,
-  higher cost; the multi-D corner solvers are also where contact/shear and symmetry are fixed together.
-These are independent of the Riemann-solver choice and can be pursued separately.
+**Correction (verified against the code 2026-06-26):** the 3D high-order scheme is **unsplit** —
+`residual_ho_3d!` sums the x/y/z line residuals into one residual and a single SSP-RK3 advances it
+(`step_highorder_3d!`). There is **no dimensional/operator splitting**, so the earlier "Strang splitting"
+fix and the Roe-1991 split-commutator explanation do **not** apply. A diagnostic on the Ma=10 fields
+(`debug/` ladder `.jld2`) shows the symmetry picture is two separate effects:
+
+- **Swap-asymmetry at ALL orders (x vs y,z ≈ 0.11; y vs z ≈ 0.002):** even first order is *not*
+  invariant under axis swaps that involve x, although it is centro-symmetric (reverse-all) to ~1e-13.
+  The crossing IC is swap-symmetric in all three axes, so this is numerical — almost certainly the MPI
+  x–y domain decomposition (with the rank counts used, x is split more than y; z is replicated, so y
+  behaves like z). Needs confirming serial-vs-parallel and across decompositions (the prior
+  "MPI-lossless" check may not have exercised an asymmetric `px≠py`).
+- **High-order centro break (~0.08 at Ma=10, vs 1e-13 first order):** appears only with high-order
+  reconstruction — consistent with low-dissipation amplification of a seed asymmetry (Fleischmann–Adami–
+  Adams 2019), the seed here being the swap-asymmetry above and/or the nonlinear per-cell projection.
+
+**Right fixes (a separate debugging effort, not a quick task):** (i) make the directional handling
+symmetric — check the decomposition (`px=py`, halo handling) and the z-direction's outflow padding vs the
+x/y halos; (ii) reflection-symmetric reductions in `residual_ho_3d!` (the `.+=` accumulation order); (iii)
+if needed, genuinely multi-D HLL/HLLC (Balsara 2010/2012). These are independent of the Riemann-solver
+choice. **Do NOT** add Strang splitting — there is no operator split to symmetrize.
 
 ---
 

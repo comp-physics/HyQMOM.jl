@@ -273,20 +273,42 @@ analytic LD eigenstructure. Both `:hllc` and `:hllem` remain in the tree as opt-
 building blocks. (Performance note: the FD-Jacobian + `eigen` per face makes `:hllem` far too slow for
 production as-is.)
 
-## 6d. Result: the kinetic flux is BLOCKED — the closure exposes no velocity quadrature (Stage C)
+## 6d. Result: the kinetic flux was BUILT in-house — and is empirically UNSTABLE for this closure (Stage C)
 
 The realizable-by-construction kinetic (abscissa-upwind/KFVS) flux needs the velocity quadrature
-`(n_α, U_α)` of the VDF — `F̂ = Σ_{U_{α,n}>0} n_{α,L}(…) + Σ_{U_{α,n}<0} n_{α,R}(…)`. **This machinery
-does not exist in the codebase.** The 35-moment pipeline closes and fluxes **purely analytically** and
-never builds a quadrature: `hyqmom_3D` returns closed-form closing *moments*; `Flux_closure35_3D`
-assembles `Fx,Fy,Fz` directly from raw moments (`S_to_C_batch → C5toM5_3D → M5_to_vars`);
-`closure_and_eigenvalues` is a 1D Chebyshev eigenvalue routine; `projection35`/`delta2star3D` are
-moment-space realizability, not inversions. The MATLAB reference is the same — so it is **not a porting
-gap; the inversion genuinely does not exist.** Building the kinetic flux requires first writing (and
-validating) a **3D CHyQMOM conditional moment-inversion** `M(35) → {(n_α ≥ 0, U_α=(Ux,Uy,Uz))}` that
-recovers the moments — exactly the Patel–Desjardins–Fox machinery, and squarely the closure owner's
-(Jacob/Fox) domain. Fabricating approximate nodes would destroy the realizability-by-construction
-guarantee that is the whole point, so this is an honest BLOCKED, not a partial.
+`(n_α, U_α)` of the VDF — `F̂ = Σ_{U_{α,n}>0} n_{α,L}(…) + Σ_{U_{α,n}<0} n_{α,R}(…)`. This machinery did
+not exist in the codebase (the 35-moment pipeline closes and fluxes purely analytically: `hyqmom_3D`
+returns closing *moments*; `Flux_closure35_3D` assembles `Fx,Fy,Fz` directly; the MATLAB reference is the
+same). **We built it ourselves** rather than treating it as out-of-scope:
+
+1. **`hyqmom_quadrature_1d`** (`src/moments/`) — adaptive 1D HyQMOM inversion (N=3→2→1 on realizability
+   violation). The missing primitive; verified moment recovery k=0..4 + non-negative weights.
+2. **`chyqmom_nodes_3d`** (`src/moments/`) — the 3D CHyQMOM conditional inversion
+   `M(35) → {(n_α≥0, U_α)}` (Yuan–Fox CQMOM conditioning x→y|x→z|x,y, reusing the 1D primitive).
+   **Decisive finding:** it recovers **29 of 35** moments to ≤1e-8 (all 15 marginals, incl. the pure
+   4th-order `(4,0,0)/(0,4,0)/(0,0,4)`), but **6 high-order cross moments are STRUCTURALLY truncated** —
+   `(3,1,0),(1,3,0),(3,0,1),(2,1,1),(1,0,3),(0,1,3)` (max err ~1.7e-2). This is genuine, not a bug
+   (independently verified): 3 x-nodes carry only `{1,x,x²}` so `x³y` is unrepresentable; the z-mean
+   staircase has 10 constraints but ≤9 (x,y) parent nodes; and the shared-shape CHyQMOM closure trades
+   `xy³/xz³/yz³` for boundary realizability. The recovered set is also **state-dependent** (reduced/
+   near-vacuum states truncate more).
+3. **`:kinetic` flux** (`kinetic_flux` in `src/numerics/highorder_flux.jl`) — abscissa-upwind sign-split
+   on `chyqmom_nodes_3d`, with HLL fallback on degenerate/non-finite nodes. Opt-in, 29/29 unit tests,
+   default `:hll` byte-identical (full-sim golden confirmed).
+
+**The empirical verdict (Ma=10 crossing jets, 24³, vs `:hll`):** `:hll` runs stably to `t=0.02`;
+`:kinetic` **collapses its timestep immediately** (`dt`: 1.7e-3 → 6e-10 → … → NaN by step ~6). A
+root-cause sweep over background density shows it crashes **even at uniform density (`rhor=1.0`, no jump,
+no vacuum)** — so the instability is **not** the 1000:1 vacuum regime but the **general high-order
+moment inconsistency**: a consistency probe on smooth *dense* Gaussian states shows the kinetic flux
+differs from the analytic flux by **10–89%** on the high-order moments whose flux needs 5th-order data
+(`M103` 89%, `M004` 34%, `M211` 32%). Because the node set cannot reproduce the moments the 35-moment
+system transports, the flux is inconsistent and drives the wave speeds (hence `dt`) to blow-up. The flux
+is realizable-by-construction, but **realizable ≠ stable**. A density-gated hybrid would not help (it
+crashes at uniform density). The code stays in-tree as an opt-in, honestly-documented research artifact
+(default off, golden-clean); it is **not** usable for production. Closing this gap needs a node inversion
+that carries *all* 35 moments (a richer/non-truncating CHyQMOM, e.g. more nodes per conditional level) —
+the closure owner's (Jacob/Fox) domain.
 
 ## 6e. Bottom line of the Riemann-solver effort (A–C)
 
@@ -298,14 +320,16 @@ for three distinct, now-precisely-understood reasons:
 | --- | --- | --- |
 | `:hllc` | implemented, verified genuine | star states leave the realizable cone in the high-Ma collision → fallback to HLL (§6b) |
 | `:hllem` | implemented, verified correct | physical contact/shear jumps have ~0 projection onto the (FD-Jacobian, degenerate) LD eigenspace → anti-diffusion ≈ 0 (§6c) |
-| `:kinetic` | BLOCKED | the closure exposes no velocity quadrature; needs a 3D CHyQMOM moment→node inversion that doesn't exist (§6d) |
+| `:kinetic` | built in-house, empirically UNSTABLE | node inversion (`chyqmom_nodes_3d`) recovers only 29/35 moments (6 high-order cross truncated); the resulting flux is inconsistent on the moments the system transports → `dt`→NaN even at uniform density (§6d) |
 
 The unifying conclusion: **the bottleneck is the closure layer, not the flux layer.** A genuinely
 low-diffusion, realizable Riemann solver for this system needs closure-level machinery that doesn't yet
-exist — either the **analytic Fox–Laurent LD eigenstructure** (to make HLLEM project correctly) or the
-**3D CHyQMOM velocity-node inversion** (to enable the kinetic flux). Both are Jacob's/Fox's domain. The
-`:hllc`/`:hllem`/`ld_eigvecs` code remains in the tree as opt-in, verified-correct building blocks for
-that work. (The relaxation path, §3.5, was not attempted — also closure-level research.)
+exist — either the **analytic Fox–Laurent LD eigenstructure** (to make HLLEM project correctly) or a
+**non-truncating 3D CHyQMOM velocity-node inversion** (so a kinetic flux is *consistent* — the in-house
+`chyqmom_nodes_3d` recovers only 29/35 moments, which is exactly what makes `:kinetic` unstable). Both
+are Jacob's/Fox's domain. The `:hllc`/`:hllem`/`ld_eigvecs`/`hyqmom_quadrature_1d`/`chyqmom_nodes_3d`/
+`kinetic_flux` code all remain in the tree as opt-in, verified building blocks for that work. (The
+relaxation path, §3.5, was not attempted — also closure-level research.)
 
 ## 7. Key references
 

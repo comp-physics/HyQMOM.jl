@@ -139,3 +139,54 @@ end
         @test all(x -> isapprox(x, un; atol=1e-6), lam)
     end
 end
+
+@testset "hllem flux (B2: anti-diffusion + :hllem branch)" begin
+    using HyQMOM: realize_and_speed, realizable_3D_M4, _phys_flux
+
+    # --- Uniform state (L == R): HLLEM == physical flux == HLL (anti-diffusion -> 0)
+    Mu = InitializeM4_35(1.0, 0.25, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0)
+    Mur = realizable_3D_M4(Mu, 0.0)
+    Fphys = _phys_flux(realize_and_speed(Mur, 1, 0.0)[1], 1)
+    HyQMOM.RIEMANN_SOLVER[] = :hll
+    Fu_hll = face_flux_1d(Mu, Mu, 1, 0.0)
+    HyQMOM.RIEMANN_SOLVER[] = :hllem
+    Fu_em = face_flux_1d(Mu, Mu, 1, 0.0)
+    @test isapprox(Fu_em, Fu_hll; atol=1e-10)
+    @test isapprox(Fu_em, Fphys; atol=1e-10)
+
+    # --- Reduces to HLL on one-sided fans (sL>=0 or sR<=0): supersonic right-going
+    # Choose a strongly right-moving pair so both wave speeds are positive (sL>=0).
+    MLs = InitializeM4_35(1.0, 5.0, 0,0, 0.05, 0,0, 0.05, 0, 0.05)
+    MRs = InitializeM4_35(0.9, 5.0, 0,0, 0.05, 0,0, 0.05, 0, 0.05)
+    MLr_s, lL_s, _ = realize_and_speed(realizable_3D_M4(MLs, 2.0), 1, 2.0)
+    MRr_s, lL2_s, lR_s = realize_and_speed(realizable_3D_M4(MRs, 2.0), 1, 2.0)
+    if min(lL_s, lL2_s) >= 0      # genuinely supersonic case
+        HyQMOM.RIEMANN_SOLVER[] = :hll
+        Fhll_s = face_flux_1d(MLs, MRs, 1, 2.0)
+        HyQMOM.RIEMANN_SOLVER[] = :hllem
+        Fem_s = face_flux_1d(MLs, MRs, 1, 2.0)
+        @test isapprox(Fem_s, Fhll_s; atol=1e-12)
+    end
+
+    # --- Genuinely anti-diffusive: contact/jump with sL<0<sR -> HLLEM != HLL.
+    ML = InitializeM4_35(1.0,  0.3, 0.1, -0.05, 1.0, 0.0, 0.0, 1.1, 0.0, 0.9)
+    MR = InitializeM4_35(0.6, -0.2, -0.1, 0.05, 1.2, 0.0, 0.0, 0.9, 0.0, 1.1)
+    HyQMOM.RIEMANN_SOLVER[] = :hll
+    F_hll = face_flux_1d(ML, MR, 1, 2.0)
+    HyQMOM.RIEMANN_SOLVER[] = :hllem
+    F_em = face_flux_1d(ML, MR, 1, 2.0)
+    @test all(isfinite, F_em)
+    @test !isapprox(F_em, F_hll)        # anti-diffusion term is nonzero (THE point)
+
+    # --- Finite + realizable in near-vacuum Ma=100 collision (guard/fallback holds).
+    C200=1e-4
+    MLv = InitializeM4_35(1.0,   60.0, 0,0, C200, 0,0, C200, 0, C200)
+    MRv = InitializeM4_35(1e-5, -60.0, 0,0, C200, 0,0, C200, 0, C200)
+    HyQMOM.RIEMANN_SOLVER[] = :hllem
+    for ax in 1:3
+        Fv = face_flux_1d(MLv, MRv, ax, 100.0)
+        @test all(isfinite, Fv)
+    end
+
+    HyQMOM.RIEMANN_SOLVER[] = :hll          # reset; don't leak global state
+end

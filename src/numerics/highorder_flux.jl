@@ -210,12 +210,102 @@ function hllc_flux(MLr::AbstractVector, MRr::AbstractVector,
 end
 
 """
+    hllem_flux(MLr, MRr, sL, sR, FL, FR, axis, Ma; φ=1.0) -> length-35 interface flux
+
+HLLEM numerical flux (Dumbser & Balsara 2016). HLLEM keeps the two-wave HLL envelope
+(so it stays inside the HLL positivity cone) but **anti-diffuses the linearly-degenerate
+(contact + shear) fields** that plain HLL smears. Only the genuinely two-sided case
+`sL<0<sR` is anti-diffused; `sL>=0` -> `FL`, `sR<=0` -> `FR` (identical to HLL).
+
+The anti-diffusion is built from the LD eigenstructure ([`ld_eigvecs`](@ref)) of the
+per-axis flux Jacobian, linearized at the **HLL average state**
+`U_HLL = (sR·MRr − sL·MLr − (FR−FL))/(sR−sL)` (projected back to R via
+`realizable_3D_M4`; the natural single intermediate state of the two-wave solver):
+
+    δ*_k = clamp(1 − max(λ_k,0)/sR − min(λ_k,0)/sL, 0, 1)        # per LD mode k, in [0,1]
+    f = f_HLL − φ · (sL·sR)/(sR−sL) · R_inner · diag(δ*) · L_inner · (MRr − MLr)
+
+`δ*_k = 1` for a pure contact (`λ_k = u_n` with `sL<0<sR` keeps one ratio zero), giving
+full anti-diffusion of that mode; it tapers to 0 as `λ_k` approaches a wave speed.
+
+**Coalescing-eigenvalue / vacuum guard.** Near vacuum the finite-difference Jacobian and
+its eigenbasis become ill-conditioned. The anti-diffusion is DROPPED (plain HLL is
+returned) when any of: the linearization state is non-finite/non-realizable;
+`ld_eigvecs` errors or returns non-finite values; the biorthonormality residual
+`‖L_inner·R_inner − I‖` exceeds a tolerance (degenerate basis); or the basis norm is
+huge. Finally, the two HLLEM intermediate states implied by the anti-diffused flux are
+checked with the realizability oracle — if either is non-finite or non-realizable, the
+flux falls back to HLL.
+"""
+function hllem_flux(MLr::AbstractVector, MRr::AbstractVector,
+                    sL::Real, sR::Real, FL::AbstractVector, FR::AbstractVector,
+                    axis::Int, Ma::Real; φ::Real=1.0)
+    # One-sided fans: identical to HLL (no LD field crosses the interface).
+    if sL >= 0
+        return FL
+    elseif sR <= 0
+        return FR
+    end
+    f_hll = (sR .* FL .- sL .* FR .+ (sL*sR) .* (MRr .- MLr)) ./ (sR - sL)
+
+    # Linearization point: the HLL average state, projected back onto R.
+    U_HLL = (sR .* MRr .- sL .* MLr .- (FR .- FL)) ./ (sR - sL)
+    if !all(isfinite, U_HLL)
+        return f_hll
+    end
+    Ulin = realizable_3D_M4(U_HLL, Ma)
+    if !all(isfinite, Ulin) || !is_realizable(Ulin)
+        return f_hll
+    end
+
+    # LD eigenstructure; guard against errors / coalescence / degenerate basis.
+    local R_inner, L_inner, λ_inner
+    try
+        R_inner, L_inner, λ_inner = ld_eigvecs(Ulin, axis, Ma)
+    catch
+        return f_hll
+    end
+    if !(all(isfinite, R_inner) && all(isfinite, L_inner) && all(isfinite, λ_inner))
+        return f_hll
+    end
+    k = length(λ_inner)
+    k == 0 && return f_hll
+    LR = L_inner * R_inner
+    if norm(LR - Matrix{Float64}(I, k, k)) > 1e-6 || norm(R_inner) > 1e6 || norm(L_inner) > 1e6
+        return f_hll                       # degenerate / ill-conditioned basis (near vacuum)
+    end
+
+    # Anti-diffusion coefficients δ* in [0,1] (=1 for pure contact λ=u_n in (sL,sR)).
+    δ = [clamp(1.0 - max(λ, 0.0)/sR - min(λ, 0.0)/sL, 0.0, 1.0) for λ in λ_inner]
+    jump = MRr .- MLr
+    anti = R_inner * (δ .* (L_inner * jump))          # R·diag(δ*)·L·(MR−ML)
+    f = f_hll .- φ .* (sL*sR/(sR - sL)) .* anti
+    if !all(isfinite, f)
+        return f_hll
+    end
+
+    # Realizability gate on the two HLLEM intermediate states implied by f.
+    # f = FL + sL(U*_L − MLr) = FR + sR(U*_R − MRr), giving
+    #   U*_L = U_HLL − (sR/(sR−sL))·anti,  U*_R = U_HLL − (sL/(sR−sL))·anti.
+    UstarL = U_HLL .- φ .* (sR/(sR - sL)) .* anti
+    UstarR = U_HLL .- φ .* (sL/(sR - sL)) .* anti
+    if !(all(isfinite, UstarL) && all(isfinite, UstarR) &&
+         is_realizable(UstarL) && is_realizable(UstarR))
+        return f_hll
+    end
+    return f
+end
+
+"""
 Interface-flux (Riemann-solver) selector. Default `:hll` is the original, validated
 two-wave HLL flux (byte-identical). `:rusanov` is a robust local Lax–Friedrichs
 fallback. `:hllc` is the four-region HLLC flux with consistency-exact star pair and
-automatic realizability fallback to HLL. Set from `simulation_runner` via the
+automatic realizability fallback to HLL. `:hllem` is the HLLEM flux
+([`hllem_flux`](@ref)): it anti-diffuses the linearly-degenerate (contact/shear) fields
+while staying inside the HLL positivity cone, with a coalescing/vacuum guard and a
+realizability fallback to HLL. Set from `simulation_runner` via the
 `riemann_solver` param, or directly (`HyQMOM.RIEMANN_SOLVER[] = :hllc`). Future
-solvers (`:hllem`, `:kinetic`) plug into `face_flux_1d`'s branch — see
+solvers (`:kinetic`) plug into `face_flux_1d`'s branch — see
 `docs/riemann-solver-scope.md`. OPT-IN: anything other than `:hll` must be requested
 explicitly.
 """
@@ -252,8 +342,10 @@ function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::R
         return 0.5 .* (FL .+ FR) .- 0.5a .* (MRr .- MLr)
     elseif rs === :hllc
         return hllc_flux(MLr, MRr, sL, sR, hllc_contact_speed(MLr, MRr, sL, sR, axis), axis)
+    elseif rs === :hllem
+        return hllem_flux(MLr, MRr, sL, sR, FL, FR, axis, Ma)
     else
-        throw(ArgumentError("unknown riemann_solver=$(rs); available: :hll (default), :rusanov, :hllc"))
+        throw(ArgumentError("unknown riemann_solver=$(rs); available: :hll (default), :rusanov, :hllc, :hllem"))
     end
 end
 

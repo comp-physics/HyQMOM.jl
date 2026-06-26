@@ -9,7 +9,7 @@ include(joinpath(SRC, "autogen/M4toC4_3D.jl"))
 include(joinpath(SRC, "autogen/C4toM4_3D.jl"))
 include(joinpath(SRC, "moments/M2CS4_35.jl"))
 include(joinpath(SRC, "moments/hyqmom_3D.jl"))
-include(joinpath(SRC, "realizability/realizablity_S220.jl"))
+include(joinpath(SRC, "realizability/realizability_S220.jl"))
 include(joinpath(SRC, "realizability/realizability_S2.jl"))
 
 Random.seed!(12345)
@@ -106,14 +106,14 @@ end
 writedlm(joinpath(OUT,"s2_in.txt"), s2in, ' ')
 writedlm(joinpath(OUT,"jl_s2_out.txt"), s2out, ' ')
 
-# --- realizablity_S220: random (S110,S220,A220) ---
+# --- realizability_S220: random (S110,S220,A220) ---
 Random.seed!(999)
 N220=400
 s220in=zeros(N220,3); s220out=zeros(N220,1)
 for c in 1:N220
     S110=rand()*2-1; A220=rand()*2.0; S220=rand()*3-0.5
     s220in[c,:]=[S110,S220,A220]
-    s220out[c,1]=realizablity_S220(S110,S220,A220)
+    s220out[c,1]=realizability_S220(S110,S220,A220)
 end
 writedlm(joinpath(OUT,"s220_in.txt"), s220in, ' ')
 writedlm(joinpath(OUT,"jl_s220_out.txt"), s220out, ' ')

@@ -19,7 +19,7 @@ The MATLAB source path is hard-coded near the top of the `.m` files
 
 | Script | Purpose |
 |---|---|
-| `gen_julia.jl` / `gen_matlab.m` | Kernel parity: `M2CS4_35`, `delta2star3D`, `C4toM4_3D`, `hyqmom_3D`, `realizability_S2`, `realizablity_S220` on identical particle-sampled moment vectors. |
+| `gen_julia.jl` / `gen_matlab.m` | Kernel parity: `M2CS4_35`, `delta2star3D`, `C4toM4_3D`, `hyqmom_3D`, `realizability_S2`, `realizability_S220` (MATLAB spells it `realizablity_S220`) on identical particle-sampled moment vectors. |
 | `gen_proj_inputs.jl` | Generates realizable + deliberately unrealizable `M4` test vectors. |
 | `eval_proj_julia.jl` / `eval_proj_matlab.m` | Projection parity: full `realizable_3D_M4(M4,Ma)` wrapper (Ma=2,5) and `projection35` in isolation. |
 
@@ -40,7 +40,7 @@ matlab -nodisplay -batch "run('test/matlab_parity/eval_proj_matlab.m')"
 
 | Kernel | max abs Δ |
 |---|---|
-| `M2CS4_35`, `delta2star3D`, `C4toM4_3D`, `realizablity_S220`, `realizability_S2` | ≤ 1e-12 |
+| `M2CS4_35`, `delta2star3D`, `C4toM4_3D`, `realizability_S220`, `realizability_S2` | ≤ 1e-12 |
 | `hyqmom_3D` (after closure update) | 8.7e-14 |
 | `projection35` (isolated, 289/300 triggered) | 3.9e-14 |
 | `realizable_3D_M4` wrapper (Ma=2 and Ma=5) | 1.8e-12 |

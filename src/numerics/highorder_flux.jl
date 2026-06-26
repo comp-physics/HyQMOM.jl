@@ -101,7 +101,11 @@ function hllc_contact_speed(MLr::AbstractVector, MRr::AbstractVector, sL::Real, 
     FL = _phys_flux(MLr, axis); FR = _phys_flux(MRr, axis)
     Uden = (sR*MRr[1] - sL*MLr[1] - (FR[1] - FL[1])) / (sR - sL)        # HLL density
     Umom = (sR*MRr[m] - sL*MLr[m] - (FR[m] - FL[m])) / (sR - sL)        # HLL normal momentum
-    return clamp(Umom / Uden, sL, sR)
+    # Guard: degenerate (non-positive) HLL density or non-finite quotient → wave midpoint.
+    # Realizable inputs give Uden > 0, so this branch never fires on valid states.
+    (!(Uden > 0)) && return 0.5*(sL + sR)
+    sm = Umom / Uden
+    return isfinite(sm) ? clamp(sm, sL, sR) : 0.5*(sL + sR)
 end
 
 """
@@ -203,6 +207,9 @@ function hllc_flux(MLr::AbstractVector, MRr::AbstractVector,
     end
     UsL, UsR = hllc_star_pair(MLr, MRr, sL, sR, S_M, axis)
     Us = S_M >= 0 ? UsL : UsR
+    # One-sided realizability check is sufficient: the returned flux uses only the
+    # contacted-side star via its RH relation (F* = F_K + sK*(U*_K − M_K)), so only
+    # that side's star state needs to be realizable for the result to be valid.
     if !all(isfinite, Us) || !is_realizable(Us)
         return (sR .* FL .- sL .* FR .+ (sL*sR) .* (MRr .- MLr)) ./ (sR - sL)
     end
@@ -225,8 +232,9 @@ per-axis flux Jacobian, linearized at the **HLL average state**
     δ*_k = clamp(1 − max(λ_k,0)/sR − min(λ_k,0)/sL, 0, 1)        # per LD mode k, in [0,1]
     f = f_HLL − φ · (sL·sR)/(sR−sL) · R_inner · diag(δ*) · L_inner · (MRr − MLr)
 
-`δ*_k = 1` for a pure contact (`λ_k = u_n` with `sL<0<sR` keeps one ratio zero), giving
-full anti-diffusion of that mode; it tapers to 0 as `λ_k` approaches a wave speed.
+This is the standard Dumbser–Balsara formula. `δ*_k → 1` as `u_n → 0` (both terms vanish);
+for `u_n ≠ 0` the contacted-side ratio is non-zero and `δ*_k = 1 − u_n/sR < 1` (u_n>0 case).
+It tapers to 0 as `λ_k` approaches a wave speed.
 
 **Coalescing-eigenvalue / vacuum guard.** Near vacuum the finite-difference Jacobian and
 its eigenbasis become ill-conditioned. The anti-diffusion is DROPPED (plain HLL is

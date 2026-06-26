@@ -251,7 +251,10 @@ exactly — `ld_eigvecs`, Task B1), extracts the 9 linearly-degenerate modes at 
 
 **But it provides essentially no anti-diffusion for this closure.** Measured `|f_hllem − f_hll|` (relative):
 pure density contact **7.6e-9**, pure shear **3.9e-12**, the colliding-jet regime (u=±5.77) **1.7e-13** —
-i.e. `:hllem ≈ :hll` exactly where sharpening is wanted. **Root cause:** a physical contact/shear/collision
+i.e. `:hllem ≈ :hll` exactly where sharpening is wanted. (The test assertion `!isapprox(F_hllem,F_hll)` is
+not a contradiction: the anti-diffusion is nonzero but **negligible** — the mixed-jump test state lands just
+above `isapprox`'s default `~1.5e-8` rtol, while the physically-relevant pure contact/shear differences are
+7.6e-9 / 3.9e-12 — orders of magnitude below any useful flux correction.) **Root cause:** a physical contact/shear/collision
 jump has ~zero projection onto the λ=`u_n` LD eigenspace of the (FD) Jacobian (measured LD-subspace energy
 of a pure-shear jump ≈ 5e-12). The anti-diffusion `R·δ*·L·ΔM` is therefore ≈ 0. This is either (i) the FD
 Jacobian's **9-fold-degenerate** λ=`u_n` cluster yielding an ill-conditioned/arbitrary eigenbasis from

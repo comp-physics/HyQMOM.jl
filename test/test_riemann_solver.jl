@@ -45,10 +45,14 @@ end
 
 @testset "hllc flux branch (face_flux_1d)" begin
     HyQMOM.RIEMANN_SOLVER[] = :hllc
-    # Consistency: uniform state returns the physical flux (atol 1e-10).
+    # Consistency: uniform state returns the physical flux (atol 1e-10), all axes.
+    # Axes 2 and 3 use hard-coded indices 6 and 16 in hllc_star/_NMOM; test all three
+    # so a per-axis index transcription bug cannot pass silently.
     Mu = InitializeM4_35(1.0, 0.25, 0, 0, 1.0, 0, 0, 1, 0, 1)
-    @test isapprox(face_flux_1d(Mu, Mu, 1, 0.0),
-                   HyQMOM._phys_flux(HyQMOM.realizable_3D_M4(Mu, 0.0), 1); atol=1e-10)
+    for axis in (1,2,3)
+        @test isapprox(face_flux_1d(Mu, Mu, axis, 0.0),
+                       HyQMOM._phys_flux(HyQMOM.realizable_3D_M4(Mu, 0.0), axis); atol=1e-10)
+    end
     # Finite on a generic jump state.
     ML = InitializeM4_35(1.0,  0.5, 0, 0, 1.0, 0, 0, 1, 0, 1)
     MR = InitializeM4_35(0.3, -0.4, 0, 0, 1.2, 0, 0, 1, 0, 1)
@@ -98,6 +102,23 @@ end
     # the star flux used by hllc_flux matches the RH star flux of the contacted side
     Fh = hllc_flux(MLr,MRr,sL,sR,SM,1)
     @test isapprox(Fh, SM>=0 ? FsL : FsR; rtol=1e-8, atol=1e-10)
+
+    # HLL-consistency for all three axes using a generic state with non-trivial v and w.
+    # hllc_star_pair uses hard-coded per-axis indices (2,6,16); looping all three catches
+    # any y/z transcription bug that the axis=1-only checks above would miss.
+    MgL = realizable_3D_M4(InitializeM4_35(1.0, 0.4, 0.3, 0.2, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0), 2.0)
+    MgR = realizable_3D_M4(InitializeM4_35(0.4,-0.3,-0.2,-0.1, 1.2, 0.0, 0.0, 1.0, 0.0, 1.0), 2.0)
+    for axis in (1,2,3)
+        MgLr, lgL, _ = realize_and_speed(MgL, axis, 2.0)
+        MgRr, _, lgR = realize_and_speed(MgR, axis, 2.0)
+        sgL = min(lgL, lgR); sgR = max(lgL, lgR)
+        SMg = hllc_contact_speed(MgLr, MgRr, sgL, sgR, axis)
+        UpgL, UpgR = hllc_star_pair(MgLr, MgRr, sgL, sgR, SMg, axis)
+        Uhllg = (sgR.*MgRr .- sgL.*MgLr .-
+                 (_phys_flux(MgRr,axis) .- _phys_flux(MgLr,axis))) ./ (sgR - sgL)
+        @test isapprox(((SMg-sgL).*UpgL .+ (sgR-SMg).*UpgR) ./ (sgR-sgL),
+                       Uhllg; rtol=1e-8)
+    end
 end
 
 @testset "ld_eigvecs (B1: linearly-degenerate eigenvectors)" begin

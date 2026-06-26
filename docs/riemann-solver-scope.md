@@ -221,6 +221,35 @@ subspace, inheriting HLL positivity; §3.3) or the **realizable-by-construction 
 This is the Stage-B/C work and is Jacob's domain. HLLC stays in the tree as an opt-in, validated
 building block (its contact closure feeds HLLEM).
 
+## 6c. Result: HLLEM is implemented + correct but NEAR-INERT for this closure (B1–B2)
+
+`riemann_solver=:hllem` is implemented (opt-in, default `:hll` byte-identical, golden-clean). The code is
+**mathematically correct** (Dumbser–Balsara form, sign/scaling/δ*/consistency/guard all verified): it
+builds the per-axis flux Jacobian by finite differences (its extreme eigenvalues match `realize_and_speed`
+exactly — `ld_eigvecs`, Task B1), extracts the 9 linearly-degenerate modes at λ=`u_n`, and applies
+`f = f_HLL − φ·(sL sR)/(sR−sL)·R_inner·diag(δ*)·L_inner·ΔM`.
+
+**But it provides essentially no anti-diffusion for this closure.** Measured `|f_hllem − f_hll|` (relative):
+pure density contact **7.6e-9**, pure shear **3.9e-12**, the colliding-jet regime (u=±5.77) **1.7e-13** —
+i.e. `:hllem ≈ :hll` exactly where sharpening is wanted. **Root cause:** a physical contact/shear/collision
+jump has ~zero projection onto the λ=`u_n` LD eigenspace of the (FD) Jacobian (measured LD-subspace energy
+of a pure-shear jump ≈ 5e-12). The anti-diffusion `R·δ*·L·ΔM` is therefore ≈ 0. This is either (i) the FD
+Jacobian's **9-fold-degenerate** λ=`u_n` cluster yielding an ill-conditioned/arbitrary eigenbasis from
+`eigen` (cond(V) up to ~2e4), so `R·L` is not the true spectral projector onto the invariant subspace, or
+(ii) genuinely, in this closure, contact/shear moment-jumps couple to the acoustic fields (not purely
+linearly degenerate). Distinguishing these requires the **analytic** Fox–Laurent eigenstructure (from the
+orthogonal-polynomial factorization), not FD-`eigen` of a degenerate cluster — deep work, Jacob's domain.
+
+**Bottom line (A–B):** both macroscopic Riemann solvers, implemented and adversarially verified, **fail to
+beat HLL for the 35-moment HyQMOM closure** — HLLC because its star states leave the realizable cone in the
+high-Mach collision (fallback to HLL), HLLEM because physical contact/shear jumps don't project onto the
+computed LD eigenspace. The reasons are closure-structural, not coding errors. This **strongly indicates the
+realizable-by-construction kinetic flux (§3.4, Stage C)** — native to the closure (eigenvalues = abscissas),
+resolving waves through the quadrature nodes — as the right path, and/or that any HLLEM here needs the
+analytic LD eigenstructure. Both `:hllc` and `:hllem` remain in the tree as opt-in, verified-correct
+building blocks. (Performance note: the FD-Jacobian + `eigen` per face makes `:hllem` far too slow for
+production as-is.)
+
 ## 7. Key references
 
 HLL family: Harten–Lax–van Leer, SIAM Rev. 25 (1983); Einfeldt–Munz–Roe–Sjögreen, JCP 92 (1991);

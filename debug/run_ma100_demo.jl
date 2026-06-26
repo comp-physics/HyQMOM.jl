@@ -11,6 +11,8 @@ order = parse(Int,     get(ENV,"REPRO_ORDER","2"))
 vacfloor = parse(Float64, get(ENV,"REPRO_VACFLOOR","0.001"))
 # realizability scaling limiter (REPRO_LIMITER=1 to enable, default off)
 use_limiter = parse(Int, get(ENV,"REPRO_LIMITER","0")) != 0
+# Rodney's projection-triggered first-order recon (REPRO_PROJREC=1, default off)
+use_projrec = parse(Int, get(ENV,"REPRO_PROJREC","0")) != 0
 
 params = (
     Nx=Np, Ny=Np, Nz=Np, Nmom=35,
@@ -23,6 +25,7 @@ params = (
     spatial_order=order,
     ho_vacuum_floor=vacfloor,
     ho_realizability_limiter=use_limiter,
+    ho_proj_first_order=use_projrec,
 )
 
 t0 = time()

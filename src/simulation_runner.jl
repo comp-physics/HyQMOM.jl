@@ -164,6 +164,15 @@ function simulation_runner(params)
     # Mach-ladder validation (RP-T6) will quantify the accuracy/robustness tradeoff.
     ho_realizability_limiter = get(params, :ho_realizability_limiter, false)
 
+    # ho_proj_first_order (OPT-IN, default false): Rodney Fox's projection-triggered
+    # control. A cell whose mean is flagged for the realizability projection (smallest
+    # Delta_2 eigenvalue < 0, i.e. realizability_margin < 0) reconstructs FIRST-ORDER;
+    # all other cells get full MUSCL. One Delta_2 eigenvalue per cell (the same signal
+    # the projection uses), local by construction. Alternative reconstruction control to
+    # ho_realizability_limiter; takes precedence if both are set. `ho_vacuum_floor` kept.
+    # Demo env: REPRO_PROJREC=1 in debug/run_ma100_demo.jl.
+    ho_proj_first_order = get(params, :ho_proj_first_order, false)
+
     # Snapshot saving parameters
     snapshot_interval = get(params, :snapshot_interval, 0)
     save_snapshots = (snapshot_interval > 0)
@@ -712,7 +721,8 @@ function simulation_runner(params)
             # density-preserving, so conservation and MPI-losslessness are
             # unaffected; the high-order step advances this hyperbolic state.
             step_highorder_3d!(M, dt, decomp, bc, nx, ny, nz, halo, dx, dy, dz, Ma;
-                               order=2, use_limiter=ho_realizability_limiter)
+                               order=2, use_limiter=ho_realizability_limiter,
+                               use_proj_recon=ho_proj_first_order)
         else
             # --- FIRST-ORDER PATH (spatial_order=1, default) ---
             # Byte-identical to the original validated path.

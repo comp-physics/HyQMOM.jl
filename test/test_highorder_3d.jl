@@ -242,3 +242,37 @@ end
         @test haskey(grid, :x) && haskey(grid, :xm)
     end
 end
+
+@testset "projection-triggered first-order reconstruction (use_proj_recon)" begin
+    nx = 8; halo = 2
+    # Near-vacuum line (same stressor as the limiter test): proj-recon stays finite.
+    Mext = zeros(nx+2halo, 35)
+    for i in 1:size(Mext,1)
+        ρ = (i <= halo+2 || i >= nx+halo-1) ? 1.0 : 1e-5
+        u = i <= size(Mext,1)÷2 ? 60.0 : -60.0
+        Mext[i,:] = InitializeM4_35(ρ, u, 0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    end
+    Rp = residual_line(Mext, 1.0/nx, 1, 100.0; order=2, g=halo, use_proj_recon=true)
+    @test all(isfinite, Rp)
+    # default (use_proj_recon=false) is byte-identical to the no-kw call
+    Rd = residual_line(Mext, 1.0/nx, 1, 100.0; order=2, g=halo, use_proj_recon=false)
+    Rb = residual_line(Mext, 1.0/nx, 1, 100.0; order=2, g=halo)
+    @test isequal(Rd, Rb)
+
+    # On an all-realizable (smooth) line NO cell is flagged, so proj-recon reduces
+    # EXACTLY to the default MUSCL path (it only alters flagged cells).
+    dx = 1.0/nx
+    sm = zeros(nx+2halo, 35)
+    for i in 1:size(sm,1)
+        x = (i-0.5)*dx
+        sm[i,:] = InitializeM4_35(1.0+0.2*sin(2pi*x), 0.3, 0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    end
+    @test all(realizability_margin(@view sm[i,:]) > 0 for i in axes(sm,1))  # nothing flagged
+    Rsm_proj = residual_line(sm, dx, 1, 0.0; order=2, g=halo, use_proj_recon=true)
+    Rsm_def  = residual_line(sm, dx, 1, 0.0; order=2, g=halo)
+    @test isequal(Rsm_proj, Rsm_def)
+
+    # A grossly unrealizable cell IS flagged (margin < 0) -> the mode first-orders it.
+    Mu = InitializeM4_35(1.0, 0.2, -0.1, 0.05, 1.3,0.0,0.0,1.1,0.0,0.9); Mu[12] *= 5.0
+    @test realizability_margin(Mu) < 0
+end

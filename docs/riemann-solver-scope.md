@@ -186,6 +186,29 @@ These are independent of the Riemann-solver choice and can be pursued separately
 
 ---
 
+## 6b. Result: HLLC is implemented but fallback-dominated on the crossing jets (A1–A4)
+
+`riemann_solver=:hllc` is implemented (opt-in, default `:hll` byte-identical, golden-clean) and **verified
+to be a genuine, conservative, contact-resolving HLLC** in isolation: on a mild-velocity jump its star
+pair satisfies Rankine–Hugoniot across both acoustic waves and the contact (residuals ~1e-15), is
+HLL-consistent to ~1e-16, and sharpens the HLL flux by ~23%. The per-side star cannot be 35-component
+consistent for the nonlinear closure, so an **anchored coupled star pair** is used (see
+`src/numerics/highorder_flux.jl`).
+
+**However, on the high-Mach crossing jets it gives ~no benefit.** Measured at Ma=10, Np=32: first-order
+`:hllc` is **byte-identical** to `:hll` (peak ρ 0.6055, `max|∇ρ|` 5.48); projection-triggered `:hllc`
+differs only marginally (peak ρ 0.869 vs 0.856). Reason: the jets collide at relative velocity
+≈ 2·Ma/√3 (~11 at Ma=10), and the HLLC star states **leave the realizable cone in that collision**, so
+the built-in realizability fallback reverts to HLL exactly where the contact lives. The contact
+restoration only engages in mild regions where it does not help.
+
+**Implication (steers the next stage):** simple contact restoration cannot beat HLL here because
+realizability is binding *in the flux*, not just the reconstruction. The fix must anti-diffuse the
+contact/shear **without leaving R** — i.e. **HLLEM** (anti-diffusion confined to the linearly-degenerate
+subspace, inheriting HLL positivity; §3.3) or the **realizable-by-construction kinetic flux** (§3.4).
+This is the Stage-B/C work and is Jacob's domain. HLLC stays in the tree as an opt-in, validated
+building block (its contact closure feeds HLLEM).
+
 ## 7. Key references
 
 HLL family: Harten–Lax–van Leer, SIAM Rev. 25 (1983); Einfeldt–Munz–Roe–Sjögreen, JCP 92 (1991);

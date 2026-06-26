@@ -13,6 +13,8 @@ vacfloor = parse(Float64, get(ENV,"REPRO_VACFLOOR","0.001"))
 use_limiter = parse(Int, get(ENV,"REPRO_LIMITER","0")) != 0
 # Rodney's projection-triggered first-order recon (REPRO_PROJREC=1, default off)
 use_projrec = parse(Int, get(ENV,"REPRO_PROJREC","0")) != 0
+# Riemann solver (REPRO_RS=hll|rusanov|hllc, default hll)
+riemann = Symbol(get(ENV,"REPRO_RS","hll"))
 
 params = (
     Nx=Np, Ny=Np, Nz=Np, Nmom=35,
@@ -26,6 +28,7 @@ params = (
     ho_vacuum_floor=vacfloor,
     ho_realizability_limiter=use_limiter,
     ho_proj_first_order=use_projrec,
+    riemann_solver=riemann,
 )
 
 t0 = time()

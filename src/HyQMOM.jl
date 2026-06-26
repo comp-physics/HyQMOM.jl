@@ -44,7 +44,7 @@ export interactive_3d_timeseries_streaming
 export CubicRegion, initialize_moment_field, initialize_moment_field_mpi, crossing_jets_ic
 
 # Export key functions for testing
-export InitializeM4_35, M2CS4_35, Moments5_3D, hyqmom_3D
+export InitializeM4_35, M2CS4_35, Moments5_3D, hyqmom_3D, hyqmom_quadrature_1d
 export realizability, realizable_2D, realizable_3D
 export projection35, realizable_3D_M4
 export realizability_margin, is_realizable
@@ -88,6 +88,7 @@ include("moments/InitializeM4_35.jl")
 include("moments/M2CS4_35.jl")
 include("moments/Moments5_3D.jl")
 include("moments/hyqmom_3D.jl")
+include("moments/hyqmom_quadrature_1d.jl")
 include("moments/enforce_univariate.jl")
 
 # Reconstruction variables (must precede realizability, which calls standardized_to_M4)

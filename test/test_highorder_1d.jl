@@ -158,6 +158,57 @@ end
     @test abs(sum(Mline[:, 1]) - mass0) / mass0 < 1e-12  # mass conserved (no through-flow @ walls)
 end
 
+@testset "1D smooth order-of-accuracy with limiter (theta=1 everywhere)" begin
+    # On a smooth periodic density sinusoid there are no realizability violations, so
+    # scaling_limited_faces returns theta=1 for every cell. The limiter-on path must
+    # therefore produce the same ~2nd-order convergence as the standard MUSCL path.
+    # We verify: (a) the limiter is inactive (theta<1 fraction ≈ 0) on smooth data,
+    # and (b) the observed L1 self-convergence rate is > 1.8 with use_limiter=true.
+    Ma = 0.0; tfinal = 0.05
+
+    function run_lim(N; use_limiter=true)
+        dx = 1.0/N
+        Mline = zeros(N, 35)
+        for i in 1:N
+            x = (i-0.5)*dx
+            rho = 1.0 + 0.2*sin(2pi*x)
+            Mline[i, :] = InitializeM4_35(rho, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0)
+        end
+        dt = 0.15*dx/10.5     # conservative CFL: wave speed ≲ 10.5 for T=1, u=1
+        nsteps = ceil(Int, tfinal/dt); dt = tfinal/nsteps
+        L(M) = residual_1d(M, dx, Ma; order=2, bc=:periodic, use_limiter=use_limiter)
+        for _ in 1:nsteps
+            Mline = ssp_rk3_step(Mline, dt, L)
+        end
+        return Mline
+    end
+
+    coarsen(a) = [(a[2i-1]+a[2i])/2 for i in 1:length(a)÷2]
+
+    # (a) theta-locality: on the smooth IC at t=0, theta must be 1 everywhere
+    Nc_diag = 128
+    Msmooth = zeros(Nc_diag, 35)
+    for i in 1:Nc_diag
+        x = (i-0.5)/Nc_diag
+        rho = 1.0 + 0.2*sin(2pi*x)
+        Msmooth[i, :] = InitializeM4_35(rho, 1.0, 0.0, 0.0, 1.0, 0.0, 0.0, 1.0, 0.0, 1.0)
+    end
+    Vc = [to_recon_vars(@view Msmooth[i, :]) for i in 1:Nc_diag]
+    wrap(i) = mod(i-1, Nc_diag) + 1
+    thetas  = [begin _, _, θ = scaling_limited_faces(Vc[wrap(i-1)], Vc[i], Vc[wrap(i+1)]); θ end
+               for i in 1:Nc_diag]
+    frac_below1 = count(θ -> θ < 1.0 - 1e-14, thetas) / Nc_diag
+    @test frac_below1 < 0.01   # limiter must be inactive on smooth data
+
+    # (b) L1 self-convergence rate > 1.8 with use_limiter=true
+    d32  = run_lim(32)[:, 1]; d64  = run_lim(64)[:, 1]
+    d128 = run_lim(128)[:, 1]
+    e1 = sum(abs.(coarsen(d64)  .- d32))  / 32
+    e2 = sum(abs.(coarsen(d128) .- d64))  / 64
+    rate = log2(e1 / e2)
+    @test rate > 1.8   # smooth 2nd-order: limiter must NOT clip theta on smooth data
+end
+
 @testset "1D high-order stays realizable through transport (Ma=100 analog)" begin
     Nc = 256
     Mline = zeros(Nc, 35)

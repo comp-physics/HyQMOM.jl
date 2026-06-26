@@ -30,6 +30,71 @@ end
 #   Fx[1]=M100=M[2], Fx[2]=M200;  Fy[1]=M010=M[6], Fy[6]=M020;  Fz[1]=M001=M[16], Fz[16]=M002.
 const _NMOM = (2, 6, 16)
 
+"""
+    _flux_jacobian(Mr, axis) -> A (35x35)
+
+Per-axis 35-moment flux Jacobian `A = ∂F_axis/∂M` at state `Mr`, assembled by
+second-order central finite differences of [`_phys_flux`](@ref) column-by-column.
+The HyQMOM closure is not exposed in closed analytic-Jacobian form for the full
+35-moment system, so the Jacobian is built numerically (correctness-first; B1).
+"""
+function _flux_jacobian(Mr::AbstractVector, axis::Int)
+    n = length(Mr)
+    A = Matrix{Float64}(undef, n, n)
+    @inbounds for j in 1:n
+        h = 1e-6 * max(abs(Mr[j]), 1.0)
+        Mp = collect(float.(Mr)); Mp[j] += h
+        Mm = collect(float.(Mr)); Mm[j] -= h
+        Fp = _phys_flux(Mp, axis)
+        Fm = _phys_flux(Mm, axis)
+        @views A[:, j] .= (Fp .- Fm) ./ (2h)
+    end
+    return A
+end
+
+"""
+    ld_eigvecs(Mr, axis, Ma) -> (R_inner, L_inner, λ_inner)
+
+Right (`R_inner`, columns) and left (`L_inner`, rows) eigenvectors and eigenvalues
+(`λ_inner`) of the **linearly-degenerate (LD)** fields of the per-axis 35-moment flux
+Jacobian `A = ∂F_axis/∂M` at state `Mr` — i.e. the contact and shear fields advected
+at the normal (material) velocity `u_n = Mr[_NMOM[axis]]/Mr[1]`.
+
+The Jacobian (assembled in [`_flux_jacobian`](@ref)) is hyperbolic: all 35 eigenvalues
+are real and `A` is diagonalizable. The LD subspace is the eigenspace with eigenvalue
+`u_n`; for the realizable 3D 35-moment state it has dimension 9 (one contact + the
+shear/cross-moment modes). LD modes are identified as the eigenvalues within `tol` of
+`u_n`, where `tol` scales with the spectral radius. The left eigenvectors are taken as
+the matching rows of `inv(V)` (the dual basis of the full eigenbasis `V`), so
+`L_inner * R_inner ≈ I` holds for any basis choice within the degenerate subspace.
+
+`Ma` is accepted for API stability with the HLLEM caller (Task B2); the flux Jacobian
+is evaluated directly at the supplied `Mr`, so `Ma` is not used here.
+
+HLLEM (Task B2) anti-diffuses exactly these LD fields.
+"""
+function ld_eigvecs(Mr::AbstractVector, axis::Int, Ma::Real)
+    A = _flux_jacobian(Mr, axis)
+    un = Mr[_NMOM[axis]] / Mr[1]
+
+    E = eigen(A)
+    vals = E.values
+    V = E.vectors
+
+    # Hyperbolic system: eigenvalues are real. Drop any spurious imaginary parts.
+    specrad = maximum(abs.(real.(vals)))
+    tol = 1e-6 * max(1.0, specrad)
+    idx = findall(k -> abs(real(vals[k]) - un) <= tol && abs(imag(vals[k])) <= tol,
+                  eachindex(vals))
+    isempty(idx) && error("ld_eigvecs: no linearly-degenerate (u_n) modes found for axis $axis")
+
+    Vinv = inv(V)
+    R_inner = real.(V[:, idx])
+    L_inner = real.(Vinv[idx, :])
+    λ_inner = real.(vals[idx])
+    return R_inner, L_inner, λ_inner
+end
+
 "Contact (material) wave speed S_M = normal velocity of the HLL star state, clamped to [sL,sR]."
 function hllc_contact_speed(MLr::AbstractVector, MRr::AbstractVector, sL::Real, sR::Real, axis::Int)
     m = _NMOM[axis]

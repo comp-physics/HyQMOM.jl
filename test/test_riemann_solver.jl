@@ -99,3 +99,43 @@ end
     Fh = hllc_flux(MLr,MRr,sL,sR,SM,1)
     @test isapprox(Fh, SM>=0 ? FsL : FsR; rtol=1e-8, atol=1e-10)
 end
+
+@testset "ld_eigvecs (B1: linearly-degenerate eigenvectors)" begin
+    using HyQMOM: ld_eigvecs, _phys_flux, _NMOM, realizable_3D_M4
+    using LinearAlgebra
+
+    Mr = realizable_3D_M4(InitializeM4_35(1.0,0.3,-0.1,0.05,1.2,0.0,0.0,1.1,0.0,0.9), 2.0)
+
+    # Reference Jacobian via central finite differences of the physical flux.
+    function _ref_A(M, axis)
+        n = length(M); F0 = _phys_flux(M, axis); A = zeros(n, n)
+        for j in 1:n
+            h = 1e-6 * max(abs(M[j]), 1.0)
+            Mp = copy(M); Mp[j] += h; Mm = copy(M); Mm[j] -= h
+            A[:, j] = (_phys_flux(Mp, axis) .- _phys_flux(Mm, axis)) ./ (2h)
+        end
+        return A
+    end
+
+    for axis in 1:3
+        R, L, lam = ld_eigvecs(Mr, axis, 2.0)
+        A = _ref_A(Mr, axis)
+        un = Mr[_NMOM[axis]] / Mr[1]
+        k = length(lam)
+        @test k >= 1
+        @test size(R, 1) == 35 && size(R, 2) == k
+        @test size(L, 1) == k && size(L, 2) == 35
+
+        # (1) eigenvector residual: A*R[:,j] ≈ lam[j]*R[:,j]
+        for j in 1:k
+            r = A * R[:, j] .- lam[j] .* R[:, j]
+            @test norm(r) / norm(R[:, j]) < 1e-8
+        end
+        # (2) biorthonormality on the LD subspace
+        @test isapprox(L * R, Matrix{Float64}(I, k, k); atol=1e-8)
+        # (3) contact: at least one eigenvalue ≈ u_n
+        @test any(x -> isapprox(x, un; atol=1e-6), lam)
+        # all returned LD eigenvalues are the material speed u_n
+        @test all(x -> isapprox(x, un; atol=1e-6), lam)
+    end
+end

@@ -58,6 +58,7 @@ export to_recon_vars, from_recon_vars, standardized_to_M4
 export minmod, muscl_slopes, muscl_faces
 export scaling_limited_faces
 export realize_and_speed, face_flux_1d, residual_1d
+export ld_eigvecs
 export ssp_rk3_step
 export residual_line
 export residual_ho_3d!

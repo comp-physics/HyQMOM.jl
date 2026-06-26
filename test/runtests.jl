@@ -39,6 +39,7 @@ const TOL = 1e-10
         include("test_numerical_schemes.jl")
         include("test_scaling_limiter.jl")
         include("test_riemann_solver.jl")
+        include("test_kinetic_flux.jl")
 
         # Regression and bug fix tests
         include("test_z_eigenvalue_fix.jl")

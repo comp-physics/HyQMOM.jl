@@ -305,6 +305,76 @@ function hllem_flux(MLr::AbstractVector, MRr::AbstractVector,
 end
 
 """
+    kinetic_flux(MLr, MRr, FL, FR, sL, sR, axis, Ma) -> length-35 interface flux
+
+Opt-in **realizable kinetic (abscissa-upwind)** numerical flux. The two
+hyperbolicity-corrected face states are inverted to non-negative 3D velocity
+quadratures with [`chyqmom_nodes_3d`](@ref) (`nL, UL` and `nR, UR`; `U[α,:]` is the
+node velocity, `n[α] ≥ 0`). Each node is upwinded by the SIGN of its normal (axis-`a`)
+velocity: a left node streams across the interface only if `UL[α,a] > 0`, a right node
+only if `UR[α,a] < 0` (nodes with exactly zero normal velocity carry no normal flux).
+For moment `n` with exponent triple `(i,j,k)` the flux exponent is `e = (i,j,k)` with
+`e[a] += 1`, and
+
+    Fkin[n] = Σ_{α: UL[α,a]>0} nL[α]·UL[α,1]^e1·UL[α,2]^e2·UL[α,3]^e3
+            + Σ_{α: UR[α,a]<0} nR[α]·UR[α,1]^e1·UR[α,2]^e2·UR[α,3]^e3 .
+
+Because every weight is non-negative, the kinetic flux is realizable by construction and
+introduces less numerical diffusion than HLL on contacts/shears.
+
+**Honest scope.** This is a DIFFERENT realizable closure than the analytic HyQMOM flux
+([`_phys_flux`](@ref)): it reproduces the well-recovered low-order moments but differs on
+the high-order cross moments the CHyQMOM inversion truncates (e.g. M103/M004/M211). It is
+NOT a high-order-consistent flux; whether its lower diffusion outweighs the closure
+perturbation is decided by full simulation comparison, not by this function.
+
+**Robustness fallback.** If either node inversion is degenerate (errors / empty / produces
+a non-finite node) OR any `Fkin` entry is non-finite, the flux falls back to the IDENTICAL
+two-wave HLL expression used by the `:hll` branch, built from the passed-in
+`FL, FR, sL, sR, MLr, MRr` (`sL>=0 → FL`; `sR<=0 → FR`; else
+`(sR·FL − sL·FR + sL·sR·(MRr−MLr))/(sR−sL)`). `Ma` is accepted for caller-signature
+parity (mirrors [`hllem_flux`](@ref)).
+"""
+function kinetic_flux(MLr::AbstractVector, MRr::AbstractVector,
+                      FL::AbstractVector, FR::AbstractVector,
+                      sL::Real, sR::Real, axis::Int, Ma::Real)
+    # HLL fallback (identical expression to the :hll branch, on the passed-in args).
+    f_hll() = sL >= 0 ? FL :
+              (sR <= 0 ? FR :
+               (sR .* FL .- sL .* FR .+ (sL*sR) .* (MRr .- MLr)) ./ (sR - sL))
+
+    local nL, UL, nR, UR
+    try
+        nL, UL = chyqmom_nodes_3d(MLr)
+        nR, UR = chyqmom_nodes_3d(MRr)
+    catch
+        return f_hll()                         # degenerate inversion (e.g. ρ ≤ 0)
+    end
+    if isempty(nL) || isempty(nR) ||
+       !all(isfinite, nL) || !all(isfinite, UL) ||
+       !all(isfinite, nR) || !all(isfinite, UR)
+        return f_hll()
+    end
+
+    Fkin = zeros(35)
+    @inbounds for n in 1:35
+        i, j, k = _CHYQ_TRIPLES[n]
+        e1 = i + (axis == 1); e2 = j + (axis == 2); e3 = k + (axis == 3)
+        s = 0.0
+        for α in eachindex(nL)
+            UL[α, axis] > 0 || continue
+            s += nL[α] * UL[α,1]^e1 * UL[α,2]^e2 * UL[α,3]^e3
+        end
+        for α in eachindex(nR)
+            UR[α, axis] < 0 || continue
+            s += nR[α] * UR[α,1]^e1 * UR[α,2]^e2 * UR[α,3]^e3
+        end
+        Fkin[n] = s
+    end
+    return all(isfinite, Fkin) ? Fkin : f_hll()
+end
+
+"""
 Interface-flux (Riemann-solver) selector. Default `:hll` is the original, validated
 two-wave HLL flux (byte-identical). `:rusanov` is a robust local Lax–Friedrichs
 fallback. `:hllc` is the four-region HLLC flux with consistency-exact star pair and
@@ -352,8 +422,10 @@ function face_flux_1d(M_L::AbstractVector, M_R::AbstractVector, axis::Int, Ma::R
         return hllc_flux(MLr, MRr, sL, sR, hllc_contact_speed(MLr, MRr, sL, sR, axis), axis)
     elseif rs === :hllem
         return hllem_flux(MLr, MRr, sL, sR, FL, FR, axis, Ma)
+    elseif rs === :kinetic
+        return kinetic_flux(MLr, MRr, FL, FR, sL, sR, axis, Ma)
     else
-        throw(ArgumentError("unknown riemann_solver=$(rs); available: :hll (default), :rusanov, :hllc, :hllem"))
+        throw(ArgumentError("unknown riemann_solver=$(rs); available: :hll (default), :rusanov, :hllc, :hllem, :kinetic"))
     end
 end
 

@@ -17,3 +17,16 @@ part of the package and are excluded from CI.
   eigenvalue / flux kernels. `... golden_kernels.jl capture` writes a reference;
   `... golden_kernels.jl compare` checks the current code against it. Used to gate
   numerics-preserving refactors.
+
+## Grid-convergence study (Rodney's roadmap #3 — ready to launch)
+
+First-order reference solutions on fine grids (~1024³), judging convergence on
+density (M000), per Rodney's guidance. Needs a multi-node allocation.
+
+- **`convergence_run.jl`** — runs one (Np, order, Ma) case and saves **density
+  only** (1024³ density ≈ 8 GB vs ~300 GB for the full 35-moment state). Env:
+  `CONV_NP`, `CONV_ORDER`, `CONV_MA`, `CONV_TMAX`, `CONV_VACFLOOR`.
+- **`convergence_analysis.jl`** — conservative 2× block-average coarsening +
+  L1 density self-convergence (observed order) + a diffusion proxy.
+- **`convergence_slurm.sbatch`** — multi-node Slurm template; note 1024³ needs
+  ≥4–8 nodes and InfiniBand transport (not the single-node `sm,self`).

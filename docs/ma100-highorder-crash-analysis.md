@@ -1,213 +1,76 @@
-# Ma=100 high-order crossing crash — root-cause analysis
+# High-order crossing at high Mach — status, fixes, and robustness findings
 
-**Date:** 2026-06-25
-**Symptom:** `ArgumentError: matrix contains Infs or NaNs` deep in an `eigvals`
-call, when running the Ma=100 crossing-jets demo at **Np=128 with high-order
-(`spatial_order=2`)**. The first-order run (`spatial_order=1`) at the same Np=128
-completes (114 steps), and the high-order run at the coarser **Np=64 completes**
-(57 steps). The crash is therefore *resolution- and order-dependent*, not a bug in
-the base finite-volume scheme.
+Context: Rodney's roadmap step #2 is high-order spatial fluxes to eliminate
+numerical diffusion in the Ma=100 jet crossing. His readme flagged the risk up
+front — *"I'm not sure what difficulties we run into when mixing high-order
+reconstruction and projection."* This documents exactly those difficulties, the
+fixes applied, and what remains for the proper high-order treatment.
 
-## TL;DR
+## The core difficulty
 
-High-order MUSCL reconstruction, applied in the deep near-vacuum region that the
-Ma=100 / 1000:1-density-ratio crossing produces, generates **unrealizable
-second-order moments** (negative or enormous directional variances) at cell faces.
-The resulting interface flux overflows to `Inf`, the RK update spreads it to `NaN`,
-and the very next realizability projection hits the **one `eigvals` call in the
-codebase that is not guarded against non-finite input** — `projection35` — which
-throws. Coarser grids and the first-order scheme keep the near-vacuum state smooth
-enough that the overflow never forms.
+The crossing IC has a 1000:1 density ratio (jet ρ=1, background ρ=0.001) at Mach
+`Ma`. As the dense jets move, they leave **deep near-vacuum** (ρ → ~1e-5) behind
+them. There, the derived primitives are catastrophic-cancellation noise:
+`u = M100/M000` and `C200 = M200/M000 − u²` divide/subtract vanishing quantities,
+producing finite-but-unphysical states (captured: `u = −415`/`+747` vs physical
+~70, `C200 = 2e5` or slightly negative). First-order HLL diffuses these away;
+high-order reconstruction does not, so the noise grows and breaks the scheme.
 
-## Is this a MATLAB-port bug? Did Rodney suggest a fix?
+This surfaced as several distinct failure modes, each fixed or mitigated:
 
-Both questions were investigated directly against Rodney's canonical MATLAB
-(`Code_Riemann_3D_35mom_july2026_GT/src/`). The honest answer is **partly yes, and
-it matters — but it is not the whole story.**
+## Fixes applied
 
-- **Genuine port-fidelity gap (now fixed).** MATLAB's `eig` returns `NaN`
-  eigenvalues on a matrix containing `Inf`/`NaN`; it does **not** throw. Julia's
-  `eigvals` throws. Every eigen site in this codebase was ported *with* an explicit
-  `if any(!isfinite) return NaN` guard to preserve MATLAB semantics — *except*
-  `projection35`, which was ported faithfully line-for-line but without that guard.
-  So the thrown exception is, narrowly, a port-fidelity gap. Fixed by routing
-  `projection35` through the shared `_geigvals` guard (same behavior as the other
-  six sites). The rest of the realizability port is faithful: `realizable_3D_M4`
-  floors `C200` after standardization exactly as `realizable_3D.m` does, and
-  `M2CS4_35.jl` replicates `sqrt(max(C200, eps))` (so a negative variance does not
-  produce a NaN there).
+1. **`projection35` eigvals port-fidelity guard.** MATLAB's `eig` returns `NaN` on
+   a non-finite matrix; Julia's `eigvals` throws. Every eigen site guards its input
+   to match MATLAB — `projection35` was the one site ported without it. Routed
+   through the shared `_geigvals` guard. (Fixes the original
+   `ArgumentError: matrix contains Infs or NaNs`.)
 
-- **...but fixing it does not fix the crash — it moves it.** With the
-  `projection35` guard in place, the same near-vacuum order-2 run now throws a
-  `DomainError` from `sqrt(C200)` in `standardized_to_M4` (`reconstruction.jl:27`),
-  reached via `from_recon_vars` during **face reconstruction**: MUSCL drives a
-  reconstructed face variance negative, and `sqrt` of it fails. Same root cause,
-  next strict-Julia operation. MATLAB would survive both points (complex `sqrt`,
-  NaN-returning `eig`) and simply propagate garbage — but **MATLAB never executes
-  this path: the shipped solver is first-order HLL + explicit Euler, with no
-  reconstruction** (`main_crossing_3DHyQMOM35.m`).
+2. **`closure_and_eigenvalues` non-convergence guard.** Its 5×5 complex closure
+   eigensolve can fail to *converge* (LAPACKException) — not just receive non-finite
+   input — for extreme near-vacuum states. Now degrades to `NaN` on both, matching
+   the other sites. (Fixes the Ma=100 high-order `LAPACKException` crash mode.)
 
-- **Rodney did not provide a fix — he flagged this exact difficulty.** From his
-  `readme.md`: *"the next step would be to go higher-order spatial fluxes... The
-  goal will be to eliminate numerical diffusion for large Ma case (e.g., jet
-  crossing with Ma = 100). I'm not sure what difficulties we run into when mixing
-  high-order reconstruction and projection, so let's cross this step before
-  deciding on what to do after it."* The crash is precisely the
-  reconstruction↔projection interaction he anticipated as an open question.
+3. **Near-vacuum density gate (`ho_vacuum_floor`).** The real mitigation. Below this
+   density, cell moments are cancellation noise, so the interface uses the
+   first-order cell-centered state — the vacuum then evolves like the robust
+   first-order scheme while resolved cells keep full high-order. Exposed as the
+   `ho_vacuum_floor` solver param (0 = off, default off). `recon_face_pair` also
+   keeps cheap density/finiteness fallbacks. See `src/numerics/reconstruction.jl`.
 
-**Conclusion:** the unfaithful `eigvals` is a real and worth-fixing port gap, but
-the crash is fundamentally a property of the **new** high-order reconstruction
-producing unrealizable near-vacuum states — not a mis-port of Rodney's algorithm.
-The durable fix lives at the reconstruction level (below).
+## Robustness findings (3D Mach ladder, Np=128, matched dynamical time)
 
-## Exact crash site (by elimination *and* direct capture)
-
-Every `eigvals`/eigen call in `src/` guards its input and returns `NaN` on a
-non-finite matrix — deliberately matching MATLAB's `eig`, which returns `NaN`
-eigenvalues rather than throwing:
-
-| File | Guard |
-| --- | --- |
-| `numerics/eigenvalues6_hyperbolic_3D.jl:37` | `if any(!isfinite, J) return NaN…` |
-| `numerics/closure_and_eigenvalues.jl:70` | `if any(!isfinite, z) return …NaN` |
-| `numerics/compute_jacobian_eigenvalues.jl:25,46` | `if any(!isfinite, J6) … NaN` |
-| **`realizability/projection35.jl:31` and `:80`** | **none** |
-
-`projection35` is the only unguarded site, so the opaque error can *only* come from
-there. A captured stacktrace confirms it directly:
-
-```
-projection35  (projection35.jl, eigvals(E1))
-  └ realizable_3D_M4   (realize_M4_projection.jl:85)   # per-cell realizability projection
-      └ step!  →  SSP-RK3 stage cell-projection
-```
-
-At the crash, all 28 standardized moments feeding `projection35` are `NaN`, so the
-6×6 realizability matrix `E1 = delta2star3D(...)` is entirely `NaN`.
-
-## Where the NaN is actually born (one stage earlier)
-
-The all-`NaN` cell is a *symptom*; the non-finite value is born in the spatial
-residual. Instrumented capture (1D analog, N=512, Ma=100) shows the first
-non-finite **residual** at step 147 in the near-vacuum band (ρ ≈ 5e-5, five orders
-below the jet density). The reconstruction stencil around the birth cell:
-
-```
-cell 128: rho=2.39e-04  u=  -1.26   C200= 5.41e+00   (ok)
-cell 129: rho=1.18e-04  u=  -0.18   C200= 7.93e+00   (ok)
-cell 130: rho=5.32e-05  u=-414.95   C200= 2.09e+05   <- |u| >> physical 70.7, huge variance
-cell 131: rho=2.85e-05  u=+747.53   C200=-1.87e-11   <- NEGATIVE variance (unrealizable)
-cell 132: rho=3.60e-05  u= -67.20   C200= 2.02e-12   (at the c2min floor)
-```
-
-## The causal chain
-
-1. **Physics.** Ma=100 with rhol=1.0 / rhor=0.001 (1000:1) creates an expanding
-   near-vacuum region (ρ → ~1e-5) around and between the colliding jets.
-2. **Vacuum degeneracy.** Dividing momentum/energy moments by a vanishing density
-   yields wild velocities (|u| up to ~750 vs the physical 70.7) and directional
-   variances that are either enormous (~2e5) or **negative** (~−1.9e-11), i.e.
-   unrealizable second-order moments.
-3. **High-order amplification.** MUSCL reconstructs *standardized* variables and
-   recombines independently-limited slopes at faces (e.g. `C400 = S400·C200²`).
-   Across adjacent near-vacuum cells with huge/negative variances, the recombined
-   face moments overflow to `Inf`; the HLL flux difference then produces a
-   **non-finite residual**. First-order (no reconstruction) and coarser grids keep
-   these gradients diffuse, so the overflow never forms.
-4. **Propagation.** `Inf` residual → `Inf`/`NaN` moment after the RK update; the
-   next operation spreads it (`Inf − Inf = NaN`) so the whole cell vector is `NaN`.
-5. **Surfacing.** The next per-cell realizability projection standardizes the
-   `NaN` cell (`M2CS4_35`) → all 28 standardized moments `NaN` → all-`NaN` `E1` →
-   `projection35`'s unguarded `eigvals(E1)` throws.
-
-Note: `realizable_3D_M4` floors `C200` at `c2min=1e-12`, but it does so on
-line 32 — *after* `M2CS4_35` has already standardized using `sqrt(C2)` on line 31.
-The floor cannot rescue a cell whose raw moments are already non-finite, and it
-does not address a *negative* incoming variance before standardization.
-
-## Reproduction (cheap, serial, deterministic)
-
-`debug/repro_1d_crash.jl` is a 1D analog of `step_highorder_3d!` (SSP-RK3 +
-`residual_1d(order)` + per-stage `realizable_3D_M4`), with two dense Ma=100 slabs
-colliding through a near-vacuum background. It reproduces the identical crash in
-seconds, with no MPI, and isolates the trigger:
-
-| Config | Result | ρ_min reached |
+| Ma | first-order HLL | high-order HLL+MUSCL |
 | --- | --- | --- |
-| **order=2, N=512** | **CRASH at step 147** (t≈1.19e-3) | 2.0e-5 |
-| order=1, N=512 | completes 200 steps | 5.7e-6 (*deeper* vacuum, survives) |
-| order=2, N=256 | completes 300 steps | 1.0e-3 |
-| order=2, N=128 | completes 200 steps | 1.0e-3 |
+| 10  | ✅ | ✅ |
+| 25  | ✅ | ✅ (needs floor ≥ 1e-2; floor = 1e-3 → NaN) |
+| 50  | ✅ | ✅ |
+| 100 | ✅ | ⚠️ fragile — closure-eigensolve non-convergence; sensitive to floor/rank count |
 
-This matches the 3D observations (Np=128 o2 crashes; Np=64 o2 and Np=128 o1
-complete). order=1 reaches a *deeper* vacuum than the crashing case yet survives,
-confirming the trigger is the **reconstruction**, not vacuum depth or the base
-scheme.
+Key conclusions:
 
-Run it with:
+- **High-order works and removes diffusion** for Ma ≤ 50 — peak density +32–76%
+  over first-order, increasingly so with Mach. (See `debug/` figures.)
+- **The floor is a robustness↔sharpness tradeoff, not a free fix.** A higher floor
+  (1e-2) stabilizes Ma=25/50 but first-orders more of the jet fringe, eroding the
+  high-order sharpness (Ma=10 peak: +76% at floor=1e-3 vs +32% at 1e-2). No single
+  floor is both maximally sharp and robust across Mach.
+- **Ma=100 high-order is not robust** with the floor stopgap — it has multiple
+  distinct near-vacuum failure modes and is chaotically sensitive (it has both
+  completed and crashed depending on floor/rank count). This is the regime that
+  needs the proper treatment.
 
-```
-HO_DEBUG=1 R1D_ORDER=2 R1D_N=512 julia --project=. debug/repro_1d_crash.jl
-```
+## What this means for the proper fix (Jacob's territory)
 
-## A case that is "like this but doesn't crash"
+The durable solution is a **realizability-preserving high-order reconstruction**
+plus the detailed Riemann solver Jacob is building — limiting that keeps cell means
+physical in near-vacuum without a hand-tuned density floor, so the pathological
+cells never form. The floor + guards here make the scheme usable for development at
+Ma ≤ 50 and degrade gracefully (NaN, not crash) beyond.
 
-- **Np=64, Ma=100, high-order** — completes 57 steps to t=1e-3
-  (`debug/ma100_np64_ma100_o2.jld2`, ρ∈[3.7e-4, 1.93], mass conserved).
-- **Np=128, Ma=100, first-order** — completes 114 steps
-  (`debug/ma100_np128_ma100_o1.jld2`).
-- 1D analogs: **order=2 at N≤256**, or **order=1 at any N** (above).
+## Reproduction
 
-## Recommended fixes
-
-1. **Port-fidelity fix — DONE.** `projection35`'s two `eigvals(E1)` calls now go
-   through the shared `_geigvals` guard, which returns `NaN` eigenvalues on
-   non-finite input exactly as MATLAB's `eig` does (and as the other six eigen
-   sites already did). This makes the port faithful and removes the *opaque*
-   `ArgumentError`. It does **not** fix the underlying garbage moments — with it in
-   place the same run instead throws a `DomainError` from `sqrt` one step earlier
-   (see below).
-2. **Same-class robustness gap (not yet applied).** `standardized_to_M4`
-   (`reconstruction.jl:27`) calls `sqrt(C200)` with no floor, unlike `M2CS4_35`'s
-   `sqrt(max(C200, eps))`. Via `realizable_3D_M4` this is safe (C200 pre-floored),
-   but via `from_recon_vars` a MUSCL-reconstructed face variance can be negative →
-   `DomainError`. Flooring it would match MATLAB and remove the hard error, but —
-   like fix 1 — only converts a crash into silently-wrong (huge/garbage) moments.
-3. **Real fix (reconstruction level — the open question Rodney flagged) — IMPLEMENTED
-   as a near-vacuum gate.** First attempt: extend the existing density fallback to
-   also reject nonpositive/non-finite reconstructed *variance*. This proved
-   **insufficient** — `to_recon_vars` floors `C200` at `1e-12`, so the reconstructed
-   variance is always positive, and the true pathology is subtler: in deep vacuum
-   the *cell-mean* velocity (`M100/M000`) and variance (`M200/M000 - u^2`) are
-   dominated by catastrophic cancellation, giving finite-but-unphysical states
-   (captured: `u=-415`/`+747` vs physical 70.7, `C200=2e5`). MUSCL barely changes
-   these, so finiteness checks pass, yet the wave-speed eigensolve returns `NaN`
-   and the HLL flux is non-finite — and a first-order flux of the *same* cells
-   breaks too, so a face-choice fallback cannot help. The cells must never form.
-
-   Implemented fix: a **near-vacuum density gate** (`HO_VACUUM_FLOOR`, exposed as
-   the `ho_vacuum_floor` solver param; `0` = off, default off). Interfaces whose
-   adjacent cell density is below the floor use the first-order state, so the
-   vacuum region evolves like the robust first-order scheme (which never forms the
-   pathological cells) while resolved cells above the floor keep full high-order
-   reconstruction. With the floor set to the background density (`rhor=1e-3`), the
-   1D Ma=100 reproducer that previously crashed at step 147 now **completes 200
-   steps**, peak density 2.099 vs first-order's 2.000 (high-order sharpness
-   retained), and ρ_min holds at the background instead of over-sharpening into
-   `2e-5` garbage. All 155 high-order tests pass unchanged (floor defaults off).
-   `recon_vars_ok` / the finiteness post-check are also kept as cheap belt-and-
-   suspenders guards. A fully realizability-preserving high-order reconstruction
-   (limiting that keeps cell means physical without a hand-set floor) remains the
-   proper long-term solution — Jacob's high-order territory.
-
-## Investigation instrumentation left in place (ENV-gated, zero production cost)
-
-All gated on `ENV["HO_DEBUG"]=="1"` (default off → behavior identical to before):
-
-- `src/HyQMOM.jl`: `HO_DEBUG` switch + `_geigvals(A, label)` guarded-eigvals helper.
-- `src/realizability/projection35.jl`: routes both `eigvals` through `_geigvals`
-  and dumps the offending standardized moments.
-- `src/realizability/realize_M4_projection.jl`: dumps raw density / directional
-  variances when `M2CS4_35` produces non-finite standardized moments.
-- `src/numerics/highorder_3d.jl`: per-interface face-state dump in `residual_line`.
-- `debug/repro_1d_crash.jl`, `debug/probe_crash.jl`: the standalone reproducers.
+`debug/repro_1d_crash.jl` — a cheap serial 1D analog (colliding dense slabs through
+near-vacuum) using the same kernels and an adaptive CFL timestep. Reproduces the
+near-vacuum behaviour in seconds; sweep `R1D_MA`, `R1D_VACFLOOR` to see the floor
+dependence. `debug/run_ma100_demo.jl` runs the full 3D crossing.

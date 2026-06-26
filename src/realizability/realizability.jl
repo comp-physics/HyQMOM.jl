@@ -10,7 +10,7 @@ This module acts as a dispatcher for various realizability helpers:
 - `realizability_S211`: Check and correct realizability of S211
 - `realizability_S310`: Check and correct realizability of S310 and S220
 - `realizability_S310_220`: Check and correct realizability of S220 for S310
-- `realizablity_S220`: Check maximum bounds and correct S220
+- `realizability_S220`: Check maximum bounds and correct S220
 """
 
 # Include all realizability sub-functions
@@ -20,7 +20,7 @@ include("realizability_S210.jl")
 include("realizability_S211.jl")
 include("realizability_S310.jl")
 include("realizability_S310_220.jl")
-include("realizablity_S220.jl")
+include("realizability_S220.jl")
 include("realizable_2D.jl")
 include("realizable_3D.jl")
 # Revised moment-projection method (Appendix B): projection35 + M4 wrapper
@@ -76,7 +76,7 @@ function realizability(operation::Symbol, args...)
     elseif operation == :S310_220 || operation == :s310_220
         return realizability_S310_220(args...)
     elseif operation == :S220 || operation == :s220
-        return realizablity_S220(args...)
+        return realizability_S220(args...)
     else
         error("realizability: Unknown operation: $operation")
     end

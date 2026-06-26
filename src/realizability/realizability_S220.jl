@@ -1,5 +1,5 @@
 """
-    realizablity_S220(S110, S220, A220)
+    realizability_S220(S110, S220, A220)
 
 Check maximum bounds and correct S220.
 
@@ -16,7 +16,7 @@ Clamps S220 to the range [s220min, s220max] where:
 - s220min = max(S110^2, 1 - A220)
 - s220max = 1 + A220
 """
-@fastmath function realizablity_S220(S110, S220, A220)
+@fastmath function realizability_S220(S110, S220, A220)
     S220r = S220
     s220min = max(S110^2, 1 - A220)
     s220max = 1 + A220

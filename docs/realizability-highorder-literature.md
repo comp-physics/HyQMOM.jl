@@ -302,7 +302,7 @@ consists of three layered components:
 `src/realizability/realizability_oracle.jl` test whether a 35-moment vector lies in the
 realizable set R. They reuse the same `delta2star3D` smallest-eigenvalue test as the
 shipped Appendix B projection (`projection35.jl`): compute the smallest eigenvalue
-λ₁ of the 4×4 Hankel-like block; if λ₁ ≥ 0 the moment vector is realizable. This
+λ₁ of the 6×6 Hankel-like block; if λ₁ ≥ 0 the moment vector is realizable. This
 is the same realizability criterion the paper already uses for the cell-mean
 correction — it is not a new or inconsistent test.
 

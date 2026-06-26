@@ -103,8 +103,9 @@ const _PROJ_CORRECTIONS   = Ref{Int}(0)
 """
     reset_proj_counter!()
 
-Reset the per-step projection-correction counter to zero.
-No-op (and not exported in production use) when `HYQMOM_PROJ_COUNT` is unset.
+Reset the per-step projection-correction counter to zero. Always resets the counter,
+regardless of `HYQMOM_PROJ_COUNT`; the counter is only *incremented* when that env var
+is set (otherwise it stays 0). Exported for use by the diagnostic drivers.
 """
 reset_proj_counter!() = (_PROJ_CORRECTIONS[] = 0; nothing)
 

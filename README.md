@@ -11,6 +11,9 @@
 
 **Docs:** https://hyqmomjl.readthedocs.io/en/latest/
 
+**High-order spatial scheme (status, usage, limitations):** see [`HIGHORDER.md`](HIGHORDER.md).
+**Running on GT PACE (modules, MPI, gotchas):** see [`RUNNING.md`](RUNNING.md).
+
 ---
 
 ## 1. TL;DR – run a 3D jets demo

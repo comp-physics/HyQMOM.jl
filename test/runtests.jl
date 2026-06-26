@@ -29,6 +29,7 @@ const TOL = 1e-10
         include("test_initial_conditions.jl")
         include("test_simulation_runner.jl")
         include("test_realizability.jl")
+        include("test_realizability_oracle.jl")
         include("test_closures.jl")
         include("test_hyqmom_closure_golden.jl")
         include("test_highorder_1d.jl")

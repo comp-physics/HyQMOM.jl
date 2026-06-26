@@ -47,6 +47,7 @@ export CubicRegion, initialize_moment_field, initialize_moment_field_mpi, crossi
 export InitializeM4_35, M2CS4_35, Moments5_3D, hyqmom_3D
 export realizability, realizable_2D, realizable_3D
 export projection35, realizable_3D_M4
+export realizability_margin, is_realizable
 export closure_and_eigenvalues, eigenvalues6_hyperbolic_3D, eigenvalues6z_hyperbolic_3D
 export Flux_closure35_and_realizable_3D, Flux_closure35_3D
 export flux_HLL, pas_HLL, collision35
@@ -92,6 +93,7 @@ include("numerics/reconstruction.jl")
 # Realizability
 include("realizability/realizability.jl")
 include("realizability/edge_corner_correction.jl")
+include("realizability/realizability_oracle.jl")
 
 # Numerics
 include("numerics/small_eig.jl")

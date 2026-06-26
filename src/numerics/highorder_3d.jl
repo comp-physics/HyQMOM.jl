@@ -87,10 +87,49 @@ function residual_ho_3d!(R::Array{Float64,4}, M::Array{Float64,4},
     return R
 end
 
+# ---------------------------------------------------------------------------
+# Projection-activation diagnostic (env-gated, zero overhead when off).
+# Set HYQMOM_PROJ_COUNT=1 to count how many cells _project_interior! actually
+# corrects each step.  When the env var is unset (default) the const is false
+# and the compiler elides the dead branch — zero allocation, single cheap deref.
+# ---------------------------------------------------------------------------
+const _PROJ_COUNT_ENABLED = Ref{Bool}(
+    get(ENV, "HYQMOM_PROJ_COUNT", "0") != "0"
+)
+const _PROJ_CORRECTIONS   = Ref{Int}(0)
+
+"""
+    reset_proj_counter!()
+
+Reset the per-step projection-correction counter to zero.
+No-op (and not exported in production use) when `HYQMOM_PROJ_COUNT` is unset.
+"""
+reset_proj_counter!() = (_PROJ_CORRECTIONS[] = 0; nothing)
+
+"""
+    proj_correction_count() -> Int
+
+Return the current projection-correction count (cells that were unrealizable
+before `_project_interior!` corrected them).  Only meaningful when
+`HYQMOM_PROJ_COUNT=1`.
+"""
+proj_correction_count() = _PROJ_CORRECTIONS[]
+
 function _project_interior!(M, nx,ny,nz,halo, Ma)
-    for k in 1:nz, j in 1:ny, i in 1:nx
-        ih=i+halo; jh=j+halo
-        M[ih,jh,k,:] = realizable_3D_M4(M[ih,jh,k,:], Ma)
+    if _PROJ_COUNT_ENABLED[]
+        for k in 1:nz, j in 1:ny, i in 1:nx
+            ih=i+halo; jh=j+halo
+            # count cells that are unrealizable before projection
+            if realizability_margin(@view M[ih,jh,k,:]) < 0
+                _PROJ_CORRECTIONS[] += 1
+            end
+            M[ih,jh,k,:] = realizable_3D_M4(M[ih,jh,k,:], Ma)
+        end
+    else
+        for k in 1:nz, j in 1:ny, i in 1:nx
+            ih=i+halo; jh=j+halo
+            M[ih,jh,k,:] = realizable_3D_M4(M[ih,jh,k,:], Ma)
+        end
     end
 end
 

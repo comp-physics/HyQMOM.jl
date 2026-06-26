@@ -52,3 +52,4 @@ docs/superpowers/
 *.jld2
 *.mat
 studies/bubble/out/*.bin
+*.log

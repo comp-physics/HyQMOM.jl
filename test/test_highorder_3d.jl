@@ -155,6 +155,23 @@ end
     @test M_proj[1] ≈ M_test[1] atol=1e-12
 end
 
+@testset "3D high-order residual stays finite in near-vacuum (Ma=100)" begin
+    nx,ny,nz = 8,8,8; halo = 2
+    Mext = zeros(nx+2halo, 35)          # a single padded line through a vacuum band
+    for i in 1:size(Mext,1)
+        ρ = (i <= halo+2 || i >= nx+halo-1) ? 1.0 : 1e-5
+        u = i <= size(Mext,1)÷2 ? 60.0 : -60.0
+        Mext[i,:] = InitializeM4_35(ρ, u, 0.0,0.0, 1.0,0.0,0.0,1.0,0.0,1.0)
+    end
+    # OPT-IN limiter path stays finite:
+    R = residual_line(Mext, 1.0/nx, 1, 100.0; order=2, g=halo, use_limiter=true)
+    @test all(isfinite, R)
+    # DEFAULT path unchanged:
+    R_def  = residual_line(Mext, 1.0/nx, 1, 100.0; order=2, g=halo, use_limiter=false)
+    R_base = residual_line(Mext, 1.0/nx, 1, 100.0; order=2, g=halo)
+    @test isequal(R_def, R_base)
+end
+
 @testset "simulation_runner spatial_order=2" begin
     # Tiny crossing-jets run at spatial_order=2.
     # Uses ic_type=:crossing_matlab (Ma=0 => Uc=0, so jets have zero bulk velocity;

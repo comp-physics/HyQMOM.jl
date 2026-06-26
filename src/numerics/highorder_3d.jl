@@ -9,7 +9,8 @@ shared primitive for the 3D unsplit residual (x, y via MPI halos; z via padded
 ghosts). order=1 uses cell-centered states; order=2 uses MUSCL with per-interface
 fallback to first order on nonpositive reconstructed density.
 """
-function residual_line(Mext::AbstractMatrix, ds::Real, axis::Int, Ma::Real; order::Int=2, g::Int=2)
+function residual_line(Mext::AbstractMatrix, ds::Real, axis::Int, Ma::Real;
+                       order::Int=2, g::Int=2, use_limiter::Bool=false)
     Ntot = size(Mext, 1)
     Ni = Ntot - 2g
     # interface fluxes at i+1/2 for interior interfaces: need faces at indices
@@ -25,9 +26,27 @@ function residual_line(Mext::AbstractMatrix, ds::Real, axis::Int, Ma::Real; orde
             recon_face_pair(Vl, Vr, Mext[iL,:], Mext[iL+1,:])
         end
     end
-    for iface in g:(g+Ni)            # interfaces bounding interior cells
-        ML, MR = face_states(iface)
-        Fhat[iface] = face_flux_1d(ML, MR, axis, Ma)
+    if use_limiter && order == 2
+        # Realizability scaling limiter branch.
+        # Precompute reconstruction variables for all rows (g >= 2 guarantees
+        # indices iL-1 .. iL+2 are in range for iL in g:(g+Ni)).
+        Vc = [to_recon_vars(@view Mext[i, :]) for i in axes(Mext, 1)]
+        function face_states_lim(iL)   # interface between cell iL and iL+1
+            # right face of cell iL: Vplus = V0 + 0.5*theta*slope
+            _, VplusL, _  = scaling_limited_faces(Vc[iL-1], Vc[iL],   Vc[iL+1])
+            # left face of cell iL+1: Vminus = V0 - 0.5*theta*slope
+            VminusR, _, _ = scaling_limited_faces(Vc[iL],   Vc[iL+1], Vc[iL+2])
+            return from_recon_vars(VplusL), from_recon_vars(VminusR)
+        end
+        for iface in g:(g+Ni)
+            ML, MR = face_states_lim(iface)
+            Fhat[iface] = face_flux_1d(ML, MR, axis, Ma)
+        end
+    else
+        for iface in g:(g+Ni)            # interfaces bounding interior cells
+            ML, MR = face_states(iface)
+            Fhat[iface] = face_flux_1d(ML, MR, axis, Ma)
+        end
     end
     R = zeros(Ni, 35)
     for ii in 1:Ni
@@ -39,21 +58,22 @@ end
 
 function residual_ho_3d!(R::Array{Float64,4}, M::Array{Float64,4},
                          nx::Int, ny::Int, nz::Int, halo::Int,
-                         dx::Real, dy::Real, dz::Real, Ma::Real; order::Int=2)
+                         dx::Real, dy::Real, dz::Real, Ma::Real;
+                         order::Int=2, use_limiter::Bool=false)
     fill!(R, 0.0)
     g = halo
     # X: lines along i (have halos), for each interior (jh,k)
     for k in 1:nz, j in 1:ny
         jh = j + halo
         Mext = @view M[:, jh, k, :]                 # (nx+2halo, 35)
-        Rl = residual_line(Mext, dx, 1, Ma; order=order, g=g)   # (nx,35)
+        Rl = residual_line(Mext, dx, 1, Ma; order=order, g=g, use_limiter=use_limiter)   # (nx,35)
         for i in 1:nx; R[i+halo, jh, k, :] .+= Rl[i, :]; end
     end
     # Y: lines along j, for each interior (ih,k)
     for k in 1:nz, i in 1:nx
         ih = i + halo
         Mext = @view M[ih, :, k, :]
-        Rl = residual_line(Mext, dy, 2, Ma; order=order, g=g)
+        Rl = residual_line(Mext, dy, 2, Ma; order=order, g=g, use_limiter=use_limiter)
         for j in 1:ny; R[ih, j+halo, k, :] .+= Rl[j, :]; end
     end
     # Z: no halo in z -> pad with outflow ghosts (copy edge), for each interior (ih,jh)
@@ -61,7 +81,7 @@ function residual_ho_3d!(R::Array{Float64,4}, M::Array{Float64,4},
         ih = i + halo; jh = j + halo
         col = M[ih, jh, :, :]                        # (nz,35)
         Mext = vcat(repeat(col[1:1,:], g, 1), col, repeat(col[nz:nz,:], g, 1))  # outflow pad
-        Rl = residual_line(Mext, dz, 3, Ma; order=order, g=g)   # (nz,35)
+        Rl = residual_line(Mext, dz, 3, Ma; order=order, g=g, use_limiter=use_limiter)   # (nz,35)
         for k in 1:nz; R[ih, jh, k, :] .+= Rl[k, :]; end
     end
     return R
@@ -75,13 +95,14 @@ function _project_interior!(M, nx,ny,nz,halo, Ma)
 end
 
 function step_highorder_3d!(M::Array{Float64,4}, dt::Real, decomp, bc::Symbol,
-                            nx,ny,nz,halo, dx,dy,dz, Ma; order::Int=2)
+                            nx,ny,nz,halo, dx,dy,dz, Ma;
+                            order::Int=2, use_limiter::Bool=false)
     R = similar(M)
     int = (halo+1:halo+nx, halo+1:halo+ny, 1:nz, :)
     # stage helper: M_in (with halos) -> returns updated interior-only array (full M-shape, halos zero)
     function L!(Mwork)
         halo_exchange_3d!(Mwork, decomp, bc)
-        residual_ho_3d!(R, Mwork, nx,ny,nz,halo, dx,dy,dz, Ma; order=order)
+        residual_ho_3d!(R, Mwork, nx,ny,nz,halo, dx,dy,dz, Ma; order=order, use_limiter=use_limiter)
         return R
     end
     M0 = copy(M)

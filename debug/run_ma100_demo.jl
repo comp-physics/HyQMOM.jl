@@ -9,6 +9,8 @@ tmax  = parse(Float64, get(ENV,"REPRO_TMAX","0.002"))
 order = parse(Int,     get(ENV,"REPRO_ORDER","2"))
 # near-vacuum high-order floor; default to the background density rhor
 vacfloor = parse(Float64, get(ENV,"REPRO_VACFLOOR","0.001"))
+# realizability scaling limiter (REPRO_LIMITER=1 to enable, default off)
+use_limiter = parse(Int, get(ENV,"REPRO_LIMITER","0")) != 0
 
 params = (
     Nx=Np, Ny=Np, Nz=Np, Nmom=35,
@@ -20,6 +22,7 @@ params = (
     ic_type=:crossing_matlab,
     spatial_order=order,
     ho_vacuum_floor=vacfloor,
+    ho_realizability_limiter=use_limiter,
 )
 
 t0 = time()

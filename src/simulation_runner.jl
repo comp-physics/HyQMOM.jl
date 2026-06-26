@@ -128,6 +128,13 @@ function simulation_runner(params)
     # docs/ma100-highorder-crash-analysis.md.
     HO_VACUUM_FLOOR[] = get(params, :ho_vacuum_floor, 0.0)
 
+    # Optional realizability scaling limiter for the high-order residual (default off).
+    # When true, `residual_line` uses `scaling_limited_faces` instead of
+    # `muscl_faces + recon_face_pair`. This guarantees realizable face states by
+    # construction, avoiding non-finite reconstruction in near-vacuum. Default false
+    # keeps byte-identical behavior to the pre-existing path.
+    ho_realizability_limiter = get(params, :ho_realizability_limiter, false)
+
     # Snapshot saving parameters
     snapshot_interval = get(params, :snapshot_interval, 0)
     save_snapshots = (snapshot_interval > 0)
@@ -675,7 +682,8 @@ function simulation_runner(params)
             # eigenvalues6-corrected Mr). That correction is per-cell and
             # density-preserving, so conservation and MPI-losslessness are
             # unaffected; the high-order step advances this hyperbolic state.
-            step_highorder_3d!(M, dt, decomp, bc, nx, ny, nz, halo, dx, dy, dz, Ma; order=2)
+            step_highorder_3d!(M, dt, decomp, bc, nx, ny, nz, halo, dx, dy, dz, Ma;
+                               order=2, use_limiter=ho_realizability_limiter)
         else
             # --- FIRST-ORDER PATH (spatial_order=1, default) ---
             # Byte-identical to the original validated path.

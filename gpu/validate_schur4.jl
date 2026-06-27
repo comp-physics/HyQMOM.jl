@@ -143,12 +143,17 @@ function main()
 
     println("\n================ SUMMARY ================")
     @printf("@allocated = %d\n", alloc)
-    # Eigenvalues at high Mach reach magnitude ~80 and come from ill-conditioned
-    # (companion-like, eigvec cond ~1e8) blocks, so a flat ABSOLUTE 1e-6 tolerance is
-    # the wrong yardstick — the meaningful, solver-independent metric is the SCALE-
-    # RELATIVE error |Δ|/max(1,|eig|). We gate on that (≤1e-6) and still print the
-    # absolute number, which at high Ma is dominated by eigenvalue conditioning
-    # (LAPACK itself carries the same uncertainty there).
+    # Gate metric: SCALE-RELATIVE error |Δ|/max(1,|eig|), ≤1e-6 (we still print abs).
+    # HONEST caveat (verified against 300-bit BigFloat on the worst Ma100 block):
+    # the high-Ma absolute error (~3.5e-6) is NOT shared by LAPACK — LAPACK matches the
+    # reference to ~1e-11 on the same companion-like block, so this is GENUINE schur4
+    # solver error (~1000x less accurate than LAPACK there: scaling by max|a|~1e7 shrinks
+    # the unit superdiagonal and QR loses ~3 digits resolving the clustered scaled roots).
+    # It is acceptable here only because the RELATIVE error (4.6e-8) is far below the
+    # wave-speed/CFL tolerance AND below fp32 eps (1.2e-7). WARNING for the GPU port:
+    # fp64 accuracy does NOT bound fp32 — in single precision these companion blocks can
+    # reach percent-level error, so the kernel should stay fp64 (or flag companion
+    # structure -> LAPACK fallback). The hardcoded eps constants below are fp64-specific.
     gate_ok = (alloc == 0)
     for r in results
         ok_err = r.max_rel <= 1e-6

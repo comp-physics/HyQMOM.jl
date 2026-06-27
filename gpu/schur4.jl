@@ -23,7 +23,12 @@ export schur4_realpart_minmax
 # precision relative to the head, the reflection is a no-op to working precision but
 # its construction is numerically unstable (v1² underflows → β≈0, v2≈∞ → the
 # I-βvvᵀ identity breaks and eigenvalues are corrupted). Skip it in that regime.
-const _TAILTOL = 4.930380657631324e-32   # eps(Float64)^2
+const _TAILTOL = 4.930380657631324e-32   # eps(Float64)^2  -- fp64-SPECIFIC.
+# NOTE for the GPU port: this and `EPS` in schur4_realpart_minmax are fp64 constants.
+# A single-precision kernel MUST use eps(Float32)/eps(Float32)^2 (parameterize on the
+# input eltype). And per the validator's BigFloat check, fp32 is NOT safe for the
+# ill-conditioned high-Ma companion blocks (percent-level error) -- keep this kernel
+# fp64, or detect companion structure and fall back. See gpu/validate_schur4.jl.
 
 # Householder reflector that maps (x,y,z) -> (α,0,0). Returns (v2, v3, β) with the
 # implicit convention v = (1, v2, v3), so that (I - β v vᵀ)(x,y,z)ᵀ = (α,0,0)ᵀ.

@@ -89,5 +89,7 @@ All of the above live in-tree as **opt-in** options with the default path byte-i
 verified-but-not-better artifacts. The high-order-reconstruction path is the production
 recommendation for low diffusion at high Mach.
 
-*Figures regenerated from `debug/ma100_np128_ma{10,25,50,100}_o{1,2}.jld2` (3D fields) and the
-`riemann_solver=:kinetic` vs `:hll` run; scripts in the session scratchpad.*
+**Reproducing this:** see [`reproducing-diffusion-results.md`](reproducing-diffusion-results.md) —
+`debug/run_mach_ladder.jl` (runs the ladder → metrics + density projections),
+`debug/run_kinetic_vs_hll.jl` (the instability demo), and `debug/plot_diffusion_results.py`
+(regenerates both figures).

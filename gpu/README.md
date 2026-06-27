@@ -26,10 +26,36 @@ all-GPU solver where the moment field lives on-device (no per-step transfer).
 **Validated:** the GPU eigensolve path is accurate (machine precision) and fast for the **symmetric**
 eig (realizability + closure). cuSOLVER `syevjBatched` is the right tool; `version="local"` toolkit works.
 
-**Still open:** the **non-symmetric 4×4** wave-speed eig has no batched cuSOLVER routine. Options:
-(a) a custom in-kernel batched solver (fixed-iteration QR), or (b) a cheaper wave-speed *bound*
-(e.g. Gershgorin) that over-estimates speeds → slightly more HLL diffusion but no eigensolve. Analytic
-quartic was rejected (numerically fragile near defective eigenvalues — exactly the wave-speed extremes).
+## Non-symmetric 4×4 wave-speed eig — SOLVED with a custom batched kernel
+
+No GPU library batches non-symmetric eig (cuSOLVER and MAGMA both confirmed lacking; `cusolverDnXgeev`
+is one-matrix-per-call). A Gershgorin bound is far too loose (3,483×–23M×) and an analytic quartic is
+numerically fragile near the defective wave-speed extremes. So we built a **custom batched real-Schur QR
+kernel** (`schur4.jl` = CPU prototype, `schur4_gpu.jl` = CUDA kernel): scale → Householder Hessenberg →
+Francis implicit double-shift QR + deflation → 1×1/2×2 block real parts, **eigenvalues-only, fp64, one
+matrix per thread**, with a `status` flag → CPU/LAPACK fallback for the rare flagged matrices.
+
+Validated vs LAPACK on **262,144 real evolved Ma=10/100 blocks**: max relative error **6.3e-8, 0% flagged**
+(matches the CPU prototype). 200k random non-symmetric: 9.5e-14, 0.045% → fallback by design.
+
+| 4×4 non-sym (B=2.1M, fp64) | throughput | speedup |
+|---|---|---|
+| CPU LAPACK (1 core) | 0.185 Mmat/s | — |
+| GPU solve-only (resident) | 78.5 Mmat/s | **425×** |
+| GPU end-to-end (incl H2D) | 15.4 Mmat/s | 83× |
+
+(425× is vs single-thread; production CPU uses buffered `dgeev` + MPI many-core, so a fair GPU-vs-socket
+number is smaller — but solve-only is the right metric for an all-GPU solver where data stays on device.)
+
+**fp64 is required:** in fp32 the ill-conditioned high-Ma companion blocks hit percent-level error.
+
+### Net: the entire eigensolve bottleneck (~60% of the step) is now GPU-viable
+- symmetric (realizability 6×6 + closure) → cuSOLVER `syevjBatched` (11×, above)
+- non-symmetric (wave-speed 4×4) → this custom kernel (425× solve-only)
+
+**Remaining for a full GPU residual:** port the per-cell *arithmetic* (`Flux_closure35_3D` + moment
+conversions + reconstruction) to KernelAbstractions kernels, a SoA device layout, RK3 on device, and
+CUDA-aware MPI halo exchange.
 
 ## Environment (PACE)
 

@@ -30,18 +30,24 @@ cyclic Jacobi sweep (eigenvalues-only). A 6x6 `MMatrix` lives in local memory (t
 same pattern `schur4` uses for its 4x4 workspace); no heap, no cuSOLVER — callable
 per-thread inside the projection.
 
-Pure addition under `gpu/`. No CUDA dependency here — plain Julia + StaticArrays,
-`include`d by both a CPU validator and the GPU kernel module.
+Single-sourced under `src/realizability/`: the CPU `realizable_3D_M4` delegates here
+and the GPU kernel modules `include` this same file. No CUDA dependency here — plain
+Julia + StaticArrays.
 """
 module RealizeDev
 
 using StaticArrays
 
-include(joinpath(@__DIR__, "..", "src", "numerics", "recon_dev.jl"))
-using .ReconDev: to_recon_vars_dev, from_recon_vars_dev
+# Single-source: reuse the already-loaded ReconDev (M2CS4_35 / standardized_to_M4
+# arithmetic) from the PARENT module rather than re-`include`ing recon_dev.jl, which
+# would define a second, stale copy of module `ReconDev`. Every context that includes
+# this file (HyQMOM in src/, plus the GPU modules RealizeGPU / Residual2GPU /
+# Residual3DGPU) `include`s `recon_dev.jl` as a sibling module FIRST, so `..ReconDev`
+# always resolves.
+using ..ReconDev: to_recon_vars_dev, from_recon_vars_dev
 
-export realizable_3D_M4_dev, projection35_dev, delta2star_mineig_dev,
-       sym6_mineig, realizability_S2_dev, realizability_S220_dev
+export realizable_3D_M4_dev, realizable_3D_M4_corr_dev, projection35_dev,
+       delta2star_mineig_dev, sym6_mineig, realizability_S2_dev, realizability_S220_dev
 
 # ---------------------------------------------------------------------------
 # realizability_S2  (port of src/realizability/realizability_S2.jl, NOT @fastmath)
@@ -540,10 +546,21 @@ end
 end
 
 # ---------------------------------------------------------------------------
-# Top-level device realizable_3D_M4 (alloc-free). 35 raw moments + Ma in,
-# 35 corrected raw moments out (NTuple{35}, M4 canonical order).
+# Realizability CORRECTION (alloc-free). 35 raw moments + Ma in; the corrected
+# RECON-VARS out as NTuple{35}: (M000, umean, vmean, wmean, C200, C020, C002,
+# <28 corrected standardized moments>) — exactly the argument layout shared by
+# `from_recon_vars_dev` (GPU reconstruction) and the autogen `standardized_to_M4`
+# (CPU reference reconstruction). Returning the pre-reconstruction state lets each
+# caller pick its reconstruction:
+#   * `realizable_3D_M4_dev` (GPU / device) reconstructs with `from_recon_vars_dev`;
+#   * CPU `realizable_3D_M4` reconstructs with the autogen `standardized_to_M4`,
+#     which is byte-identical to the legacy inline path (and thus the golden battery).
+# All correction stages here are byte-identical to the CPU sources (verified 0.0 over
+# the 1200-state battery); only the final S->C->M reconstruction has a ~1 ULP
+# @fastmath reassociation difference between `_c4tom4_35` and the autogen `C4toM4_3D`,
+# which this split keeps out of the CPU path.
 # ---------------------------------------------------------------------------
-@inline function realizable_3D_M4_dev(
+@inline function realizable_3D_M4_corr_dev(
         m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,
         m16,m17,m18,m19,m20,m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,
         m31,m32,m33,m34,m35, Ma)
@@ -620,12 +637,33 @@ end
     S211 = P[21]; S021 = P[22]; S121 = P[23]; S031 = P[24]; S012 = P[25]
     S112 = P[26]; S013 = P[27]; S022 = P[28]
 
-    # --- raw moments from corrected standardized moments (= standardized_to_M4) ---
+    # --- corrected recon-vars (pre-reconstruction); see header note ---
+    return (M000, umean, vmean, wmean, C200, C020, C002,
+            S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
+            S101, S201, S301, S102, S202, S003, S103, S004,
+            S011, S111, S211, S021, S121, S031, S012, S112, S013, S022)
+end
+
+# ---------------------------------------------------------------------------
+# Top-level device realizable_3D_M4 (alloc-free): correction + device-side
+# reconstruction. 35 raw moments + Ma in, 35 corrected raw moments out
+# (NTuple{35}, M4 canonical order). This is the GPU per-cell entry point; its
+# output is byte-identical to the prior monolithic kernel. (Explicit indexing,
+# not splat, into from_recon_vars_dev — splat lowers to _apply_iterate, which is
+# unsupported on device.)
+# ---------------------------------------------------------------------------
+@inline function realizable_3D_M4_dev(
+        m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,
+        m16,m17,m18,m19,m20,m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,
+        m31,m32,m33,m34,m35, Ma)
+    c = realizable_3D_M4_corr_dev(
+        m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,
+        m16,m17,m18,m19,m20,m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,
+        m31,m32,m33,m34,m35, Ma)
     return from_recon_vars_dev(
-        M000, umean, vmean, wmean, C200, C020, C002,
-        S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
-        S101, S201, S301, S102, S202, S003, S103, S004,
-        S011, S111, S211, S021, S121, S031, S012, S112, S013, S022)
+        c[1], c[2], c[3], c[4], c[5], c[6], c[7], c[8], c[9], c[10], c[11], c[12],
+        c[13], c[14], c[15], c[16], c[17], c[18], c[19], c[20], c[21], c[22], c[23],
+        c[24], c[25], c[26], c[27], c[28], c[29], c[30], c[31], c[32], c[33], c[34], c[35])
 end
 
 end # module

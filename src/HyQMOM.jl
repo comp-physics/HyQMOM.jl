@@ -99,6 +99,11 @@ using .ReconDev: to_recon_vars_dev, from_recon_vars_dev
 include("numerics/reconstruction.jl")
 
 # Realizability
+# Single-source device kernel first: the CPU realizable_3D_M4 (in realizability.jl ->
+# realize_M4_projection.jl) delegates to realizable_3D_M4_dev. RealizeDev references the
+# already-loaded ReconDev via `using ..ReconDev`, so recon_dev.jl must precede this.
+include("realizability/realize_dev.jl")
+using .RealizeDev: realizable_3D_M4_dev, realizable_3D_M4_corr_dev
 include("realizability/realizability.jl")
 include("realizability/edge_corner_correction.jl")
 include("realizability/realizability_oracle.jl")

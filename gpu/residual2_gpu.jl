@@ -44,7 +44,7 @@ using CUDA
 include(joinpath(@__DIR__, "wavespeed_dev.jl"))
 include(joinpath(@__DIR__, "..", "src", "numerics", "flux_closure_dev.jl"))
 include(joinpath(@__DIR__, "..", "src", "numerics", "recon_dev.jl"))
-include(joinpath(@__DIR__, "realize_dev.jl"))
+include(joinpath(@__DIR__, "..", "src", "realizability", "realize_dev.jl"))
 using .WavespeedDev: realize_and_speed_Mr_dev
 using .FluxClosureDev: flux_closure35_dev
 using .ReconDev: to_recon_vars_tup, from_recon_vars_tup, recon_vars_ok_tup, minmod

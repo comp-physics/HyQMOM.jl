@@ -82,7 +82,7 @@ transfer-bound by design; the closure runs on resident data in a real GPU solver
 ## Full solver on GPU — reconstruction, projection, 3D residual, timestep
 
 - **High-order reconstruction** (`recon_dev.jl`) → order-2 1D residual: **7e-12** vs CPU.
-- **Realizability projection** `realizable_3D_M4` (`realize_dev.jl`/`realize_gpu.jl`, in-kernel 6×6
+- **Realizability projection** `realizable_3D_M4` (`src/realizability/realize_dev.jl`/`realize_gpu.jl`, in-kernel 6×6
   symmetric Jacobi min-eig): **3.3e-15** vs CPU, sign decision matches on every cell, 64× solve-only.
 - **3D order-2 residual** (`residual3d_gpu.jl`): **1.4e-10** vs CPU on gradient-rich real states.
 - **3D timestep loop** (`timestep3d_gpu.jl`): SSP-RK3 + per-stage projection + 3D-CFL dt, fully resident.

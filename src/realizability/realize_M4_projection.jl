@@ -14,86 +14,29 @@ S220/S202/S022, apply `projection35`, then reconstruct the raw moments.
 This is the projection-based replacement for the legacy minor-cascade
 `realizable_3D` (28-argument standardized-moment corrector). It is provided
 alongside the legacy path; wiring it into the solver is a separate step.
+
+The realizability CORRECTION (M2CS4_35 -> univariate floors / skewness cap ->
+`realizability_S2` -> `realizability_S220` -> `projection35`) lives in the
+single-source, allocation-free device kernel `realizable_3D_M4_corr_dev`
+(`src/realizability/realize_dev.jl`), shared verbatim with the GPU realizability
+kernel. It returns the corrected reconstruction variables (means + floored variances
++ 28 corrected standardized moments) — exactly `standardized_to_M4`'s argument layout.
+This CPU entry point delegates the whole correction to it and then reconstructs the raw
+moments with the autogen `standardized_to_M4`, byte-identical to the legacy inline path
+(and the golden battery).
+
+Why reconstruct here rather than reuse the device kernel's `realizable_3D_M4_dev`
+(which finishes with `from_recon_vars_dev`)? Every correction stage in the dev kernel is
+byte-identical to the CPU sources (verified 0.0 over the 1200-state battery), but the
+final S->C->M step differs by ~1 ULP between the alloc-free `_c4tom4_35` and the autogen
+`C4toM4_3D` (an unavoidable @fastmath reassociation difference across the two code
+shapes). On its own that 1 ULP is negligible, but `M2CS4_35(realizable_3D_M4(...))` at
+deep vacuum (rho~1e-5) amplifies it past the 1e-10 golden gate. Reconstructing with the
+autogen here keeps the CPU result bit-for-bit with the reference. The min-eig branch
+inside `projection35_dev` uses an in-kernel 6x6 symmetric Jacobi sweep instead of LAPACK
+`_geigvals`, but the (sign-only) branch decisions match, so the corrected standardized
+moments are byte-identical. Public signature/return type unchanged.
 """
 function realizable_3D_M4(M4::AbstractVector, Ma::Real)
-    s3max = 4.0 + abs(Ma)/2.0   # maximum skewness
-    c2min = 1.0e-12             # distance from boundary of 2nd-order moment space
-    h2min = 1.0e-6              # distance from boundary of 4th-order moment space
-    S2min = 1.0e-6
-
-    # mean velocities
-    M000 = M4[1]
-    umean = M4[2]/M000
-    vmean = M4[6]/M000
-    wmean = M4[16]/M000
-
-    # central and standardized moments
-    C4, S4 = M2CS4_35(M4)
-    C200 = max(c2min, C4[3])
-    C020 = max(c2min, C4[10])
-    C002 = max(c2min, C4[20])
-
-    S300=S4[4];  S400=S4[5];  S110=S4[7];  S210=S4[8];  S310=S4[9]
-    S120=S4[11]; S220=S4[12]; S030=S4[13]; S130=S4[14]; S040=S4[15]
-    S101=S4[17]; S201=S4[18]; S301=S4[19]; S102=S4[21]; S202=S4[22]
-    S003=S4[23]; S103=S4[24]; S004=S4[25]; S011=S4[26]; S111=S4[27]
-    S211=S4[28]; S021=S4[29]; S121=S4[30]; S031=S4[31]; S012=S4[32]
-    S112=S4[33]; S013=S4[34]; S022=S4[35]
-
-    # --- univariate moments ---
-    H200 = S400 - S300^2 - 1
-    H020 = S040 - S030^2 - 1
-    H002 = S004 - S003^2 - 1
-    if H200 <= h2min; H200 = h2min; S400 = H200 + S300^2 + 1; end
-    if H020 <= h2min; H020 = h2min; S040 = H020 + S030^2 + 1; end
-    if H002 <= h2min; H002 = h2min; S004 = H002 + S003^2 + 1; end
-    # cap skewness at +/- s3max (MATLAB applies this block twice; it is idempotent)
-    if S300 < -s3max; S300 = -s3max; S400 = H200 + S300^2 + 1
-    elseif S300 > s3max; S300 = s3max; S400 = H200 + S300^2 + 1; end
-    if S030 < -s3max; S030 = -s3max; S040 = H020 + S030^2 + 1
-    elseif S030 > s3max; S030 = s3max; S040 = H020 + S030^2 + 1; end
-    if S003 < -s3max; S003 = -s3max; S004 = H002 + S003^2 + 1
-    elseif S003 > s3max; S003 = s3max; S004 = H002 + S003^2 + 1; end
-    S400 = max(S400, S300^2 + 1 + h2min)
-    S040 = max(S040, S030^2 + 1 + h2min)
-    S004 = max(S004, S003^2 + 1 + h2min)
-
-    # --- 2nd-order cross moments ---
-    S110 = min(1.0, max(S110, -1.0))
-    S101 = min(1.0, max(S101, -1.0))
-    S011 = min(1.0, max(S011, -1.0))
-    S110, S101, S011, S2 = realizability_S2(S110, S101, S011)
-    if S2 < S2min
-        R = 1 - h2min
-        S110 = R*S110
-        S101 = R*S101
-        S011 = R*S011
-    end
-
-    # --- 4th-order: max bounds on S220, S202, S022 ---
-    A220 = sqrt((H200 + S300^2)*(H020 + S030^2))
-    S220max = realizability_S220(S110, S220, A220)
-    A202 = sqrt((H200 + S300^2)*(H002 + S003^2))
-    S202max = realizability_S220(S101, S202, A202)
-    A022 = sqrt((H020 + S030^2)*(H002 + S003^2))
-    S022max = realizability_S220(S011, S022, A022)
-    S220 = min(S220, S220max)
-    S202 = min(S202, S202max)
-    S022 = min(S022, S022max)
-
-    # --- 3rd/4th-order: projection ---
-    (S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
-     S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,
-     S211, S021, S121, S031, S012, S112, S013, S022) =
-        projection35(S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
-                     S101, S201, S301, S102, S202, S003, S103, S004, S011, S111,
-                     S211, S021, S121, S031, S012, S112, S013, S022)
-
-    # --- raw moments from corrected standardized moments (via shared helper) ---
-    # Note: C200/C020/C002 are already floored by c2min above before reaching here.
-    M4r = standardized_to_M4(M000, umean, vmean, wmean, C200, C020, C002,
-                              S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
-                              S101, S201, S301, S102, S202, S003, S103, S004,
-                              S011, S111, S211, S021, S121, S031, S012, S112, S013, S022)
-    return M4r
+    return standardized_to_M4(realizable_3D_M4_corr_dev(M4..., Ma)...)
 end

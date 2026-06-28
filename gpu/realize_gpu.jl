@@ -1,6 +1,6 @@
 """
     realize_gpu.jl — batched CUDA port of the realizability projection device
-    function `RealizeDev.realizable_3D_M4_dev` (`gpu/realize_dev.jl`).
+    function `RealizeDev.realizable_3D_M4_dev` (`src/realizability/realize_dev.jl`).
 
 One GPU thread corrects ONE cell: it reads the 35 raw moments of that cell and runs
 the alloc-free scalar chain
@@ -23,7 +23,10 @@ module RealizeGPU
 
 using CUDA
 
-include(joinpath(@__DIR__, "realize_dev.jl"))
+# realize_dev.jl (module RealizeDev) references ReconDev as a sibling via `using
+# ..ReconDev`, so recon_dev.jl must be included into THIS module first.
+include(joinpath(@__DIR__, "..", "src", "numerics", "recon_dev.jl"))
+include(joinpath(@__DIR__, "..", "src", "realizability", "realize_dev.jl"))
 using .RealizeDev: realizable_3D_M4_dev
 
 export realizable_batched!, realizable_batched

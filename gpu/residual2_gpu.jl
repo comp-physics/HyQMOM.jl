@@ -44,9 +44,11 @@ using CUDA
 include(joinpath(@__DIR__, "wavespeed_dev.jl"))
 include(joinpath(@__DIR__, "flux_closure_dev.jl"))
 include(joinpath(@__DIR__, "recon_dev.jl"))
+include(joinpath(@__DIR__, "realize_dev.jl"))
 using .WavespeedDev: realize_and_speed_Mr_dev
 using .FluxClosureDev: flux_closure35_dev
 using .ReconDev: to_recon_vars_tup, from_recon_vars_tup, recon_vars_ok_tup, minmod
+using .RealizeDev: realizable_3D_M4_dev
 
 export residual2_gpu!, residual2_gpu
 
@@ -205,6 +207,37 @@ function _residual_kernel!(R, Fhat, dx::Float64, N::Int)
     return nothing
 end
 
+# ---------------------------------------------------------------------------
+# Optional face-state projection (opt-in): apply realizable_3D_M4 to each face
+# state ML[:,i], MR[:,i] in place, EXACTLY as CPU `face_flux_1d` does before the
+# flux. Default-off keeps the historical residual2 behavior byte-identical; the
+# time-march turns it ON for faithfulness over many steps at high Ma (where the
+# reconstructed faces can leave the realizable set).
+# ---------------------------------------------------------------------------
+@inline function _project_col!(A, i, Ma::Float64)
+    @inbounds begin
+        r = realizable_3D_M4_dev(
+            A[1,i],  A[2,i],  A[3,i],  A[4,i],  A[5,i],  A[6,i],  A[7,i],
+            A[8,i],  A[9,i],  A[10,i], A[11,i], A[12,i], A[13,i], A[14,i],
+            A[15,i], A[16,i], A[17,i], A[18,i], A[19,i], A[20,i], A[21,i],
+            A[22,i], A[23,i], A[24,i], A[25,i], A[26,i], A[27,i], A[28,i],
+            A[29,i], A[30,i], A[31,i], A[32,i], A[33,i], A[34,i], A[35,i], Ma)
+        for k in 1:35
+            A[k,i] = r[k]
+        end
+    end
+    return nothing
+end
+
+function _project_faces_kernel!(ML, MR, Ma::Float64, Nf::Int)
+    i = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    if i <= Nf
+        _project_col!(ML, i, Ma)
+        _project_col!(MR, i, Ma)
+    end
+    return nothing
+end
+
 """
     residual2_gpu!(R, Fhat, ML, MR, Vc, M, dx, Ma; vacuum_floor=0.0, threads=128)
 
@@ -216,7 +249,8 @@ function residual2_gpu!(R::CuMatrix{Float64}, Fhat::CuMatrix{Float64},
                         ML::CuMatrix{Float64}, MR::CuMatrix{Float64},
                         Vc::CuMatrix{Float64}, M::CuMatrix{Float64},
                         dx::Real, Ma::Real=0.0;
-                        vacuum_floor::Real=0.0, threads::Int=128)
+                        vacuum_floor::Real=0.0, project_faces::Bool=false,
+                        threads::Int=128)
     N = size(M, 2)
     @assert size(M, 1) == 35 "M must be (35, N)"
     @assert size(Vc) == (35, N) "Vc must be (35, N)"
@@ -227,6 +261,9 @@ function residual2_gpu!(R::CuMatrix{Float64}, Fhat::CuMatrix{Float64},
     Nf = N - 1
     @cuda threads=threads blocks=cld(N, threads)  _recon_vars_kernel!(Vc, M, N)
     @cuda threads=threads blocks=cld(Nf, threads) _facepair_kernel!(ML, MR, Vc, M, Float64(vacuum_floor), Nf, N)
+    if project_faces
+        @cuda threads=threads blocks=cld(Nf, threads) _project_faces_kernel!(ML, MR, Float64(Ma), Nf)
+    end
     @cuda threads=threads blocks=cld(Nf, threads) _face_flux_kernel!(Fhat, ML, MR, Float64(Ma), Nf)
     @cuda threads=threads blocks=cld(N, threads)  _residual_kernel!(R, Fhat, Float64(dx), N)
     return nothing

@@ -1,5 +1,32 @@
 # GPU acceleration — prototype & findings
 
+## Multi-GPU + MPI (validated, 2× Quadro RTX 6000)
+
+GPU+MPI works on this node. **CUDA-aware MPI is NOT required** — the system OpenMPI 4.1.8 is built
+`--without-cuda`, so halos are **host-staged** (GPU→host, `MPI.Sendrecv!`/`Gatherv!`, host→GPU). Each
+MPI rank binds a distinct device with `CUDA.device!(rank % CUDA.ndevices())`.
+
+Two validators (run with `srun --mpi=pmix -n 2 --gpus=2`, env per the recipe below):
+- `validate_gpu_mpi_smoke.jl` — rank↔GPU binding, host-staged ring halo exchange, cross-GPU `Allreduce`.
+  Result: rank0→GPU0, rank1→GPU1, halo + reduction correct → **PASS**.
+- `validate_gpu_mpi_realize.jl` — the **real** realizability projection kernel, domain-decomposed across
+  both GPUs (column slabs), MPI scatter→compute→`Gatherv!`. 21,296 cells (10,648/GPU) vs the CPU
+  reference: **max rel 3.3e-15** (machine precision) → **PASS**.
+
+Run recipe (env that makes CUDA.jl + MPI.jl coexist; MPI bound to system OpenMPI, host-staged BTLs):
+```bash
+export JULIA_DEPOT_PATH=/storage/scratch1/6/sbryngelson3/julia_depot:$HOME/.julia
+export TMPDIR=/storage/scratch1/6/sbryngelson3/tmp
+OMPI=/usr/local/pace-apps/spack/.../openmpi-4.1.8-iit4xaslnjxkchcc6n62b5kluzibl2v2
+export LD_LIBRARY_PATH=$OMPI/lib:$LD_LIBRARY_PATH
+export OMPI_MCA_pml=ob1 OMPI_MCA_btl=self,vader     # host-staged: no UCX/CUDA-aware needed
+srun --mpi=pmix -n 2 --gpus=2 julia --project=gpu/gpuenv2 gpu/validate_gpu_mpi_realize.jl
+```
+`gpu/gpuenv2` now carries `MPI` + `MPIPreferences` (bound `binary="system"`, `abi="OpenMPI"` via the
+project `LocalPreferences.toml`) alongside `CUDA`. Per-cell kernels (flux, realizability) decompose with
+zero halo; the stencil residual (`residual3d_gpu`) would add a z-slab host-staged halo exchange — the
+smoke test already proves that exchange path. That domain-decomposed residual is the remaining piece.
+
 ## Single-source port status (branch `gpu-single-source-port`)
 
 The original prototype kept a separate `gpu/*_dev.jl` copy of each per-cell kernel beside the CPU

@@ -83,6 +83,27 @@ both): for **1, 2, and 4 ranks** (4 on 2 GPUs = interior slabs), both the **dt s
 field** match with **max abs diff 0.0 — BIT-IDENTICAL**. The full timestep now runs multi-GPU with only
 halo planes crossing the host; the per-step compute is the resident-field workload benchmarked above.
 
+### 2D (Nz=1) support — single-GPU, validated against MATLAB
+
+A "2D" run is just a `nz=1` spatial grid (the 35-moment velocity space is always 3D; `flag2D` is a legacy
+no-op). `march3d_gpu!` and `residual3d_box_gpu!` take **rectangular** `(nx,ny,nz)` extents, so 2D is
+`(35,nx,ny,1)` — `Lz=0` on z-uniform data, no spurious z-transport. (Multi-GPU is **not** supported in 2D:
+the slab march decomposes z, which can't split `nz=1`; `march3d_slab_gpu!` asserts `nz_loc >= halo`. 2D runs
+on one GPU — by design.)
+
+Validation:
+- **Direct vs MATLAB** (`validate_2d_flux_vs_matlab.jl`): the GPU realizability kernel + flux device
+  function (the per-cell physics the 2D residual uses) vs the MATLAB golden `test_flux_eigenvalues_golden.mat`
+  (`flag2D=1`, Ma=0.5) → **max rel 4.4e-16** (machine precision).
+- **Composed residual vs MATLAB-ported CPU** (`validate_2d_residual_vs_cpu.jl`): GPU 2D residual vs CPU
+  `residual_ho_3d!` (the MATLAB port) → **rel 3.9e-7, GATE PASS** (the ~e-7 floor is `schur4`(GPU) vs
+  LAPACK(CPU) in the wave-speed eig — the one place the GPU intentionally differs).
+- **Self-consistency** (`validate_2d_timestep.jl`): GPU 2D `nz=1` SSP-RK3 timestep is **bit-identical (0.0)**
+  to the interior plane of a z-homogeneous 3D run.
+
+(Reading `.mat` here needs an MPI-free env — `HDF5_jll`→`OpenMPI_jll` clashes with the system-MPI binding;
+`dump_matlab_flux_golden.jl` / `dump_cpu_2d_residual.jl` regenerate the f64 references.)
+
 ## Single-source port status (branch `gpu-single-source-port`)
 
 The original prototype kept a separate `gpu/*_dev.jl` copy of each per-cell kernel beside the CPU

@@ -93,10 +93,10 @@ _cfl_from_vmax(vmax, dx) = (1.0/3.0) * dx / max(vmax, 1e-12)
     return nothing
 end
 
-# allocate the shared RK3 scratch for a (35,n,n,nz) state
-function _rk3_buffers(n::Int, nz::Int)
-    ncl = n * n * nz
-    M1 = CUDA.zeros(Float64, 35, n, n, nz); M2 = similar(M1); M3 = similar(M1)
+# allocate the shared RK3 scratch for a (35,nx,ny,nz) state
+function _rk3_buffers(nx::Int, ny::Int, nz::Int)
+    ncl = nx * ny * nz
+    M1 = CUDA.zeros(Float64, 35, nx, ny, nz); M2 = similar(M1); M3 = similar(M1)
     Pbuf = similar(M1); svec = CUDA.zeros(Float64, ncl)
     return (M1, M2, M3, Pbuf,
             reshape(M1,35,ncl), reshape(M2,35,ncl), reshape(M3,35,ncl), reshape(Pbuf,35,ncl),
@@ -106,28 +106,32 @@ end
 """
     march3d_gpu!(M_dev, dx, Ma, nstep; dts=nothing, vacuum_floor=…, threads=128) -> Vector{Float64}
 
-Advance a single-GPU cubic field `M_dev (35,n,n,n)` for `nstep` SSP-RK3 steps. If
-`dts` is given those dt are used verbatim (validation); else local CFL each step.
+Advance a single-GPU field `M_dev (35,nx,ny,nz)` for `nstep` SSP-RK3 steps. Any
+rectangular extent — cubic `(35,n,n,n)` OR a 2D spatial grid `(35,nx,ny,1)` (the
+35-moment velocity space is always 3D; a 2D run is just `nz=1`, giving `Lz=0` on
+z-uniform data). Outflow BC on all 6 faces (the single-GPU full domain has no
+neighbors). If `dts` is given those dt are used verbatim; else local CFL each step.
 Returns the dt vector used.
 """
 function march3d_gpu!(M_dev::CuArray{Float64,4}, dx::Real, Ma::Real, nstep::Integer;
                       dts=nothing, vacuum_floor::Real=HO_VACUUM_FLOOR_DEFAULT, threads::Int=128)
-    @assert size(M_dev, 1) == 35
-    n = size(M_dev, 2)
-    @assert size(M_dev) == (35, n, n, n) "M_dev must be cubic (35,n,n,n)"
+    @assert size(M_dev, 1) == 35 "M_dev must be (35,nx,ny,nz)"
+    nx = size(M_dev, 2); ny = size(M_dev, 3); nz = size(M_dev, 4)
     dxf = Float64(dx); Maf = Float64(Ma); vacf = Float64(vacuum_floor)
     dts_host = dts === nothing ? nothing : Float64.(collect(dts))
 
-    R    = CUDA.zeros(Float64, 35, n, n, n)
-    Fbuf = CUDA.zeros(Float64, 35, n + 1, n, n)
-    M1, M2, M3, Pbuf, M1m, M2m, M3m, Pbufm, svec = _rk3_buffers(n, n)
+    R = CUDA.zeros(Float64, 35, nx, ny, nz)
+    fmax = max((nx+1)*ny*nz, (ny+1)*nx*nz, (nz+1)*nx*ny)
+    flat = CUDA.zeros(Float64, 35, fmax)            # box face-scratch (alloc-free reuse)
+    M1, M2, M3, Pbuf, M1m, M2m, M3m, Pbufm, svec = _rk3_buffers(nx, ny, nz)
     M = M_dev
-    L! = (Rint, st) -> residual3d_gpu!(Rint, Fbuf, st, n, dxf, Maf;
-                                       vacuum_floor=vacf, project_faces=true, threads=threads)
+    L! = (Rint, st) -> residual3d_box_gpu!(Rint, st, nx, ny, nz, dxf, Maf;
+                                           vacuum_floor=vacf, project_faces=true,
+                                           threads=threads, flat=flat)
 
     used = Vector{Float64}(undef, nstep)
     for s in 1:nstep
-        dt = dts_host === nothing ? _cfl_from_vmax(_local_vmax(M, svec, n, n, n; threads=threads), dxf) : dts_host[s]
+        dt = dts_host === nothing ? _cfl_from_vmax(_local_vmax(M, svec, nx, ny, nz; threads=threads), dxf) : dts_host[s]
         used[s] = dt
         _rk3_step!(M, M1, M2, M3, M1m, M2m, M3m, Pbufm, R, dt, Maf, threads, L!)
     end
@@ -149,6 +153,7 @@ function march3d_slab_gpu!(M::CuArray{Float64,4}, dx::Real, Ma::Real, nstep::Int
     @assert size(M, 1) == 35
     n = size(M, 2); nzloc = size(M, 4)
     @assert size(M) == (35, n, n, nzloc) "M must be (35,n,n,nz_loc)"
+    @assert nzloc >= halo "z-slab decomposition is 3D-only (need nz_loc >= halo); for 2D (nz=1) use single-GPU march3d_gpu!"
     nz_ext = nzloc + 2*halo
     left  = rank > 0          ? rank - 1 : MPI.PROC_NULL
     right = rank < nranks - 1 ? rank + 1 : MPI.PROC_NULL
@@ -159,7 +164,7 @@ function march3d_slab_gpu!(M::CuArray{Float64,4}, dx::Real, Ma::Real, nstep::Int
     Rext = CUDA.zeros(Float64, 35, n, n, nz_ext)
     fmax = max((n+1)*n*nz_ext, (nz_ext+1)*n*n)
     flat = CUDA.zeros(Float64, 35, fmax)                       # box face-scratch (alloc-free reuse)
-    M1, M2, M3, Pbuf, M1m, M2m, M3m, Pbufm, svec = _rk3_buffers(n, nzloc)
+    M1, M2, M3, Pbuf, M1m, M2m, M3m, Pbufm, svec = _rk3_buffers(n, n, nzloc)
     Rint = CUDA.zeros(Float64, 35, n, n, nzloc)
     pin() = (h = Array{Float64}(undef, 35, n, n, halo); CUDA.pin(h); h)
     hsT = pin(); hsB = pin(); hrT = pin(); hrB = pin()

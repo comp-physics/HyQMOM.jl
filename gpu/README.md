@@ -27,6 +27,28 @@ project `LocalPreferences.toml`) alongside `CUDA`. Per-cell kernels (flux, reali
 zero halo; the stencil residual (`residual3d_gpu`) would add a z-slab host-staged halo exchange — the
 smoke test already proves that exchange path. That domain-decomposed residual is the remaining piece.
 
+### Multi-GPU scaling (resident field, halo-only host transfer) — `bench_gpu_mpi_resident.jl`
+
+The right design: the moment field stays **resident** on each GPU for the whole run; only the thin halo
+z-planes are staged host→MPI→host each step (pinned host buffers, preallocated GPU ghost buffers, direct
+`copyto!`). Benchmark (n=256 cube = 16.8M cells, 20 steps, realizability kernel as the per-cell workload;
+2× Quadro RTX 6000):
+
+| | 1 GPU | 2 GPUs | speedup |
+|---|---|---|---|
+| compute (resident) | 21.74 s | 11.26 s | **1.93×** (near-ideal) |
+| overall (compute + halo) | 21.76 s | 11.88 s | **1.83×** |
+| throughput | 15.4 Mcells/s | 28.2 Mcells/s | — |
+| halo exchange | — | 0.89 s (7% of wall) | — |
+
+The **compute scales near-linearly (1.93×)** — multi-GPU works. Halo is only 7% of wall (73 MB/face vs a
+4.7 GB resident field), and would shrink further by overlapping exchange with compute via CUDA streams.
+Contrast the naive *full-field* host round-trip (the convenience `realizable_batched(M_host,Ma)` path):
+only 1.48× and ~4.5 Mcells/s — transfer-bound. Keeping data resident and moving only halos is ~6× higher
+absolute throughput. (Absolute Mcells/s here is worst-case: random inputs force every cell through the
+projection-correction branch; realistic fields where many cells skip correction run ~3–4× faster. The
+scaling *ratio* is data-independent.)
+
 ## Single-source port status (branch `gpu-single-source-port`)
 
 The original prototype kept a separate `gpu/*_dev.jl` copy of each per-cell kernel beside the CPU

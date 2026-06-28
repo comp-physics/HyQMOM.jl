@@ -68,13 +68,15 @@ Validators (`validate_residual3d_box.jl`, `validate_slab_residual_mpi.jl`):
 This is the actual stencil timestep building block running multi-GPU with resident data + halo-only
 transfer — the remaining piece from the scaling note above is now done and correctness-locked.
 
-### Full multi-GPU SSP-RK3 timestep loop — `timestep3d_mpi.jl`, bit-identical
+### Full multi-GPU SSP-RK3 timestep loop — `timestep3d_gpu.jl`, bit-identical
 
-`march3d_slab_gpu!` (module `Timestep3DMPI`) wires the z-slab residual into the complete order-2 SSP-RK3
-time loop. Each rank keeps its interior slab `(35,n,n,nz_loc)` resident; per RK stage it refreshes the
-halo (host-staged `Sendrecv!`), runs `residual3d_box_gpu!` on the extended slab, then does the RK combine
-+ per-cell realizability projection on the contiguous interior. The CFL `dt` is `Allreduce(max)` of each
-rank's max wave speed — `max` is exact, so `dt` equals single-GPU bit-for-bit.
+`march3d_slab_gpu!` (module `Timestep3DGPU`, alongside the single-GPU `march3d_gpu!`) wires the z-slab
+residual into the complete order-2 SSP-RK3 time loop. Both marches share ONE RK3-step helper
+(`_rk3_step!`) and ONE rectangular CFL speed kernel — they differ only in their residual operator `L!`
+(cube vs extended-slab-with-halo-exchange) and `dt` (local vs `Allreduce(max)`). Each rank keeps its
+interior slab `(35,n,n,nz_loc)` resident; per RK stage it refreshes the halo (host-staged `Sendrecv!`),
+runs `residual3d_box_gpu!` on the extended slab, then RK-combines + projects the contiguous interior.
+`dt = Allreduce(max)` of per-rank max speed — `max` is exact, so `dt` equals single-GPU bit-for-bit.
 
 Validated against single-GPU `march3d_gpu!` (`validate_timestep3d_mpi.jl`, n=24, 5 steps, on-device CFL on
 both): for **1, 2, and 4 ranks** (4 on 2 GPUs = interior slabs), both the **dt sequence** and the **final

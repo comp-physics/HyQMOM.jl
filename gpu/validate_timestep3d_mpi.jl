@@ -1,6 +1,5 @@
 using MPI, CUDA, Printf
 H="/storage/project/r-sbryngelson3-0/sbryngelson3/HyQMOM.jl/gpu"
-include(joinpath(H,"timestep3d_mpi.jl")); using .Timestep3DMPI
 include(joinpath(H,"timestep3d_gpu.jl")); using .Timestep3DGPU
 DATA="/storage/scratch1/6/sbryngelson3/gpudata"
 
@@ -24,7 +23,7 @@ end
 # multi-GPU z-slab march, on-device global CFL
 z0=rank*nzloc
 Mslab=CuArray(Array(@view Mfull[:,:,:,z0+1:z0+nzloc]))
-used=Timestep3DMPI.march3d_slab_gpu!(Mslab,dx,Ma,nstep,comm)
+used=Timestep3DGPU.march3d_slab_gpu!(Mslab,dx,Ma,nstep,comm)
 
 # gather final field (rank order == z order)
 sb=vec(Array(Mslab)); counts=fill(35*n*n*nzloc,nranks)

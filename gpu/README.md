@@ -68,15 +68,27 @@ number is smaller — but solve-only is the right metric for an all-GPU solver w
 (12× is vs an already-optimized alloc-free CPU baseline — a conservative, honest number. End-to-end is
 transfer-bound by design; the closure runs on resident data in a real GPU solver.)
 
-## Status & remaining for a full GPU residual
+## Wave-speed path + end-to-end first-order residual — DONE
 
-**On GPU now (per-cell physics):** eigensolves (symmetric cuSOLVER + non-symmetric Schur kernel) and the
-flux closure. No remaining *algorithmic* blockers — the rest is arithmetic + array ops.
+- **Wave-speed path** (`realize_and_speed` = jacobian15 3×3/4×4 blocks → eig3 + Schur kernel + symmetric
+  closure `v5` + hyperbolicity correction + `max(v5,v6)`): `wavespeed_dev.jl`/`wavespeed_gpu.jl`. Validated
+  vs CPU on 8192 real states × 3 axes: **max rel err 6.4e-13**, hyperbolicity-correction branch matches.
+  **85× solve-only** / 49× end-to-end. *(@fastmath must stay OFF here — GPU rsqrt flips the complex-root
+  discriminant at the hyperbolicity boundary.)*
+- **End-to-end first-order 1D residual** (`residual1d_gpu.jl`): composes flux + wave-speed + HLL + stencil
+  on device. Validated vs CPU `residual_1d(order=1)` on N=256 Ma=100: **max rel err 2.3e-9** (worst cell
+  agrees to 9 digits). The full first-order HLL residual of the 35-moment scheme runs end-to-end on GPU.
 
-**Remaining:** reconstruction (`to_recon_vars`/MUSCL, per-face arithmetic — ports like the flux); the GPU
-wave-speed path (`realize_and_speed` = non-sym Schur `v6` + symmetric closure `v5` + hyperbolicity
-correction); HLL combine; residual stencil assembly; SSP-RK3 on device; `projection35` realizability; and
-CUDA-aware MPI halo exchange for multi-GPU.
+## Status: the hard parts are done
+
+**On GPU now, validated vs CPU to ~1e-9–1e-13 on real states:** the entire per-cell physics — eigensolves
+(symmetric cuSOLVER + non-symmetric Schur kernel), flux closure, and the wave-speed path — plus a composed
+first-order HLL residual. **No algorithmic blockers remain.**
+
+**Remaining for a production GPU solver (all arithmetic / array-ops, no new algorithms):** high-order
+reconstruction (`to_recon_vars`/MUSCL + scaling limiter), 3D stencil assembly (x/y/z), SSP-RK3 on device,
+`realizable_3D_M4`/`projection35` realizability (symmetric eig via cuSOLVER + arithmetic), and CUDA-aware
+MPI halo exchange for multi-GPU.
 
 ## Environment (PACE)
 

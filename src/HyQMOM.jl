@@ -106,6 +106,8 @@ include("numerics/small_eig.jl")
 include("numerics/closure_and_eigenvalues.jl")
 include("numerics/eigenvalues6_hyperbolic_3D.jl")
 include("numerics/eigenvalues6z_hyperbolic_3D.jl")
+include("numerics/flux_closure_dev.jl")
+using .FluxClosureDev: flux_closure35_dev
 include("numerics/Flux_closure35_and_realizable_3D.jl")
 include("numerics/Flux_closure35_3D.jl")
 include("numerics/highorder_flux.jl")

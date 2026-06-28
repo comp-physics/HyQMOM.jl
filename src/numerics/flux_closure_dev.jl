@@ -22,9 +22,9 @@ literals, so the FP operation order is identical.
 `@fastmath` on the CPU, so those blocks are left outside the `@fastmath` macro by
 splitting into helper functions. This keeps byte-for-byte FP parity.
 
-Pure addition under `gpu/`. Not wired into production. No CUDA dependency here —
-this file is plain Julia and is `include`d by both the CPU validator and the GPU
-kernel module.
+Single source of the per-cell flux closure: this file lives in `src/numerics/` and
+is `include`d by both the CPU `Flux_closure35_3D` (which delegates here) and the GPU
+kernel module (`gpu/flux_closure_gpu.jl`). No CUDA dependency here — plain Julia.
 """
 module FluxClosureDev
 

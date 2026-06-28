@@ -2,7 +2,7 @@
     residual1d_gpu.jl — end-to-end first-order 1D HLL residual on GPU.
 
 CAPSTONE composition of the already-ported, individually-validated device kernels
-(`gpu/flux_closure_dev.jl`, `gpu/wavespeed_dev.jl`, `gpu/schur4.jl`) into a complete
+(`src/numerics/flux_closure_dev.jl`, `gpu/wavespeed_dev.jl`, `gpu/schur4.jl`) into a complete
 on-device first-order spatial residual matching the CPU
 `residual_1d(Mline, dx, Ma; order=1, bc=:outflow)` (`src/numerics/highorder_flux.jl`).
 
@@ -30,7 +30,7 @@ module Residual1DGPU
 using CUDA
 
 include(joinpath(@__DIR__, "wavespeed_dev.jl"))
-include(joinpath(@__DIR__, "flux_closure_dev.jl"))
+include(joinpath(@__DIR__, "..", "src", "numerics", "flux_closure_dev.jl"))
 using .WavespeedDev: realize_and_speed_Mr_dev
 using .FluxClosureDev: flux_closure35_dev
 

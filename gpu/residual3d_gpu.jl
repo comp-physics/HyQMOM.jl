@@ -2,7 +2,7 @@
     residual3d_gpu.jl — on-device 3D order-2 (MUSCL) HLL residual.
 
 Composes the validated per-cell / per-line device kernels
-(`gpu/recon_dev.jl`, `gpu/flux_closure_dev.jl`, `gpu/wavespeed_dev.jl`,
+(`gpu/recon_dev.jl`, `src/numerics/flux_closure_dev.jl`, `gpu/wavespeed_dev.jl`,
 `gpu/realize_dev.jl`, `gpu/schur4.jl`) into the 3D unsplit residual, the GPU
 analogue of the CPU `residual_ho_3d!` (`src/numerics/highorder_3d.jl`) at
 `order=2`. The residual is the SUM of the per-line order-2 1D HLL residual along
@@ -49,7 +49,7 @@ module Residual3DGPU
 using CUDA
 
 include(joinpath(@__DIR__, "wavespeed_dev.jl"))
-include(joinpath(@__DIR__, "flux_closure_dev.jl"))
+include(joinpath(@__DIR__, "..", "src", "numerics", "flux_closure_dev.jl"))
 include(joinpath(@__DIR__, "recon_dev.jl"))
 include(joinpath(@__DIR__, "realize_dev.jl"))
 using .WavespeedDev: realize_and_speed_Mr_dev

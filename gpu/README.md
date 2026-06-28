@@ -56,7 +56,7 @@ number is smaller — but solve-only is the right metric for an all-GPU solver w
 ## Flux closure on GPU — DONE
 
 `Flux_closure35_3D` (pure per-cell arithmetic) ported to an alloc-free device function
-`flux_closure35_dev(35 scalars) -> NTuple{105}` (`flux_closure_dev.jl`) + CUDA kernel
+`flux_closure35_dev(35 scalars) -> NTuple{105}` (`src/numerics/flux_closure_dev.jl`) + CUDA kernel
 (`flux_closure_gpu.jl`). Validated vs CPU on 21,296 real states: **max rel error 4.0e-14**.
 
 | flux closure (B=2.1M, fp64) | throughput | speedup |

@@ -1,6 +1,6 @@
 """
     flux_closure_gpu.jl — batched CUDA port of the validated device flux closure
-    `FluxClosureDev.flux_closure35_dev` (`gpu/flux_closure_dev.jl`).
+    `FluxClosureDev.flux_closure35_dev` (`src/numerics/flux_closure_dev.jl`).
 
 One GPU thread computes the full analytic flux closure for ONE cell: it reads the
 35 raw moments of that cell, runs the alloc-free scalar chain
@@ -35,7 +35,7 @@ module FluxClosureGPU
 
 using CUDA
 
-include(joinpath(@__DIR__, "flux_closure_dev.jl"))
+include(joinpath(@__DIR__, "..", "src", "numerics", "flux_closure_dev.jl"))
 using .FluxClosureDev: flux_closure35_dev
 
 export flux_closure35_batched!, flux_closure35_batched

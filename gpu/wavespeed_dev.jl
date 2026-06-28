@@ -38,8 +38,8 @@ module WavespeedDev
 include(joinpath(@__DIR__, "schur4.jl"))
 using .Schur4: schur4_realpart_minmax
 
-export realize_and_speed_dev, jac15_eig_dev, closure5_dev, correct_moments_dev,
-       eig3_realparts_dev
+export realize_and_speed_dev, realize_and_speed_Mr_dev, jac15_eig_dev, closure5_dev,
+       correct_moments_dev, eig3_realparts_dev
 
 # ---------------------------------------------------------------------------
 # eig3_realparts_dev: analytic eigenvalues (real parts) of a general real 3x3,
@@ -662,6 +662,57 @@ for the given axis. `Ma` is accepted but unused (as in the CPU path).
             v5min, v5max = closure5_dev(m1, m16, m20, m23, m25)
         end
         return min(v5min, v6min), max(v5max, v6max)
+    end
+end
+
+"""
+    realize_and_speed_Mr_dev(m1..m35, axis, Ma) -> (Mr::NTuple{35}, vmin, vmax)
+
+Extended device port of the FULL CPU `realize_and_speed` (`src/numerics/highorder_flux.jl`):
+identical wave-speed logic to `realize_and_speed_dev`, but ALSO returns the
+hyperbolicity-corrected 35-moment state `Mr` (the second output of
+`eigenvalues6{,z}_hyperbolic_3D`). On the real-eigenvalue branch `Mr` is the input
+moments verbatim; on the complex branch it is `correct_moments_hyperbolic_3D(M)`
+(== `correct_moments_dev` here) — exactly mirroring the CPU `Mr = M` / `Mr = correct_…`
+split. Needed by the HLL face flux, which fluxes (and diffuses) the CORRECTED states.
+`@fastmath` deliberately OFF (see module docstring). `Ma` accepted but unused.
+"""
+@inline function realize_and_speed_Mr_dev(
+        m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,m16,m17,m18,m19,m20,
+        m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,m31,m32,m33,m34,m35, axis, Ma)
+    v6min, v6max, hc = _eig6_dev(axis,
+        m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,m16,m17,m18,m19,m20,
+        m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,m31,m32,m33,m34,m35)
+    if hc
+        c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,
+        c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35 =
+            correct_moments_dev(
+                m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,m16,m17,m18,m19,m20,
+                m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,m31,m32,m33,m34,m35)
+        v6min, v6max, _ = _eig6_dev(axis,
+            c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,
+            c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35)
+        if axis == 1
+            v5min, v5max = closure5_dev(c1, c2, c3, c4, c5)
+        elseif axis == 2
+            v5min, v5max = closure5_dev(c1, c6, c10, c13, c15)
+        else
+            v5min, v5max = closure5_dev(c1, c16, c20, c23, c25)
+        end
+        Mr = (c1,c2,c3,c4,c5,c6,c7,c8,c9,c10,c11,c12,c13,c14,c15,c16,c17,c18,c19,c20,
+              c21,c22,c23,c24,c25,c26,c27,c28,c29,c30,c31,c32,c33,c34,c35)
+        return Mr, min(v5min, v6min), max(v5max, v6max)
+    else
+        if axis == 1
+            v5min, v5max = closure5_dev(m1, m2, m3, m4, m5)
+        elseif axis == 2
+            v5min, v5max = closure5_dev(m1, m6, m10, m13, m15)
+        else
+            v5min, v5max = closure5_dev(m1, m16, m20, m23, m25)
+        end
+        Mr = (m1,m2,m3,m4,m5,m6,m7,m8,m9,m10,m11,m12,m13,m14,m15,m16,m17,m18,m19,m20,
+              m21,m22,m23,m24,m25,m26,m27,m28,m29,m30,m31,m32,m33,m34,m35)
+        return Mr, min(v5min, v6min), max(v5max, v6max)
     end
 end
 

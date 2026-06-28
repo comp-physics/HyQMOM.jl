@@ -32,8 +32,8 @@ gathering the 4 MUSCL stencil cells of each face — EXACTLY reproducing the CPU
 `repeat(edge)`. (n+1 faces per line: face f between cells f and f+1, f=0..n,
 ghost cells 0 and n+1 clamped to 1 and n.) All n interior cells get a real
 residual — nothing is zeroed (the CPU 3D path computes every interior cell from
-its ghost-backed fluxes; the "zero the boundary" rule belongs to the standalone
-1D `residual2_gpu`, not the 3D composition).
+its ghost-backed fluxes; a standalone 1D "zero the boundary" rule does not apply
+to the 3D composition).
 
 Per axis: kernel 1 computes the face flux `Fhat` at every face into a reusable
 `(35, n+1, p1, p2)` buffer (each face computed ONCE); kernel 2 differences and

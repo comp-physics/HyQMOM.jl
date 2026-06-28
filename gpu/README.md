@@ -146,6 +146,16 @@ all-GPU solver where the moment field lives on-device (no per-step transfer).
 **Validated:** the GPU eigensolve path is accurate (machine precision) and fast for the **symmetric**
 eig (realizability + closure). cuSOLVER `syevjBatched` is the right tool; `version="local"` toolkit works.
 
+> **Note (prototype scripts pruned for minimal footprint).** The sections below document the *incremental
+> 1D / single-component* milestones that led to the full 3D solver. Their standalone batched benchmark/
+> validation scripts (`schur4_gpu.jl`, `flux_closure_gpu.jl`, `wavespeed_gpu.jl`, `residual1d_gpu.jl`,
+> `residual2_gpu.jl`, `timestep_gpu.jl` + their `validate_*`/`bench_*`) have been **removed** — they are not
+> part of the 3D multi-GPU capability (whose closure is just `timestep3d_gpu` → `residual3d_gpu` /
+> `realize_gpu` → `wavespeed_dev` → `schur4`, plus the `src/*_dev` single-source kernels). The speedup
+> numbers below are **historical milestones**; the scripts that produced them are recoverable from git
+> history (branch `gpu-single-source-port`, before the prune commit). The custom Schur eig itself lives on
+> in `schur4.jl` (validated by `validate_schur4.jl`) and is used by the 3D path via `wavespeed_dev.jl`.
+
 ## Non-symmetric 4×4 wave-speed eig — SOLVED with a custom batched kernel
 
 No GPU library batches non-symmetric eig (cuSOLVER and MAGMA both confirmed lacking; `cusolverDnXgeev`

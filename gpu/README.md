@@ -53,9 +53,30 @@ number is smaller — but solve-only is the right metric for an all-GPU solver w
 - symmetric (realizability 6×6 + closure) → cuSOLVER `syevjBatched` (11×, above)
 - non-symmetric (wave-speed 4×4) → this custom kernel (425× solve-only)
 
-**Remaining for a full GPU residual:** port the per-cell *arithmetic* (`Flux_closure35_3D` + moment
-conversions + reconstruction) to KernelAbstractions kernels, a SoA device layout, RK3 on device, and
-CUDA-aware MPI halo exchange.
+## Flux closure on GPU — DONE
+
+`Flux_closure35_3D` (pure per-cell arithmetic) ported to an alloc-free device function
+`flux_closure35_dev(35 scalars) -> NTuple{105}` (`flux_closure_dev.jl`) + CUDA kernel
+(`flux_closure_gpu.jl`). Validated vs CPU on 21,296 real states: **max rel error 4.0e-14**.
+
+| flux closure (B=2.1M, fp64) | throughput | speedup |
+|---|---|---|
+| CPU 1-thread (alloc-free dev) | 5.4 Mcell/s | — |
+| GPU solve-only (resident) | 65.6 Mcell/s | **12.2×** |
+| GPU end-to-end (incl H2D/D2H) | 1.5 Mcell/s | 0.3× (PCIe-bound) |
+
+(12× is vs an already-optimized alloc-free CPU baseline — a conservative, honest number. End-to-end is
+transfer-bound by design; the closure runs on resident data in a real GPU solver.)
+
+## Status & remaining for a full GPU residual
+
+**On GPU now (per-cell physics):** eigensolves (symmetric cuSOLVER + non-symmetric Schur kernel) and the
+flux closure. No remaining *algorithmic* blockers — the rest is arithmetic + array ops.
+
+**Remaining:** reconstruction (`to_recon_vars`/MUSCL, per-face arithmetic — ports like the flux); the GPU
+wave-speed path (`realize_and_speed` = non-sym Schur `v6` + symmetric closure `v5` + hyperbolicity
+correction); HLL combine; residual stencil assembly; SSP-RK3 on device; `projection35` realizability; and
+CUDA-aware MPI halo exchange for multi-GPU.
 
 ## Environment (PACE)
 

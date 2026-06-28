@@ -179,132 +179,6 @@ end
 
 @inline _clamp(a::Int, n::Int) = a < 1 ? 1 : (a > n ? n : a)
 
-# ---------------------------------------------------------------------------
-# Face-flux kernels (one per axis). Thread = one (face, perp1, perp2). Faces
-# f = 0..n -> buffer column t = f+1 (1..n+1). Cell index along axis clamped to
-# [1,n] for outflow ghosts. Fbuf is (35, n+1, p1, p2).
-# ---------------------------------------------------------------------------
-function _fhat_x_kernel!(Fbuf, M, n::Int, Ma::Float64, vacf::Float64, project::Bool)
-    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    nf = n + 1
-    if idx <= nf * n * n
-        @inbounds begin
-            t  = (idx - 1) % nf + 1                 # 1..n+1
-            r  = (idx - 1) ÷ nf
-            j  = r % n + 1
-            k  = r ÷ n + 1
-            f  = t - 1                              # 0..n
-            cm1 = _cell(M, _clamp(f - 1, n), j, k)
-            c0  = _cell(M, _clamp(f,     n), j, k)
-            cp1 = _cell(M, _clamp(f + 1, n), j, k)
-            cp2 = _cell(M, _clamp(f + 2, n), j, k)
-            Fh = _face_flux_core(cm1, c0, cp1, cp2, 1, Ma, vacf, project)
-            for m in 1:35
-                Fbuf[m, t, j, k] = Fh[m]
-            end
-        end
-    end
-    return nothing
-end
-
-function _fhat_y_kernel!(Fbuf, M, n::Int, Ma::Float64, vacf::Float64, project::Bool)
-    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    nf = n + 1
-    if idx <= nf * n * n
-        @inbounds begin
-            t  = (idx - 1) % nf + 1
-            r  = (idx - 1) ÷ nf
-            i  = r % n + 1
-            k  = r ÷ n + 1
-            f  = t - 1
-            cm1 = _cell(M, i, _clamp(f - 1, n), k)
-            c0  = _cell(M, i, _clamp(f,     n), k)
-            cp1 = _cell(M, i, _clamp(f + 1, n), k)
-            cp2 = _cell(M, i, _clamp(f + 2, n), k)
-            Fh = _face_flux_core(cm1, c0, cp1, cp2, 2, Ma, vacf, project)
-            for m in 1:35
-                Fbuf[m, t, i, k] = Fh[m]
-            end
-        end
-    end
-    return nothing
-end
-
-function _fhat_z_kernel!(Fbuf, M, n::Int, Ma::Float64, vacf::Float64, project::Bool)
-    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    nf = n + 1
-    if idx <= nf * n * n
-        @inbounds begin
-            t  = (idx - 1) % nf + 1
-            r  = (idx - 1) ÷ nf
-            i  = r % n + 1
-            j  = r ÷ n + 1
-            f  = t - 1
-            cm1 = _cell(M, i, j, _clamp(f - 1, n))
-            c0  = _cell(M, i, j, _clamp(f,     n))
-            cp1 = _cell(M, i, j, _clamp(f + 1, n))
-            cp2 = _cell(M, i, j, _clamp(f + 2, n))
-            Fh = _face_flux_core(cm1, c0, cp1, cp2, 3, Ma, vacf, project)
-            for m in 1:35
-                Fbuf[m, t, i, j] = Fh[m]
-            end
-        end
-    end
-    return nothing
-end
-
-# ---------------------------------------------------------------------------
-# Stencil kernels (one per axis): R[:,i,j,k] += -(Fhat[face i] - Fhat[face i-1])/ds.
-# Face i is buffer column i+1, face i-1 is column i.
-# ---------------------------------------------------------------------------
-function _diff_x_kernel!(R, Fbuf, n::Int, ds::Float64)
-    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    if idx <= n * n * n
-        @inbounds begin
-            i = (idx - 1) % n + 1
-            r = (idx - 1) ÷ n
-            j = r % n + 1
-            k = r ÷ n + 1
-            for m in 1:35
-                R[m, i, j, k] += -(Fbuf[m, i + 1, j, k] - Fbuf[m, i, j, k]) / ds
-            end
-        end
-    end
-    return nothing
-end
-
-function _diff_y_kernel!(R, Fbuf, n::Int, ds::Float64)
-    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    if idx <= n * n * n
-        @inbounds begin
-            i = (idx - 1) % n + 1
-            r = (idx - 1) ÷ n
-            j = r % n + 1
-            k = r ÷ n + 1
-            for m in 1:35
-                R[m, i, j, k] += -(Fbuf[m, j + 1, i, k] - Fbuf[m, j, i, k]) / ds
-            end
-        end
-    end
-    return nothing
-end
-
-function _diff_z_kernel!(R, Fbuf, n::Int, ds::Float64)
-    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
-    if idx <= n * n * n
-        @inbounds begin
-            i = (idx - 1) % n + 1
-            r = (idx - 1) ÷ n
-            j = r % n + 1
-            k = r ÷ n + 1
-            for m in 1:35
-                R[m, i, j, k] += -(Fbuf[m, k + 1, i, j] - Fbuf[m, k, i, j]) / ds
-            end
-        end
-    end
-    return nothing
-end
-
 """
     residual3d_gpu!(R, Fbuf, M, n, dx, Ma; vacuum_floor=0.001, project_faces=true, threads=128)
 
@@ -318,29 +192,14 @@ function residual3d_gpu!(R::CuArray{Float64,4}, Fbuf::CuArray{Float64,4},
                          M::CuArray{Float64,4}, n::Int, dx::Real, Ma::Real;
                          vacuum_floor::Real=0.001, project_faces::Bool=true,
                          threads::Int=128)
-    @assert size(M) == (35, n, n, n) "M must be (35,n,n,n)"
-    @assert size(R) == (35, n, n, n) "R must be (35,n,n,n)"
     @assert size(Fbuf) == (35, n + 1, n, n) "Fbuf must be (35,n+1,n,n)"
-    Maf  = Float64(Ma)
-    dxf  = Float64(dx)
-    vacf = Float64(vacuum_floor)
-    nfaces = (n + 1) * n * n
-    ncells = n * n * n
-    bf = cld(nfaces, threads)
-    bc = cld(ncells, threads)
-
-    fill!(R, 0.0)
-
-    # X axis
-    @cuda threads=threads blocks=bf _fhat_x_kernel!(Fbuf, M, n, Maf, vacf, project_faces)
-    @cuda threads=threads blocks=bc _diff_x_kernel!(R, Fbuf, n, dxf)
-    # Y axis
-    @cuda threads=threads blocks=bf _fhat_y_kernel!(Fbuf, M, n, Maf, vacf, project_faces)
-    @cuda threads=threads blocks=bc _diff_y_kernel!(R, Fbuf, n, dxf)
-    # Z axis
-    @cuda threads=threads blocks=bf _fhat_z_kernel!(Fbuf, M, n, Maf, vacf, project_faces)
-    @cuda threads=threads blocks=bc _diff_z_kernel!(R, Fbuf, n, dxf)
-
+    # The cubic residual is exactly the nx==ny==nz case of `residual3d_box_gpu!`
+    # (same kernels). Reuse the caller's Fbuf as the box face-scratch — its element
+    # count (n+1)*n*n equals the box `fmax` for a cube — so this stays alloc-free.
+    flat = reshape(Fbuf, 35, (n + 1) * n * n)
+    residual3d_box_gpu!(R, M, n, n, n, dx, Ma;
+                        vacuum_floor=vacuum_floor, project_faces=project_faces,
+                        threads=threads, flat=flat)
     return nothing
 end
 
@@ -473,13 +332,18 @@ nx==ny==nz this is bit-identical to `residual3d_gpu!`.
 function residual3d_box_gpu!(R::CuArray{Float64,4}, M::CuArray{Float64,4},
                              nx::Int, ny::Int, nz::Int, dx::Real, Ma::Real;
                              vacuum_floor::Real=0.001, project_faces::Bool=true,
-                             threads::Int=128)
+                             threads::Int=128, flat::Union{Nothing,CuMatrix{Float64}}=nothing)
     @assert size(M) == (35, nx, ny, nz) "M must be (35,nx,ny,nz)"
     @assert size(R) == (35, nx, ny, nz) "R must be (35,nx,ny,nz)"
     Maf = Float64(Ma); dxf = Float64(dx); vacf = Float64(vacuum_floor)
     fx = (nx + 1) * ny * nz; fy = (ny + 1) * nx * nz; fz = (nz + 1) * nx * ny
     fmax = max(fx, fy, fz)
-    flat = CUDA.zeros(Float64, 35, fmax)
+    # reusable face buffer: caller may supply a (35, >=fmax) scratch to avoid per-call alloc
+    if flat === nothing
+        flat = CUDA.zeros(Float64, 35, fmax)
+    else
+        @assert size(flat, 1) == 35 && size(flat, 2) >= fmax "flat must be (35, >=fmax)"
+    end
     Bx = reshape(view(flat, :, 1:fx), 35, nx + 1, ny, nz)
     By = reshape(view(flat, :, 1:fy), 35, ny + 1, nx, nz)
     Bz = reshape(view(flat, :, 1:fz), 35, nz + 1, nx, ny)

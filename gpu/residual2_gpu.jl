@@ -1,7 +1,7 @@
 """
     residual2_gpu.jl — end-to-end SECOND-ORDER (MUSCL) 1D HLL residual on GPU.
 
-Composes the ported device kernels (`gpu/recon_dev.jl`, `src/numerics/flux_closure_dev.jl`,
+Composes the ported device kernels (`src/numerics/recon_dev.jl`, `src/numerics/flux_closure_dev.jl`,
 `gpu/wavespeed_dev.jl`, `gpu/schur4.jl`) into a complete on-device order-2 spatial
 residual matching the CPU
 `residual_1d(Mline, dx, Ma; order=2, bc=:outflow, use_limiter=false)`
@@ -43,7 +43,7 @@ using CUDA
 
 include(joinpath(@__DIR__, "wavespeed_dev.jl"))
 include(joinpath(@__DIR__, "..", "src", "numerics", "flux_closure_dev.jl"))
-include(joinpath(@__DIR__, "recon_dev.jl"))
+include(joinpath(@__DIR__, "..", "src", "numerics", "recon_dev.jl"))
 include(joinpath(@__DIR__, "realize_dev.jl"))
 using .WavespeedDev: realize_and_speed_Mr_dev
 using .FluxClosureDev: flux_closure35_dev

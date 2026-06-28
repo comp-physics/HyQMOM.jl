@@ -114,23 +114,16 @@ reconstruction as `realizable_3D_M4` via the shared helper `standardized_to_M4`.
 const _SIDX = [4,5,7,8,9,11,12,13,14,15,17,18,19,21,22,23,24,25,26,27,28,29,30,31,32,33,34,35]
 
 function to_recon_vars(M::AbstractVector)::Vector{Float64}
-    C4, S4 = M2CS4_35(M)
-    M000 = M[1]
-    u = M[2]/M000; v = M[6]/M000; w = M[16]/M000
-    # match realizable_3D_M4 c2min floor; avoids sqrt(0) on degenerate input
-    C200 = max(1.0e-12, C4[3]); C020 = max(1.0e-12, C4[10]); C002 = max(1.0e-12, C4[20])
-    return vcat([M000, u, v, w, C200, C020, C002], S4[_SIDX])
+    # Delegate to the single-source, allocation-free device kernel (shared verbatim
+    # with the GPU path). `to_recon_vars_dev(M...)` returns the length-35 recon-var
+    # NTuple in the same canonical order; collect into the Vector callers expect.
+    return collect(to_recon_vars_dev(M...))
 end
 
 function from_recon_vars(V::AbstractVector)::Vector{Float64}
-    M000=V[1]; u=V[2]; v=V[3]; w=V[4]; C200=V[5]; C020=V[6]; C002=V[7]
-    S300,S400,S110,S210,S310,S120,S220,S030,S130,S040,
-    S101,S201,S301,S102,S202,S003,S103,S004,S011,S111,
-    S211,S021,S121,S031,S012,S112,S013,S022 = V[8:35]
-    return standardized_to_M4(M000, u, v, w, C200, C020, C002,
-                               S300, S400, S110, S210, S310, S120, S220, S030, S130, S040,
-                               S101, S201, S301, S102, S202, S003, S103, S004,
-                               S011, S111, S211, S021, S121, S031, S012, S112, S013, S022)
+    # Delegate to the single-source device kernel; `from_recon_vars_dev(V...)` returns
+    # the length-35 raw-moment NTuple in canonical layout.
+    return collect(from_recon_vars_dev(V...))
 end
 
 """

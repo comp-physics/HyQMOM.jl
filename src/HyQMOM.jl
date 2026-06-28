@@ -94,6 +94,8 @@ include("moments/chyqmom_nodes_3d.jl")
 include("moments/enforce_univariate.jl")
 
 # Reconstruction variables (must precede realizability, which calls standardized_to_M4)
+include("numerics/recon_dev.jl")
+using .ReconDev: to_recon_vars_dev, from_recon_vars_dev
 include("numerics/reconstruction.jl")
 
 # Realizability

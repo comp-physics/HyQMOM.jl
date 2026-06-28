@@ -14,7 +14,7 @@ Exposes (all scalar / NTuple, no heap allocation, fp64):
     smallest eigenvalue via an in-kernel cyclic Jacobi `sym6_mineig`), `projection35_dev`.
 
 The M2CS4_35 (central + standardize) and standardized_to_M4 arithmetic is reused
-verbatim from the earlier validated `recon_dev.jl` (`to_recon_vars_dev` /
+verbatim from the earlier validated `src/numerics/recon_dev.jl` (`to_recon_vars_dev` /
 `from_recon_vars_dev`), which are byte-for-byte with the CPU chain.
 
 FP parity notes (so the per-cell output matches the CPU `realizable_3D_M4`):
@@ -37,7 +37,7 @@ module RealizeDev
 
 using StaticArrays
 
-include(joinpath(@__DIR__, "recon_dev.jl"))
+include(joinpath(@__DIR__, "..", "src", "numerics", "recon_dev.jl"))
 using .ReconDev: to_recon_vars_dev, from_recon_vars_dev
 
 export realizable_3D_M4_dev, projection35_dev, delta2star_mineig_dev,

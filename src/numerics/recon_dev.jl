@@ -33,6 +33,16 @@ FP parity notes (byte-for-byte with the CPU chain):
     output expressions are transcribed verbatim from the `C4toM4_3D` reshape literal at
     the linear indices `_M2CS4_IDX`.
 
+  * BOTH `@fastmath` helpers are `@noinline` (NOT `@inline`). This is load-bearing for
+    byte parity: `@fastmath` lets LLVM reassociate the catastrophic-cancellation central-
+    moment formulas, and the chosen reassociation depends on the *surrounding* expression
+    context. Inlined into `to_recon_vars_dev`/`from_recon_vars_dev`, the centrals get
+    reassociated differently than the standalone autogen `M4toC4_3D`/`C4toM4_3D`, drifting
+    ~1 ULP — invisible normally but amplified to ~2e-7 by the `1/sC200^4` divisor on deep-
+    vacuum states (rho~1e-5). `@noinline` pins each helper to the same standalone
+    compilation the autogen uses, restoring exact agreement. Do NOT change to `@inline`.
+    (GPU-safe: CUDA.jl emits these as device function calls.)
+
 Pure addition under `gpu/`. No CUDA dependency here — plain Julia, `include`d by both a
 CPU validator and the GPU kernel module.
 """
@@ -54,7 +64,7 @@ end
 # consumed by the standardization, in a flat NTuple.
 # Argument order is the M4 canonical raw-moment order.
 # ---------------------------------------------------------------------------
-@inline @fastmath function _recon_centrals(
+@noinline @fastmath function _recon_centrals(
         M000,M100,M200,M300,M400,M010,M110,M210,M310,M020,M120,M220,M030,M130,M040,
         M001,M101,M201,M301,M002,M102,M202,M003,M103,M004,M011,M111,M211,M021,M121,
         M031,M012,M112,M013,M022)
@@ -169,7 +179,7 @@ end
 # M4 canonical layout, from the autogen reshape literal at indices _M2CS4_IDX).
 # Inputs: M000, means, and central moments (S->C output).
 # ---------------------------------------------------------------------------
-@inline @fastmath function _c4tom4_35(
+@noinline @fastmath function _c4tom4_35(
         M000, umean, vmean, wmean,
         C200, C110, C101, C020, C011, C002,
         C300, C210, C201, C120, C111, C102, C030, C021, C012, C003,

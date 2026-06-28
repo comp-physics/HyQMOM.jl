@@ -1,5 +1,42 @@
 # GPU acceleration — prototype & findings
 
+## Single-source port status (branch `gpu-single-source-port`)
+
+The original prototype kept a separate `gpu/*_dev.jl` copy of each per-cell kernel beside the CPU
+implementation — duplicated algebra. That duplication has been **eliminated** for everything that was
+genuinely the same math written twice: the shared, alloc-free, GPU-compilable device kernels now live
+in `src/`, and the CPU functions **delegate** to them (public signatures unchanged, golden-clean):
+
+| component | shared kernel (in `src/`) | CPU entry that delegates | golden battery |
+|---|---|---|---|
+| flux closure | `src/numerics/flux_closure_dev.jl` | `Flux_closure35_3D` | 0 fails (rel 2.7e-13) |
+| reconstruction | `src/numerics/recon_dev.jl` | `to_recon_vars` / `from_recon_vars` | 0 fails (rel 2.7e-13) |
+| realizability | `src/realizability/realize_dev.jl` | `realizable_3D_M4` | 0 fails (rel 2.7e-13) |
+
+**FP-parity gotcha (load-bearing):** the shared `@fastmath` central-moment helpers
+(`_recon_centrals`, `_c4tom4_35`) are `@noinline`, NOT `@inline`. `@fastmath` lets LLVM reassociate the
+cancellation-heavy central-moment formulas depending on surrounding context; inlined, they drift ~1 ULP
+from the standalone autogen `M4toC4_3D`/`C4toM4_3D`, which the `1/sC200^k` standardization amplifies to
+~2e-7 on deep-vacuum (ρ~1e-5) cells. `@noinline` pins them to the autogen's compilation. The realizability
+CPU path delegates only the **correction** (`realizable_3D_M4_corr_dev`) and finishes with the autogen
+`standardized_to_M4`, so the reconstructed moments stay bit-for-bit with the reference.
+
+**Wave-speed is intentionally NOT single-sourced** (`gpu/wavespeed_dev.jl` + `gpu/schur4.jl` stay here).
+Its core is the eigenvalue computation, and the CPU/GPU versions are two *legitimately different*
+implementations — not duplication — because LAPACK cannot run inside a CUDA kernel:
+- 4×4 non-symmetric block: CPU `jac4_realpart_minmax` (LAPACK `dgeev`) vs GPU `schur4` (custom Francis QR).
+  These differ by rel ~4.6e-8 on ill-conditioned high-Ma companion blocks (verified, `validate_schur4.jl`)
+  — far above the golden 1e-10, so the CPU cannot adopt `schur4` without breaking byte-parity.
+- closure / 3×3: CPU uses LAPACK (Golub-Welsch Chebyshev) and a LAPACK block eig; the device path uses
+  analytic in-kernel solvers. Same math, different numerics by platform necessity.
+
+So the port is **complete**: the genuinely-duplicated algebra is shared; the only per-platform code left
+is the eigenvalue backend, which *must* differ between CPU (LAPACK, golden-accurate) and GPU (custom
+kernels, LAPACK-free).
+
+---
+
+
 The 3D profile (`docs/diffusion-reduction-results.md`, profiling notes) shows the high-order step is
 ~60% **small-matrix eigenvalue computation** — two consumers:
 - the **non-symmetric 4×4** wave-speed block (`jac4_realpart_minmax`, LAPACK `dgeev`), and

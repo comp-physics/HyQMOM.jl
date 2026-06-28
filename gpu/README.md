@@ -79,16 +79,36 @@ transfer-bound by design; the closure runs on resident data in a real GPU solver
   on device. Validated vs CPU `residual_1d(order=1)` on N=256 Ma=100: **max rel err 2.3e-9** (worst cell
   agrees to 9 digits). The full first-order HLL residual of the 35-moment scheme runs end-to-end on GPU.
 
-## Status: the hard parts are done
+## Full solver on GPU — reconstruction, projection, 3D residual, timestep
 
-**On GPU now, validated vs CPU to ~1e-9–1e-13 on real states:** the entire per-cell physics — eigensolves
-(symmetric cuSOLVER + non-symmetric Schur kernel), flux closure, and the wave-speed path — plus a composed
-first-order HLL residual. **No algorithmic blockers remain.**
+- **High-order reconstruction** (`recon_dev.jl`) → order-2 1D residual: **7e-12** vs CPU.
+- **Realizability projection** `realizable_3D_M4` (`realize_dev.jl`/`realize_gpu.jl`, in-kernel 6×6
+  symmetric Jacobi min-eig): **3.3e-15** vs CPU, sign decision matches on every cell, 64× solve-only.
+- **3D order-2 residual** (`residual3d_gpu.jl`): **1.4e-10** vs CPU on gradient-rich real states.
+- **3D timestep loop** (`timestep3d_gpu.jl`): SSP-RK3 + per-stage projection + 3D-CFL dt, fully resident.
 
-**Remaining for a production GPU solver (all arithmetic / array-ops, no new algorithms):** high-order
-reconstruction (`to_recon_vars`/MUSCL + scaling limiter), 3D stencil assembly (x/y/z), SSP-RK3 on device,
-`realizable_3D_M4`/`projection35` realizability (symmetric eig via cuSOLVER + arithmetic), and CUDA-aware
-MPI halo exchange for multi-GPU.
+| 3D order-2 residual (real states) | throughput | speedup |
+|---|---|---|
+| CPU `residual_ho_3d!` (1 thread) | 0.0054 Mcell/s | — |
+| GPU (n=128) | 1.15 Mcell/s | **~210× vs 1 thread** |
+
+(≈4–9× vs a full MPI CPU socket; and this is a weak-FP64 Quadro RTX 6000 — a datacenter GPU would be more.)
+
+**Multi-step validation caveat (physics, not a bug):** at the crossing-jet shock the highest-order moments
+are FP-conditioning-limited (`dt·R ≫ M`) — CPU itself diverges O(1) under a 1e-10 perturbation at the same
+cell/moment as GPU-vs-CPU. So the GPU march is validated by **per-step bit-match** (residual 1e-10,
+projection 1e-14, dt exact) + **multi-step conserved/low-order moments** (density ~3e-4, momentum ~1e-3) +
+stability/ρ-range match — not by a high-order-moment multi-step bit-gate (meaningless here, for CPU too).
+
+## Status: the full 3D high-order solver runs on one GPU
+
+The entire pipeline — eigensolves, flux closure, wave-speed path, reconstruction, realizability projection,
+3D residual, and the SSP-RK3 timestep — runs on GPU, each piece validated vs CPU (1e-10–1e-15 per step).
+**No algorithmic blockers remain.**
+
+**Remaining for production:** kernel-fusion / per-stage-split perf work (the full step is ~0.34 Mcell/s,
+bottlenecked by the per-cell 6×6-Jacobi min-eig in the projection), and CUDA-aware MPI halo exchange for
+multi-GPU (the 1024³ target).
 
 ## Environment (PACE)
 

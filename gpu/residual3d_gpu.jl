@@ -363,4 +363,147 @@ function residual3d_gpu(M_host::Array{Float64,4}, n::Int, dx::Real, Ma::Real;
     return Array(R)
 end
 
+# ===========================================================================
+# RECTANGULAR-BOX generalization (nx,ny,nz independent), outflow BC on all 6
+# faces. This is a STRICT generalization of the cubic kernels above: with
+# nx==ny==nz==n the indexing and arithmetic are identical, so results are
+# bit-for-bit the same. Used for multi-GPU z-slab decomposition: each rank runs
+# this on its EXTENDED slab (35, nx, ny, nz_loc+2*halo) whose halo z-planes are
+# ghosts (neighbor data, or outflow copies at the global z-boundary); the
+# interior nz_loc planes' residuals are then bit-identical to the single-GPU
+# full-domain result because every interior cell sees its real +/-2 neighbors.
+# Same `_face_flux_core` / `_cell` / `_clamp` as the cubic path -> bit parity.
+# ===========================================================================
+function _fhat_x_g!(Fbuf, M, nx::Int, ny::Int, nz::Int, Ma::Float64, vacf::Float64, project::Bool)
+    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    nf = nx + 1
+    if idx <= nf * ny * nz
+        @inbounds begin
+            t = (idx - 1) % nf + 1; r = (idx - 1) ÷ nf
+            j = r % ny + 1;         k = r ÷ ny + 1
+            f = t - 1
+            cm1 = _cell(M, _clamp(f - 1, nx), j, k); c0  = _cell(M, _clamp(f, nx), j, k)
+            cp1 = _cell(M, _clamp(f + 1, nx), j, k); cp2 = _cell(M, _clamp(f + 2, nx), j, k)
+            Fh = _face_flux_core(cm1, c0, cp1, cp2, 1, Ma, vacf, project)
+            for m in 1:35; Fbuf[m, t, j, k] = Fh[m]; end
+        end
+    end
+    return nothing
+end
+
+function _fhat_y_g!(Fbuf, M, nx::Int, ny::Int, nz::Int, Ma::Float64, vacf::Float64, project::Bool)
+    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    nf = ny + 1
+    if idx <= nf * nx * nz
+        @inbounds begin
+            t = (idx - 1) % nf + 1; r = (idx - 1) ÷ nf
+            i = r % nx + 1;         k = r ÷ nx + 1
+            f = t - 1
+            cm1 = _cell(M, i, _clamp(f - 1, ny), k); c0  = _cell(M, i, _clamp(f, ny), k)
+            cp1 = _cell(M, i, _clamp(f + 1, ny), k); cp2 = _cell(M, i, _clamp(f + 2, ny), k)
+            Fh = _face_flux_core(cm1, c0, cp1, cp2, 2, Ma, vacf, project)
+            for m in 1:35; Fbuf[m, t, i, k] = Fh[m]; end
+        end
+    end
+    return nothing
+end
+
+function _fhat_z_g!(Fbuf, M, nx::Int, ny::Int, nz::Int, Ma::Float64, vacf::Float64, project::Bool)
+    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    nf = nz + 1
+    if idx <= nf * nx * ny
+        @inbounds begin
+            t = (idx - 1) % nf + 1; r = (idx - 1) ÷ nf
+            i = r % nx + 1;         j = r ÷ nx + 1
+            f = t - 1
+            cm1 = _cell(M, i, j, _clamp(f - 1, nz)); c0  = _cell(M, i, j, _clamp(f, nz))
+            cp1 = _cell(M, i, j, _clamp(f + 1, nz)); cp2 = _cell(M, i, j, _clamp(f + 2, nz))
+            Fh = _face_flux_core(cm1, c0, cp1, cp2, 3, Ma, vacf, project)
+            for m in 1:35; Fbuf[m, t, i, j] = Fh[m]; end
+        end
+    end
+    return nothing
+end
+
+function _diff_x_g!(R, Fbuf, nx::Int, ny::Int, nz::Int, ds::Float64)
+    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    if idx <= nx * ny * nz
+        @inbounds begin
+            i = (idx - 1) % nx + 1; r = (idx - 1) ÷ nx
+            j = r % ny + 1;         k = r ÷ ny + 1
+            for m in 1:35; R[m, i, j, k] += -(Fbuf[m, i + 1, j, k] - Fbuf[m, i, j, k]) / ds; end
+        end
+    end
+    return nothing
+end
+
+function _diff_y_g!(R, Fbuf, nx::Int, ny::Int, nz::Int, ds::Float64)
+    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    if idx <= nx * ny * nz
+        @inbounds begin
+            i = (idx - 1) % nx + 1; r = (idx - 1) ÷ nx
+            j = r % ny + 1;         k = r ÷ ny + 1
+            for m in 1:35; R[m, i, j, k] += -(Fbuf[m, j + 1, i, k] - Fbuf[m, j, i, k]) / ds; end
+        end
+    end
+    return nothing
+end
+
+function _diff_z_g!(R, Fbuf, nx::Int, ny::Int, nz::Int, ds::Float64)
+    idx = (blockIdx().x - 1) * blockDim().x + threadIdx().x
+    if idx <= nx * ny * nz
+        @inbounds begin
+            i = (idx - 1) % nx + 1; r = (idx - 1) ÷ nx
+            j = r % ny + 1;         k = r ÷ ny + 1
+            for m in 1:35; R[m, i, j, k] += -(Fbuf[m, k + 1, i, j] - Fbuf[m, k, i, j]) / ds; end
+        end
+    end
+    return nothing
+end
+
+export residual3d_box_gpu!, residual3d_box_gpu
+
+"""
+    residual3d_box_gpu!(R, M, nx, ny, nz, dx, Ma; vacuum_floor=0.001, project_faces=true, threads=128)
+
+Rectangular generalization of `residual3d_gpu!` with outflow BC on all 6 faces.
+`M`,`R` are `(35,nx,ny,nz)`. Allocates a reused face buffer internally. With
+nx==ny==nz this is bit-identical to `residual3d_gpu!`.
+"""
+function residual3d_box_gpu!(R::CuArray{Float64,4}, M::CuArray{Float64,4},
+                             nx::Int, ny::Int, nz::Int, dx::Real, Ma::Real;
+                             vacuum_floor::Real=0.001, project_faces::Bool=true,
+                             threads::Int=128)
+    @assert size(M) == (35, nx, ny, nz) "M must be (35,nx,ny,nz)"
+    @assert size(R) == (35, nx, ny, nz) "R must be (35,nx,ny,nz)"
+    Maf = Float64(Ma); dxf = Float64(dx); vacf = Float64(vacuum_floor)
+    fx = (nx + 1) * ny * nz; fy = (ny + 1) * nx * nz; fz = (nz + 1) * nx * ny
+    fmax = max(fx, fy, fz)
+    flat = CUDA.zeros(Float64, 35, fmax)
+    Bx = reshape(view(flat, :, 1:fx), 35, nx + 1, ny, nz)
+    By = reshape(view(flat, :, 1:fy), 35, ny + 1, nx, nz)
+    Bz = reshape(view(flat, :, 1:fz), 35, nz + 1, nx, ny)
+    bc = cld(nx * ny * nz, threads)
+
+    fill!(R, 0.0)
+    @cuda threads=threads blocks=cld(fx, threads) _fhat_x_g!(Bx, M, nx, ny, nz, Maf, vacf, project_faces)
+    @cuda threads=threads blocks=bc               _diff_x_g!(R, Bx, nx, ny, nz, dxf)
+    @cuda threads=threads blocks=cld(fy, threads) _fhat_y_g!(By, M, nx, ny, nz, Maf, vacf, project_faces)
+    @cuda threads=threads blocks=bc               _diff_y_g!(R, By, nx, ny, nz, dxf)
+    @cuda threads=threads blocks=cld(fz, threads) _fhat_z_g!(Bz, M, nx, ny, nz, Maf, vacf, project_faces)
+    @cuda threads=threads blocks=bc               _diff_z_g!(R, Bz, nx, ny, nz, dxf)
+    return nothing
+end
+
+"Host convenience: upload `(35,nx,ny,nz)`, compute the box residual, return `(35,nx,ny,nz)`."
+function residual3d_box_gpu(M_host::Array{Float64,4}, nx::Int, ny::Int, nz::Int, dx::Real, Ma::Real;
+                            vacuum_floor::Real=0.001, project_faces::Bool=true, threads::Int=128)
+    @assert size(M_host) == (35, nx, ny, nz) "M_host must be (35,nx,ny,nz)"
+    Md = CuArray(M_host); R = CUDA.zeros(Float64, 35, nx, ny, nz)
+    residual3d_box_gpu!(R, Md, nx, ny, nz, dx, Ma;
+                        vacuum_floor=vacuum_floor, project_faces=project_faces, threads=threads)
+    CUDA.synchronize()
+    return Array(R)
+end
+
 end # module

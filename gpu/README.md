@@ -49,6 +49,25 @@ absolute throughput. (Absolute Mcells/s here is worst-case: random inputs force 
 projection-correction branch; realistic fields where many cells skip correction run ~3–4× faster. The
 scaling *ratio* is data-independent.)
 
+### z-slab decomposed 3D STENCIL residual — built + validated bit-for-bit
+
+The full unsplit `Lx+Ly+Lz` HLL residual now runs domain-decomposed across GPUs (not just per-cell work).
+`residual3d_box_gpu!` (added to `residual3d_gpu.jl`) generalizes the cubic `residual3d_gpu!` to rectangular
+`(nx,ny,nz)` extents with outflow on all 6 faces — a *strict* generalization (nx==ny==nz reproduces the
+cubic kernel **bit-for-bit**, verified). A z-slab is then that box run on each rank's EXTENDED slab
+`(35, n, n, nz_loc + 2·halo)` whose `halo=2` z-ghost planes are filled by the host-staged halo exchange
+(neighbor interior planes, or outflow replicas at the global z-boundary, matching the cubic index-clamp).
+Interior cells never reach the extended z-edges, so they read their real ±2 neighbors → identical math.
+
+Validators (`validate_residual3d_box.jl`, `validate_slab_residual_mpi.jl`):
+- box vs cubic (single GPU, n=16,24): **max abs diff 0.0** — bit-identical generalization.
+- z-slab vs single-GPU full domain residual, **max abs diff 0.0 (BIT-IDENTICAL)** for **1, 2, and 4 ranks**
+  (4 ranks on 2 GPUs exercises interior slabs with two-sided halos). Field resident per GPU; only the
+  `35·n·n·halo` ghost planes touch the host for the MPI `Sendrecv!`.
+
+This is the actual stencil timestep building block running multi-GPU with resident data + halo-only
+transfer — the remaining piece from the scaling note above is now done and correctness-locked.
+
 ## Single-source port status (branch `gpu-single-source-port`)
 
 The original prototype kept a separate `gpu/*_dev.jl` copy of each per-cell kernel beside the CPU

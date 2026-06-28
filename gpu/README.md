@@ -68,6 +68,19 @@ Validators (`validate_residual3d_box.jl`, `validate_slab_residual_mpi.jl`):
 This is the actual stencil timestep building block running multi-GPU with resident data + halo-only
 transfer — the remaining piece from the scaling note above is now done and correctness-locked.
 
+### Full multi-GPU SSP-RK3 timestep loop — `timestep3d_mpi.jl`, bit-identical
+
+`march3d_slab_gpu!` (module `Timestep3DMPI`) wires the z-slab residual into the complete order-2 SSP-RK3
+time loop. Each rank keeps its interior slab `(35,n,n,nz_loc)` resident; per RK stage it refreshes the
+halo (host-staged `Sendrecv!`), runs `residual3d_box_gpu!` on the extended slab, then does the RK combine
++ per-cell realizability projection on the contiguous interior. The CFL `dt` is `Allreduce(max)` of each
+rank's max wave speed — `max` is exact, so `dt` equals single-GPU bit-for-bit.
+
+Validated against single-GPU `march3d_gpu!` (`validate_timestep3d_mpi.jl`, n=24, 5 steps, on-device CFL on
+both): for **1, 2, and 4 ranks** (4 on 2 GPUs = interior slabs), both the **dt sequence** and the **final
+field** match with **max abs diff 0.0 — BIT-IDENTICAL**. The full timestep now runs multi-GPU with only
+halo planes crossing the host; the per-step compute is the resident-field workload benchmarked above.
+
 ## Single-source port status (branch `gpu-single-source-port`)
 
 The original prototype kept a separate `gpu/*_dev.jl` copy of each per-cell kernel beside the CPU

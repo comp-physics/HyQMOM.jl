@@ -63,7 +63,17 @@ jobs:
             rm -f Manifest.toml
             echo "Manifest.toml removed for clean resolve"
           fi
-      
+
+      - name: Instantiate with retry (dodge transient pkg.julialang.org 404)
+        run: |
+          for i in 1 2 3 4; do
+            julia --project=. -e 'using Pkg; Pkg.instantiate()' && exit 0
+            echo "::warning::instantiate attempt $i failed (likely transient registry 404); retry in 20s"
+            sleep 20
+          done
+          echo "::warning::pkg-server retries exhausted; falling back to git registry (JULIA_PKG_SERVER='')"
+          JULIA_PKG_SERVER="" julia --project=. -e 'using Pkg; Pkg.instantiate()'
+
       - uses: julia-actions/julia-buildpkg@v1
         with:
           project: .
@@ -105,8 +115,15 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y mpich libmpich-dev
 
-      - name: Instantiate project
-        run: julia --project=. -e 'using Pkg; Pkg.instantiate()'
+      - name: Instantiate project (with retry / pkg-server fallback)
+        run: |
+          for i in 1 2 3 4; do
+            julia --project=. -e 'using Pkg; Pkg.instantiate()' && exit 0
+            echo "::warning::instantiate attempt $i failed (likely transient registry 404); retry in 20s"
+            sleep 20
+          done
+          echo "::warning::pkg-server retries exhausted; falling back to git registry (JULIA_PKG_SERVER='')"
+          JULIA_PKG_SERVER="" julia --project=. -e 'using Pkg; Pkg.instantiate()'
 
       - name: Run MPI tests with coverage (1 and 2 ranks)
         run: |
